@@ -8410,6 +8410,7 @@ function bpAddPackTemplate(t){
 }
 function openBp(){
   if(!needPlan(2, 'The bridal party page')) return;
+  pushNav('bridal');
   const b = bpData();
   const pt = document.getElementById('bpPackTpls'); pt.innerHTML = '';
   BP_PACK_TEMPLATES.forEach(t=> pt.appendChild(bpBtn('+ ' + t.name, ()=> bpAddPackTemplate(t))));
@@ -8541,6 +8542,7 @@ function vnRender(){
 }
 function openVendors(){
   if(!needPlan(2, 'Vendors')) return;
+  pushNav('vendors');
   const dl = document.getElementById('vnTypeList'); dl.innerHTML = '';
   VN_TYPES.forEach(t=>{ const o = document.createElement('option'); o.value = t; dl.appendChild(o); });
   const tb = document.getElementById('vnTypes'); tb.innerHTML = '';
@@ -8620,7 +8622,7 @@ function phRender(){
     box.appendChild(card);
   });
 }
-function openPhotos(){ if(!needPlan(2, 'Group photos')) return; phRender(); document.getElementById('photoModal').classList.remove('hidden'); }
+function openPhotos(){ if(!needPlan(2, 'Group photos')) return; pushNav('photos'); phRender(); document.getElementById('photoModal').classList.remove('hidden'); }
 document.getElementById('btnPhotos').addEventListener('click', openPhotos);
 document.getElementById('phClose').addEventListener('click', ()=> document.getElementById('photoModal').classList.add('hidden'));
 document.getElementById('phAdd').addEventListener('click', ()=>{
@@ -9090,6 +9092,25 @@ document.getElementById('btnMyCharts').addEventListener('click', openChartsScree
 
 let projectActive = false, hubOpen = false;
 function hubStat(id, text, done){ const e = document.getElementById(id); e.textContent = text; e.classList.toggle('done', !!done); }
+// ── Android / iPhone back-button support ──────────────────────────────────────
+// Push a history entry whenever we navigate away from the hub, so the
+// device back button pops back instead of leaving the site.
+function pushNav(screen){
+  history.pushState({tableauScreen: screen}, '', location.pathname + location.search);
+}
+window.addEventListener('popstate', function(){
+  // 1. Close any open modal first
+  const openModal = document.querySelector('.modal-overlay:not(.hidden)');
+  if(openModal){ openModal.classList.add('hidden'); history.pushState({tableauScreen:'modal-closed'},'',location.pathname); return; }
+  // 2. If on a sub-screen, go back to hub
+  const onGuest  = !document.getElementById('guestScreen').classList.contains('hidden');
+  const onSetup  = !document.getElementById('setupScreen').classList.contains('hidden');
+  const onMain   = !document.getElementById('mainLayout').classList.contains('hidden');
+  if(onGuest || onSetup || onMain){ showHub(false); return; }
+  // 3. On hub — let the browser navigate away normally
+});
+// ─────────────────────────────────────────────────────────────────────────────
+
 function showHub(first){
   projectActive = true; hubOpen = true;
   document.getElementById('hubTitle').textContent = first ? 'Let\u2019s get started' : 'What would you like to work on?';
@@ -9114,6 +9135,7 @@ function showHub(first){
 }
 function hideHub(){ hubOpen = false; document.getElementById('hubScreen').classList.add('hidden'); document.getElementById('guestScreen').classList.add('hidden'); }
 function enterMain(view){
+  pushNav(view || 'seating');
   hideHub(); showMainUI();
   document.getElementById('hubBackBar').classList.remove('hidden');
   updateTopSub(); renderGroups(); renderGroupSelect(); renderGuestList(); renderTable();
@@ -9137,6 +9159,7 @@ document.querySelectorAll('.hub-card').forEach(c=> c.addEventListener('click', (
 }));
 let cameFromHub = false;
 function showGuestScreen(){
+  pushNav('guests');
   hideHub(); projectActive = true;
   document.getElementById('mainLayout').classList.add('hidden');
   document.getElementById('setupScreen').classList.add('hidden');
@@ -9172,6 +9195,7 @@ document.getElementById('importInfoCancel').addEventListener('click', ()=> docum
 document.getElementById('importInfoTemplate').addEventListener('click', downloadGuestTemplate);
 document.getElementById('importInfoGo').addEventListener('click', ()=>{ document.getElementById('importInfoModal').classList.add('hidden'); document.getElementById('csvImportInput').click(); });
 function showSetupScreen(){
+  pushNav('setup');
   hideHub(); document.getElementById('hubBackBar').classList.add('hidden');
   document.getElementById('mainLayout').classList.add('hidden');
   document.getElementById('setupScreen').classList.remove('hidden');
