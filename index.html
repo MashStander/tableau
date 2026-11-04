@@ -1306,6 +1306,9 @@
 
       <div id="floorPlanBody" class="hidden">
         <div id="fpToggleRow"><button type="button" class="ghost-btn" id="fpPaletteToggle" aria-expanded="true"><span id="fpPaletteChev">&#9662;</span> <span id="fpPaletteToggleText">Hide tables &amp; room items</span></button></div>
+        <div id="floorCanvasWrap">
+          <div id="floorCanvas"></div>
+        </div>
         <div id="floorPalette">
           <div class="fp-palette-section">
             <h4>Your tables</h4>
@@ -1339,9 +1342,6 @@
           <button class="ghost-btn" id="fpEditRoomBtn">Edit room size</button>
           <button class="ghost-btn" id="fpTurnRoomBtn" title="Swap the room's length and width, and turn everything in it">Turn room 90&deg;</button>
           <label class="fp-fit"><input type="checkbox" id="fpFitToggle" checked> Fit room to screen</label>
-        </div>
-        <div id="floorCanvasWrap">
-          <div id="floorCanvas"></div>
         </div>
       </div>
     </div>
@@ -1392,9 +1392,9 @@
       <li><span class="ls-n">2</span><div class="ls-t"><b>Guest list <span class="ls-chip free">Free</span></b>Create your guest list or import it from Excel (free template to download inside). Everything else is pulled from this list.</div></li>
       <li><span class="ls-n">3</span><div class="ls-t"><b>Seat your guests <span class="ls-chip free">Free</span></b>Drag and drop names onto round, rectangle or U-shaped tables.</div></li>
       <li><span class="ls-n">4</span><div class="ls-t"><b>Design the room <span class="ls-chip free">Free</span></b>Build a floor plan to scale. Guests get a simple map with a key on their phones.</div></li>
-      <li><span class="ls-n">5</span><div class="ls-t"><b>One QR code <span class="ls-chip free">Free</span></b>Guests scan it, find their name and see their table marked with a red star. <a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-oq4jk" target="_blank" rel="noopener">Try a live example on your phone</a> (bridal party code: <b>6064</b>).</div></li>
+      <li><span class="ls-n">5</span><div class="ls-t"><b>One QR code <span class="ls-chip free">Free</span></b>Guests scan it, find their name and see their table marked with a red star. <a href="https://tableauevents.co.za/guest-view.html?event=dee-quinn-ush3v" target="_blank" rel="noopener">Try a live example on your phone</a>.</div></li>
       <li><span class="ls-n">6</span><div class="ls-t"><b>Make it yours <span class="ls-chip free">Free</span></b>Add your photo, date, colours and style, all saved to your account.</div></li>
-      <li class="ls-paid"><span class="ls-n">7</span><div class="ls-t"><b>Menu, programme and gifts <button type="button" class="ls-chip" data-plan="1">Guest page plan &middot; R100 a year</button></b>An add-on to your QR guest page. Upload your menu, programme and banking details so guests have them right on their phones (Canva templates available).</div></li>
+      <li class="ls-paid"><span class="ls-n">7</span><div class="ls-t"><b>Menu, programme and gifts <button type="button" class="ls-chip" data-plan="1">Guest page plan &middot; R100 a year</button></b>An add-on to your QR guest page. Upload your menu, programme and banking details so guests have them right on their phones (Canva templates available). <a href="https://tableauevents.co.za/guest-view.html?event=dee-quinn-l6q3f" target="_blank" rel="noopener">See a live example on your phone</a>.</div></li>
       <li class="ls-paid"><span class="ls-n">8</span><div class="ls-t"><b>Bridal party page <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Jobs, packing lists and vendor contacts on a private link.</div></li>
       <li class="ls-paid"><span class="ls-n">9</span><div class="ls-t"><b>Vendors and group photos <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Keep every contact in one place, plan each group photo and WhatsApp the guests in it.</div></li>
       <li class="ls-paid"><span class="ls-n">10</span><div class="ls-t"><b>The whole weekend <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Add a day before and a day after, each with its own programme.</div></li>
@@ -5151,23 +5151,54 @@ function selectShapeButtons(container, shape){
   container.querySelectorAll('.shape-opt').forEach(b=>b.classList.toggle('selected', b.dataset.shape === shape));
 }
 
+function saveTableDefaults(shape, size, customSize, hasEnds, roundSeats, uBaseSeats, uArmSeats, uInside, dim){
+  try{
+    localStorage.setItem('tableauTblDef', JSON.stringify({shape, size, customSize, hasEnds, roundSeats, uBaseSeats, uArmSeats, uInside, dim}));
+  }catch(e){}
+}
+function loadTableDefaults(){
+  try{ const v = localStorage.getItem('tableauTblDef'); return v ? JSON.parse(v) : null; }catch(e){ return null; }
+}
+
 function openAddTableModal(){
   editingTableId = null;
   document.getElementById('addTableModalTitle').textContent = 'Add a table';
   document.getElementById('btnConfirmAddTable').textContent = 'Add table';
   document.getElementById('newTableName').value = '';
-  newTableChosenSize = null;
-  newTableChosenShape = 'rectangle';
-  selectShapeButtons(newTableShapeOptions, 'rectangle');
-  document.getElementById('newRectFields').classList.remove('hidden');
-  document.getElementById('newRoundFields').classList.add('hidden');
-  document.getElementById('newUFields').classList.add('hidden');
-  document.getElementById('newBridalFields').classList.add('hidden');
+
+  const def = loadTableDefaults();
+  const shape = def ? def.shape : 'rectangle';
+  newTableChosenShape = shape;
+  selectShapeButtons(newTableShapeOptions, shape);
+  document.getElementById('newRectFields').classList.toggle('hidden', shape !== 'rectangle');
+  document.getElementById('newRoundFields').classList.toggle('hidden', shape !== 'round');
+  document.getElementById('newUFields').classList.toggle('hidden', shape !== 'u');
+  document.getElementById('newBridalFields').classList.toggle('hidden', shape !== 'bridal');
+
   newTableSizeOptions.querySelectorAll('.size-opt').forEach(b=>b.classList.remove('selected'));
   newTableCustomWrap.classList.add('hidden');
-  document.getElementById('newTableChkEnds').checked = false;
-  document.getElementById('newUInside').checked = false;
-  fillDimFields(null);
+  newTableChosenSize = null;
+
+  if(def){
+    document.getElementById('newTableChkEnds').checked = !!def.hasEnds;
+    document.getElementById('newUInside').checked = !!def.uInside;
+    if(def.roundSeats) document.getElementById('newRoundSeats').value = def.roundSeats;
+    if(def.uBaseSeats) document.getElementById('newUBaseSeats').value = def.uBaseSeats;
+    if(def.uArmSeats) document.getElementById('newUArmSeats').value = def.uArmSeats;
+    if(def.size){
+      newTableChosenSize = def.size;
+      newTableSizeOptions.querySelectorAll('.size-opt').forEach(b=>b.classList.toggle('selected', b.dataset.size === def.size));
+      newTableCustomWrap.classList.toggle('hidden', def.size !== 'custom');
+      if(def.size === 'custom' && def.customSize) newTableCustomSize.value = def.customSize;
+    }
+    fillDimFields(def.dim || null);
+    updateDimFieldVisibility();
+  } else {
+    document.getElementById('newTableChkEnds').checked = false;
+    document.getElementById('newUInside').checked = false;
+    fillDimFields(null);
+  }
+
   document.getElementById('addTableModal').classList.remove('hidden');
 }
 
@@ -5332,6 +5363,18 @@ document.getElementById('btnConfirmAddTable').addEventListener('click', ()=>{
     state.tables.push(newTable);
     state.activeTableId = newTable.id;
     document.getElementById('addTableModal').classList.add('hidden');
+    // Save these settings as the new default for next time
+    saveTableDefaults(
+      newTableChosenShape,
+      newTableChosenSize,
+      newTableCustomSize.value,
+      document.getElementById('newTableChkEnds').checked,
+      document.getElementById('newRoundSeats').value,
+      document.getElementById('newUBaseSeats').value,
+      document.getElementById('newUArmSeats').value,
+      document.getElementById('newUInside').checked,
+      readDimFields(newTableChosenShape)
+    );
     updateTopSub();
     renderTable();
     toast(`"${newTable.name}" added.`);
