@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#5c6a52">
+<title>Bridal party guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#faf6ef; --linen:#f1ead9; --ink:#2f2a24; --ink-soft:#6b6255;
+    --sage:#7c8a70; --sage-dark:#5c6a52; --rose:#c98a7d; --line:#e2d8c3; --white:#fffdf8; --danger:#b5564a; --gold:#c2a24e;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0; min-height:100%;}
+  body{font-family:'Jost',sans-serif; background:var(--paper); color:var(--ink); line-height:1.45; -webkit-text-size-adjust:100%;}
+  .wrap{max-width:560px; margin:0 auto; padding:20px 16px 60px;}
+  h1{font-family:'Cormorant Garamond',serif; font-size:32px; line-height:1.15; margin:6px 0 2px; color:var(--sage-dark); text-align:center;}
+  .sub{text-align:center; color:var(--ink-soft); font-size:14px; margin-bottom:14px;}
+  .status{background:var(--white); border:1px solid var(--line); border-radius:12px; padding:10px 14px; text-align:center; font-size:14px; margin-bottom:14px;}
+  .status b{color:var(--sage-dark);}
+  .note{background:var(--linen); border-radius:12px; padding:10px 14px; font-size:14px; margin-bottom:16px; white-space:pre-line;}
+  h2{font-family:'Cormorant Garamond',serif; font-size:22px; margin:22px 0 8px; color:var(--ink);}
+  .names{display:flex; flex-wrap:wrap; gap:10px;}
+  .name-btn{flex:1 1 140px; border:1px solid var(--line); background:var(--white); border-radius:14px; padding:14px 12px; font:inherit; font-size:16px; font-weight:500; color:var(--ink); cursor:pointer; text-align:left;}
+  .name-btn small{display:block; color:var(--ink-soft); font-weight:400; font-size:12.5px; margin-top:2px;}
+  .name-btn:active{background:var(--linen);}
+  .name-btn.all{background:var(--sage-dark); color:#fff; border-color:var(--sage-dark);}
+  .name-btn.all small{color:#e5eadf;}
+  .back{background:none; border:none; color:var(--sage-dark); font:inherit; font-size:15px; padding:6px 0; cursor:pointer; text-decoration:underline;}
+  .who-head{margin:6px 0 10px;}
+  .who-head .nm{font-family:'Cormorant Garamond',serif; font-size:30px; color:var(--sage-dark); line-height:1.1;}
+  .who-head .rl{color:var(--ink-soft); font-size:14px;}
+  .group-title{font-size:12.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; margin:18px 0 8px; display:flex; align-items:center; gap:8px;}
+  .group-title .dot{width:9px; height:9px; border-radius:50%; background:var(--sage);}
+  .group-title.now .dot{background:var(--gold);} .group-title.now{color:#8a6c1f;}
+  .group-title.over .dot{background:var(--danger);} .group-title.over{color:var(--danger);}
+  .job{display:flex; gap:12px; background:var(--white); border:1px solid var(--line); border-radius:14px; padding:12px; margin-bottom:8px; align-items:flex-start;}
+  .job.now{border-color:var(--gold); box-shadow:0 0 0 2px rgba(194,162,78,.25);}
+  .job.over{border-color:#e4b9b2;}
+  .job.done{opacity:.55;}
+  .job.done .task{text-decoration:line-through;}
+  .time{font-weight:600; font-size:16px; min-width:52px; color:var(--sage-dark);}
+  .job .body{flex:1; min-width:0;}
+  .task{font-size:16px; font-weight:500;}
+  .meta{font-size:13px; color:var(--ink-soft); margin-top:3px;}
+  .tag{display:inline-block; font-size:12px; padding:1px 8px; border-radius:10px; background:var(--linen); margin-top:5px;}
+  .job input[type=checkbox]{width:26px; height:26px; accent-color:var(--sage-dark); flex-shrink:0; margin-top:2px;}
+  .empty{color:var(--ink-soft); font-size:14px; padding:6px 2px;}
+  .contact{display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line);}
+  .contact .c-name{flex:1; font-weight:500;} .contact .c-name small{display:block; color:var(--ink-soft); font-weight:400;}
+  .contact a{border:1px solid var(--sage-dark); color:var(--sage-dark); border-radius:18px; padding:6px 12px; font-size:14px; text-decoration:none;}
+  .contact a.wa{background:var(--sage-dark); color:#fff;}
+  .guest-link{display:block; text-align:center; background:var(--white); border:1px solid var(--sage-dark); color:var(--sage-dark); border-radius:12px; padding:11px 12px; font-size:15px; font-weight:500; text-decoration:none; margin:0 0 14px;}
+  .guest-link small{display:block; font-weight:400; color:var(--ink-soft); font-size:12.5px;}
+  .a2hs{background:var(--white); border:1px solid var(--line); border-radius:12px; padding:10px 14px; font-size:13.5px; margin-top:26px;}
+  .a2hs summary{cursor:pointer; font-weight:500; color:var(--sage-dark);}
+  .a2hs p{margin:8px 0 0; color:var(--ink-soft);}
+  .tabs{display:flex; gap:8px; margin:6px 0 4px;}
+  .tabs button{flex:1; border:1px solid var(--line); background:var(--white); border-radius:12px; padding:10px 8px; font:inherit; font-size:15px; font-weight:500; color:var(--ink); cursor:pointer;}
+  .tabs button.on{background:var(--sage-dark); border-color:var(--sage-dark); color:#fff;}
+  .pk-when{display:inline-block; font-size:12px; padding:1px 8px; border-radius:10px; background:var(--linen); margin-top:5px; margin-right:6px;}
+  .pk-count{font-size:13px; color:var(--ink-soft); margin:10px 2px 8px;}
+  .vn{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:6px;}
+  .vn .vn-n{font-size:13px; color:var(--ink-soft); flex:1 1 100%;}
+  .vn a{border:1px solid var(--sage-dark); color:var(--sage-dark); border-radius:16px; padding:4px 11px; font-size:13px; text-decoration:none;}
+  .vn a.wa{background:var(--sage-dark); color:#fff;}
+  .daytabs{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 4px;}
+  .daytabs button{border:1px solid var(--line); background:var(--white); border-radius:16px; padding:7px 13px; font:inherit; font-size:14px; color:var(--ink); cursor:pointer;}
+  .daytabs button.on{background:var(--ink); border-color:var(--ink); color:#fff;}
+  .photo-people{font-size:13px; color:var(--ink-soft); margin-top:3px;}
+  .photo-me{display:inline-block; font-size:12px; padding:1px 8px; border-radius:10px; background:#fff1c9; margin-top:5px;}
+  .preview-bar{background:var(--ink); color:#fff; text-align:center; font-size:13px; padding:6px;}
+  .hidden{display:none !important;}
+  .foot{text-align:center; color:var(--ink-soft); font-size:12px; margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="title">Bridal party guide</h1>
+  <div class="sub" id="dateLine"></div>
+  <div id="loading" class="empty" style="text-align:center;">Loading&hellip;</div>
+  <div id="error" class="empty hidden" style="text-align:center;">This page could not be found. Please check the link with the bride, groom or organiser.</div>
+
+  <div id="main" class="hidden">
+    <div class="status" id="status"></div>
+    <div class="note hidden" id="note"></div>
+
+    <div id="pickView">
+      <a class="guest-link hidden" id="guestLinkTop" href="#">Open the guest page<small>Look up a guest&rsquo;s table to help them on the day</small></a>
+      <h2>Tap your name</h2>
+      <div class="names" id="names"></div>
+      <h2 id="contactsH" class="hidden">Contacts</h2>
+      <div id="contacts"></div>
+      <h2 id="vendorsH" class="hidden">Vendors</h2>
+      <div id="vendorsBox"></div>
+      <h2 id="photosH" class="hidden">Group photos</h2>
+      <div id="photosBox"></div>
+    </div>
+
+    <div id="personView" class="hidden">
+      <button class="back" id="back">&larr; All names</button>
+      <a class="guest-link hidden" id="guestLinkPerson" href="#">Open the guest page<small>Look up a guest&rsquo;s table</small></a>
+      <div class="who-head"><div class="nm" id="pName"></div><div class="rl" id="pRole"></div></div>
+      <div class="tabs hidden" id="tabs"><button type="button" data-t="jobs">Day jobs</button><button type="button" data-t="pack">What to pack</button><button type="button" data-t="photos">Group photos</button></div>
+      <div class="daytabs hidden" id="daytabs"></div>
+      <div id="jobs"></div>
+      <div id="photosP" class="hidden"></div>
+      <div id="pack" class="hidden"></div>
+    </div>
+  </div>
+  <details class="a2hs"><summary>Keep this page on your phone&rsquo;s home screen</summary>
+    <p><b>iPhone (Safari):</b> tap the Share button at the bottom, then <b>Add to Home Screen</b>.<br><b>Android (Chrome):</b> tap the three dots at the top right, then <b>Add to Home screen</b> (or <b>Install app</b>).</p>
+    <p>Then you can open it with one tap on the big day.</p></details>
+  <div class="foot">Your times are shown as they were set by the organiser. Ticks stay on this phone only.</div>
+</div>
+
+<script>
+const SB_URL = 'https://aalpoaixingjehgnbfop.supabase.co';
+const SB_KEY = 'sb_publishable_ubTdSPCyUwus8voOcwY3kA_SGWO8edE';
+const Q = new URLSearchParams(location.search);
+const SLUG = (Q.get('event') || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+const FORCE_NOW = /^\d{1,2}:\d{2}$/.test(Q.get('now') || '') ? Q.get('now') : '';
+let DATA = null, current = null, doneSet = new Set(), tab = 'jobs';
+const el = id => document.getElementById(id);
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function norm(s){ const t = String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); return /men$/.test(t) ? t.replace(/men$/, 'man') : t.replace(/s$/, ''); }
+function mins(t){ const m = /^(\d{1,2}):(\d{2})/.exec(t || ''); return m ? (+m[1]) * 60 + (+m[2]) : null; }
+function pad(n){ return (n < 10 ? '0' : '') + n; }
+function todayStr(){ const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function nowMins(){ if(FORCE_NOW) return mins(FORCE_NOW); const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
+const MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function parseDate(s){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+function daysTo(s){ const d = parseDate(s); if(!d) return null; const t = parseDate(todayStr()); return Math.round((d - t) / 86400000); }
+function dayState(){
+  if(FORCE_NOW) return 'today';
+  const n = daysTo(DATA.date);
+  if(n === null) return 'unknown';
+  return n > 0 ? 'before' : (n === 0 ? 'today' : 'after');
+}
+function label(p){ return p.name || p.role || 'Someone'; }
+let curDay = 'wedding';
+function toks(who){
+  let str = String(who || ''); const prot = [];
+  (DATA.vendors || []).forEach(v => {
+    const n = (v.name || '').trim(), i = n ? str.toLowerCase().indexOf(n.toLowerCase()) : -1;
+    if(i > -1 && /,|&|\/|\band\b/i.test(n)){ str = str.slice(0, i) + '\u0001' + prot.length + '\u0001' + str.slice(i + n.length); prot.push(n); }
+  });
+  return str.split(/,|&|\/|\band\b/i).map(x => x.trim()).filter(Boolean).map(x => x.replace(/\u0001(\d+)\u0001/g, (m, i) => prot[+i]));
+}
+function vendorsIn(who){
+  const w = String(who || '').toLowerCase();
+  return (DATA.vendors || []).filter(v => v.name && w.indexOf(v.name.toLowerCase()) > -1);
+}
+function dayList(){
+  const d = DATA.days || {}; const out = [];
+  if(d.before && d.before.on) out.push('before');
+  out.push('wedding');
+  if(d.after && d.after.on) out.push('after');
+  return out;
+}
+function dayName(k){ const d = (DATA.days || {})[k] || {}; return d.label || (k === 'before' ? 'Day before' : k === 'after' ? 'Day after' : 'Wedding day'); }
+function dayDate(k){ const d = (DATA.days || {})[k]; if(d && d.date) return d.date; if(k === 'wedding') return DATA.date; return ''; }
+function dayStateFor(k){
+  if(FORCE_NOW) return 'today';
+  const n = daysTo(dayDate(k));
+  if(n === null) return 'unknown';
+  return n > 0 ? 'before' : (n === 0 ? 'today' : 'after');
+}
+function jobsFor(p){
+  const keys = [norm(p.name), norm(p.role)].filter(Boolean);
+  return DATA.jobs.filter(j => {
+    const tk = toks(j.who).map(norm).filter(Boolean);
+    if(!tk.length) return false;
+    return tk.some(t => t === 'everyone' || t === 'all' || keys.indexOf(t) > -1);
+  });
+}
+function packFor(p){
+  const keys = p ? [norm(p.name), norm(p.role)].filter(Boolean) : null;
+  return (DATA.pack || []).filter(j => {
+    if(!keys) return true;
+    const tk = toks(j.who).map(norm).filter(Boolean);
+    return tk.some(t => t === 'everyone' || t === 'all' || keys.indexOf(t) > -1);
+  });
+}
+function phoneDigits(raw){
+  let d = String(raw || '').replace(/\D/g, '');
+  if(String(raw || '').trim().indexOf('00') === 0) d = d.slice(2);
+  if(d[0] === '0') d = '27' + d.slice(1);
+  if(d.indexOf('270') === 0) d = '27' + d.slice(3);
+  return d;
+}
+function load(){
+  const done = json => { DATA = json; try{ localStorage.setItem('bp-cache-' + SLUG, JSON.stringify(json)); }catch(e){} start(); };
+  if(Q.get('preview') === '1'){
+    let pj = null; try{ pj = JSON.parse(localStorage.getItem('tableauBridalPreview') || 'null'); }catch(e){}
+    if(pj){ const bar = document.createElement('div'); bar.className = 'preview-bar'; bar.textContent = 'Preview – this is how the bridal party will see it.'; document.body.insertBefore(bar, document.body.firstChild); DATA = pj; start(); return; }
+  }
+  const cached = () => { let c = null; try{ c = JSON.parse(localStorage.getItem('bp-cache-' + SLUG) || 'null'); }catch(e){} if(c){ DATA = c; start(); } else fail(); };
+  if(!SLUG){ fail(); return; }
+  fetch(SB_URL + '/rest/v1/rpc/get_published', {
+    method: 'POST',
+    headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+    body: JSON.stringify({p_slug: SLUG})
+  }).then(r => { if(!r.ok) throw 0; return r.json(); })
+    .then(j => { if(!j || !j.bridal) throw 0; done(j.bridal); })
+    .catch(cached);
+}
+function fail(){ el('loading').classList.add('hidden'); el('error').classList.remove('hidden'); }
+function start(){
+  DATA.people = (DATA.people || []).filter(p => p && (p.name || p.role));
+  DATA.pack = (DATA.pack || []).filter(x => x && x.what);
+  DATA.vendors = (DATA.vendors || []).filter(v => v && v.name);
+  DATA.photos = (DATA.photos || []).filter(x => x && x.name);
+  DATA.jobs = (DATA.jobs || []).map(j => { j.day = j.day || 'wedding'; return j; });
+  curDay = 'wedding';
+  dayList().forEach(k => { if(dayStateFor(k) === 'today' && !FORCE_NOW) curDay = k; });
+  DATA.jobs = (DATA.jobs || []).slice().sort((a, b) => (mins(a.time) == null ? 9999 : mins(a.time)) - (mins(b.time) == null ? 9999 : mins(b.time)));
+  try{ doneSet = new Set(JSON.parse(localStorage.getItem('bp-done-' + (SLUG || 'preview')) || '[]')); }catch(e){ doneSet = new Set(); }
+  document.title = (DATA.title ? DATA.title + ' – ' : '') + 'Bridal party guide';
+  el('title').textContent = DATA.title || 'Bridal party guide';
+  const d = parseDate(DATA.date);
+  el('dateLine').textContent = d ? DN[d.getDay()] + ' ' + d.getDate() + ' ' + MN[d.getMonth()] + ' ' + d.getFullYear() : '';
+  if(DATA.note){ el('note').textContent = DATA.note; el('note').classList.remove('hidden'); }
+  if(DATA.guestUrl && /^https?:\/\//.test(DATA.guestUrl)){
+    ['guestLinkTop','guestLinkPerson'].forEach(id => { el(id).href = DATA.guestUrl; el(id).classList.remove('hidden'); });
+  }
+  el('loading').classList.add('hidden'); el('main').classList.remove('hidden');
+  renderPick(); renderVendors(); renderPhotosPick(); tick(); setInterval(tick, 30000);
+}
+function renderStatus(){
+  const st = dayState(), n = daysTo(DATA.date);
+  let h = '';
+  if(st === 'before') h = '<b>' + n + (n === 1 ? ' day' : ' days') + ' to go.</b> On the day, this page shows what to do right now.';
+  else if(st === 'today'){ const m = nowMins(); h = '<b>Today is the day!</b> It is ' + pad(Math.floor(m / 60)) + ':' + pad(m % 60) + '.'; }
+  else if(st === 'after') h = '<b>Thank you</b> for being part of the day.';
+  else h = 'Tap your name to see your jobs.';
+  el('status').innerHTML = h;
+}
+function renderPick(){
+  const box = el('names'); box.innerHTML = '';
+  const all = document.createElement('button'); all.className = 'name-btn all'; all.innerHTML = 'The whole day<small>Everyone’s jobs in order</small>';
+  all.onclick = () => openPerson(null); box.appendChild(all);
+  DATA.people.forEach((p, i) => {
+    const b = document.createElement('button'); b.className = 'name-btn';
+    b.innerHTML = esc(label(p)) + (p.name && p.role ? '<small>' + esc(p.role) + '</small>' : '');
+    b.onclick = () => openPerson(i); box.appendChild(b);
+  });
+  const withPhone = DATA.people.filter(p => p.phone);
+  el('contactsH').classList.toggle('hidden', !withPhone.length);
+  const c = el('contacts'); c.innerHTML = '';
+  withPhone.forEach(p => {
+    const wa = phoneDigits(p.phone), digits = '+' + wa;
+    const row = document.createElement('div'); row.className = 'contact';
+    row.innerHTML = '<div class="c-name">' + esc(label(p)) + (p.name && p.role ? '<small>' + esc(p.role) + '</small>' : '') + '</div>' +
+      '<a href="tel:' + esc(digits) + '">Call</a><a class="wa" href="https://wa.me/' + esc(wa) + '">WhatsApp</a>';
+    c.appendChild(row);
+  });
+}
+function contactRow(name, sub, phone, email){
+  const wa = phoneDigits(phone), row = document.createElement('div'); row.className = 'contact';
+  row.innerHTML = '<div class="c-name">' + esc(name) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</div>' +
+    (wa ? '<a href="tel:+' + esc(wa) + '">Call</a><a class="wa" href="https://wa.me/' + esc(wa) + '">WhatsApp</a>' : (email ? '<a href="mailto:' + esc(email) + '">Email</a>' : ''));
+  return row;
+}
+function renderVendors(){
+  el('vendorsH').classList.toggle('hidden', !DATA.vendors.length);
+  const box = el('vendorsBox'); box.innerHTML = '';
+  DATA.vendors.forEach(v => box.appendChild(contactRow(v.name, [v.type, v.note].filter(Boolean).join(' · '), v.phone, v.email)));
+}
+function photoRows(box, me){
+  const list = DATA.photos.slice().sort((a, b) => (mins(a.time) == null ? 9999 : mins(a.time)) - (mins(b.time) == null ? 9999 : mins(b.time)));
+  list.forEach(x => {
+    const row = document.createElement('div'); row.className = 'job';
+    const mine = me && me.name && (x.people || []).some(n => norm(n) === norm(me.name));
+    row.innerHTML = '<div class="time">' + esc(x.time || '') + '</div><div class="body"><div class="task">' + esc(x.name) + '</div>' +
+      (x.place ? '<div class="meta">📍 ' + esc(x.place) + '</div>' : '') +
+      ((x.people || []).length ? '<div class="photo-people">' + esc(x.people.join(', ')) + '</div>' : '') +
+      (x.note ? '<div class="meta">' + esc(x.note) + '</div>' : '') +
+      (mine ? '<span class="photo-me">You are in this one</span>' : '') + '</div>';
+    box.appendChild(row);
+  });
+}
+function renderPhotosPick(){
+  el('photosH').classList.toggle('hidden', !DATA.photos.length);
+  const box = el('photosBox'); box.innerHTML = ''; if(DATA.photos.length) photoRows(box, null);
+}
+function openPerson(i){
+  current = i;
+  el('pickView').classList.add('hidden'); el('personView').classList.remove('hidden');
+  const p = i == null ? null : DATA.people[i];
+  el('pName').textContent = p ? label(p) : 'The whole day';
+  el('pRole').textContent = p ? (p.name && p.role ? p.role : '') : 'Everyone’s jobs, in time order';
+  const hasPack = packFor(p).length > 0, hasPh = DATA.photos.length > 0;
+  el('tabs').classList.toggle('hidden', !(hasPack || hasPh));
+  document.querySelector('#tabs [data-t=pack]').classList.toggle('hidden', !hasPack);
+  document.querySelector('#tabs [data-t=photos]').classList.toggle('hidden', !hasPh);
+  tab = (hasPack && dayState() === 'before') ? 'pack' : 'jobs';
+  window.scrollTo(0, 0); renderJobs();
+}
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { tab = b.dataset.t; renderJobs(); });
+function renderPack(){
+  const person = current == null ? null : DATA.people[current];
+  const list = packFor(person);
+  const box = el('pack'); box.innerHTML = '';
+  const got = list.filter(x => doneSet.has('pk:' + x.id)).length;
+  const c = document.createElement('div'); c.className = 'pk-count'; c.textContent = 'Packed ' + got + ' of ' + list.length + '. Tick each item as you pack it.'; box.appendChild(c);
+  list.forEach(x => {
+    const key = 'pk:' + x.id;
+    const row = document.createElement('div'); row.className = 'job' + (doneSet.has(key) ? ' done' : '');
+    row.innerHTML = '<div class="body"><div class="task">' + esc(x.what) + '</div>' +
+      (x.when ? '<span class="pk-when">' + esc(x.when) + '</span>' : '') +
+      (current == null && x.who ? '<span class="meta">' + esc(x.who) + '</span>' : '') + '</div>';
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = doneSet.has(key); cb.setAttribute('aria-label', 'Packed');
+    cb.onchange = () => {
+      if(cb.checked) doneSet.add(key); else doneSet.delete(key);
+      try{ localStorage.setItem('bp-done-' + (SLUG || 'preview'), JSON.stringify([...doneSet])); }catch(e){}
+      renderJobs();
+    };
+    row.appendChild(cb); box.appendChild(row);
+  });
+}
+el('back').onclick = () => { current = null; el('personView').classList.add('hidden'); el('pickView').classList.remove('hidden'); window.scrollTo(0, 0); };
+function jobId(j){ return j.id || (j.time + '|' + j.task); }
+function renderJobs(){
+  if(current === undefined || !DATA) return;
+  const person = current == null ? null : DATA.people[current];
+  if(current != null && !person){ return; }
+  const showPack = tab === 'pack' && packFor(person).length > 0;
+  const showPh = tab === 'photos' && DATA.photos.length > 0;
+  el('pack').classList.toggle('hidden', !showPack); el('jobs').classList.toggle('hidden', showPack || showPh);
+  el('photosP').classList.toggle('hidden', !showPh);
+  const cur = showPack ? 'pack' : (showPh ? 'photos' : 'jobs');
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === cur));
+  const dl = dayList(), dt = el('daytabs');
+  dt.classList.toggle('hidden', dl.length < 2 || cur !== 'jobs');
+  if(dl.indexOf(curDay) < 0) curDay = 'wedding';
+  dt.innerHTML = '';
+  if(dl.length > 1) dl.forEach(k => { const b = document.createElement('button'); b.type = 'button'; b.textContent = dayName(k); b.className = k === curDay ? 'on' : ''; b.onclick = () => { curDay = k; renderJobs(); }; dt.appendChild(b); });
+  if(showPack){ renderPack(); return; }
+  if(showPh){ const pb = el('photosP'); pb.innerHTML = ''; photoRows(pb, person); return; }
+  const list = (person ? jobsFor(person) : DATA.jobs).filter(j => (j.day || 'wedding') === curDay);
+  const st = dayStateFor(curDay), nm = nowMins(), hr = Math.floor(nm / 60) * 60;
+  const groups = {over: [], now: [], next: [], later: [], done: [], all: []};
+  list.forEach(j => {
+    const t = mins(j.time);
+    if(doneSet.has(jobId(j))){ groups.done.push(j); return; }
+    if(st !== 'today' || t == null){ groups.all.push(j); return; }
+    if(t < hr) groups.over.push(j);
+    else if(t < hr + 60) groups.now.push(j);
+    else if(t < hr + 120) groups.next.push(j);
+    else groups.later.push(j);
+  });
+  const box = el('jobs'); box.innerHTML = '';
+  if(!list.length){ box.innerHTML = '<div class="empty">No jobs have been added for ' + esc(person ? label(person) : 'this day') + ' yet.</div>'; return; }
+  const sect = (cls, title, arr) => {
+    if(!arr.length) return;
+    const h = document.createElement('div'); h.className = 'group-title ' + cls; h.innerHTML = '<span class="dot"></span>' + title; box.appendChild(h);
+    arr.forEach(j => box.appendChild(jobRow(j, cls, nm)));
+  };
+  if(st === 'today'){
+    sect('over', 'Overdue – not ticked yet', groups.over);
+    sect('now', 'Now', groups.now);
+    if(!groups.now.length && !groups.over.length){ const e = document.createElement('div'); e.className = 'empty'; e.textContent = 'Nothing due this hour.'; box.appendChild(e); }
+    sect('next', 'Up next', groups.next);
+    sect('later', 'Later today', groups.later);
+    sect('', 'Done', groups.done);
+  } else {
+    sect('', st === 'before' ? 'The day, in order' : 'The day', groups.all);
+    sect('', 'Done', groups.done);
+  }
+}
+function jobRow(j, cls, nm){
+  const row = document.createElement('div'); row.className = 'job ' + (cls === 'now' || cls === 'over' ? cls : '') + (doneSet.has(jobId(j)) ? ' done' : '');
+  const t = mins(j.time);
+  let tag = '';
+  if(dayStateFor(curDay) === 'today' && t != null && !doneSet.has(jobId(j))){
+    const diff = t - nm;
+    tag = diff > 0 ? 'in ' + (diff >= 60 ? Math.floor(diff / 60) + ' h ' + (diff % 60 ? diff % 60 + ' min' : '') : diff + ' min') : (diff === 0 ? 'now' : Math.abs(diff) + ' min ago');
+  }
+  row.innerHTML = '<div class="time">' + esc(j.time || '') + '</div><div class="body"><div class="task">' + esc(j.task) + '</div>' +
+    (j.place ? '<div class="meta">📍 ' + esc(j.place) + '</div>' : '') +
+    (current == null && j.who ? '<div class="meta">' + esc(j.who) + '</div>' : '') +
+    (tag ? '<span class="tag">' + esc(tag.trim()) + '</span>' : '') + '</div>';
+  const vs = vendorsIn(j.who);
+  if(vs.length){
+    const vb = document.createElement('div'); vb.className = 'body-v';
+    vs.forEach(v => {
+      const wa = phoneDigits(v.phone), d = document.createElement('div'); d.className = 'vn';
+      d.innerHTML = '<span class="vn-n">' + esc(v.name) + (v.type ? ' (' + esc(v.type) + ')' : '') + '</span>' +
+        (wa ? '<a href="tel:+' + esc(wa) + '">Call</a><a class="wa" href="https://wa.me/' + esc(wa) + '">WhatsApp</a>' : (v.email ? '<a href="mailto:' + esc(v.email) + '">Email</a>' : ''));
+      vb.appendChild(d);
+    });
+    row.querySelector('.body').appendChild(vb);
+  }
+  const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = doneSet.has(jobId(j)); cb.setAttribute('aria-label', 'Done');
+  cb.onchange = () => {
+    if(cb.checked) doneSet.add(jobId(j)); else doneSet.delete(jobId(j));
+    try{ localStorage.setItem('bp-done-' + (SLUG || 'preview'), JSON.stringify([...doneSet])); }catch(e){}
+    renderJobs();
+  };
+  row.appendChild(cb);
+  return row;
+}
+function tick(){ renderStatus(); if(!el('personView').classList.contains('hidden')) renderJobs(); }
+load();
+</script>
+</body>
+</html>
