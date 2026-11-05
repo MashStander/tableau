@@ -948,16 +948,17 @@
     <button class="ghost-btn menu-trigger solid-btn" id="btnHome" title="Back to the start page">Home</button>
 
     <div class="menu-wrap">
-      <button class="ghost-btn menu-trigger solid-btn" id="chartMenuBtn">Project <span class="menu-caret">&#9662;</span></button>
+      <button class="ghost-btn menu-trigger solid-btn" id="chartMenuBtn">How to <span class="menu-caret">&#9662;</span></button>
       <div class="dropdown-menu" id="chartMenu">
         <button class="dropdown-item" id="btnHubMenu">What to do next&hellip;</button>
-        <button class="dropdown-item" id="btnMyCharts">My projects&hellip;</button>
+        <button class="dropdown-item" id="btnHowTo">How-to videos&hellip;</button>
+        <button class="dropdown-item" id="btnSave">Download backup</button>
+        <button class="dropdown-item" id="btnLoad">Load from file</button>
+        <button class="dropdown-item hidden" id="btnAccessMenu">Upgrade / access code&hellip;</button>
         <button class="dropdown-item" id="btnSignInMenu">Sign in to save online&hellip;</button>
-        <button class="dropdown-item" id="btnReset">New chart</button>
-        <button class="dropdown-item" id="btnSave">Download backup file</button>
-        <button class="dropdown-item" id="btnLoad">Load chart from file</button>
-        <button class="dropdown-item hidden" id="btnAccessMenu">Plan &amp; access code…</button>
         <button class="dropdown-item" id="btnSignOut">Sign out</button>
+        <button class="dropdown-item hidden" id="btnMyCharts">My projects&hellip;</button>
+        <button class="dropdown-item hidden" id="btnReset">New chart</button>
       </div>
     </div>
 
@@ -970,25 +971,30 @@
       </div>
     </div>
 
-    <button class="ghost-btn menu-trigger solid-btn" id="btnBridal" data-plan-need="2" title="Jobs, packing lists and a private page for your bridal party">Bridal party</button>
+    <button class="ghost-btn menu-trigger solid-btn" id="btnNavTables">Set up tables</button>
+    <button class="ghost-btn menu-trigger solid-btn" id="btnNavFloor">Create floor plan</button>
 
     <div class="menu-wrap">
-      <button class="ghost-btn menu-trigger solid-btn" id="planMenuBtn" data-plan-need="2">Plan <span class="menu-caret">&#9662;</span></button>
-      <div class="dropdown-menu" id="planMenu">
+      <button class="ghost-btn menu-trigger solid-btn" id="bigDayMenuBtn">The big day <span class="menu-caret">&#9662;</span></button>
+      <div class="dropdown-menu" id="bigDayMenu">
+        <button class="dropdown-item" id="btnBridal" data-plan-need="2">Bridal party&hellip;</button>
         <button class="dropdown-item" id="btnVendors" data-plan-need="2">Vendors&hellip;</button>
         <button class="dropdown-item" id="btnPhotos" data-plan-need="2">Group photos&hellip;</button>
       </div>
     </div>
 
+    <button class="ghost-btn menu-trigger solid-btn" id="btnNavChecklist" data-plan-need="2">Wedding checklist</button>
+
+    <button class="ghost-btn menu-trigger solid-btn" id="btnNavGuestPage">Guest page</button>
+    <button class="dropdown-item hidden" id="btnEventInfo">Guest page content&hellip;</button>
+
     <div class="menu-wrap">
-      <button class="ghost-btn menu-trigger solid-btn" id="guestFinderMenuBtn">Share <span class="menu-caret">&#9662;</span></button>
+      <button class="ghost-btn menu-trigger solid-btn" id="guestFinderMenuBtn">Sharing <span class="menu-caret">&#9662;</span></button>
       <div class="dropdown-menu" id="guestFinderMenu">
-        <button class="dropdown-item" id="btnEventInfo">Guest page content&hellip;</button>
         <button class="dropdown-item" id="btnExportGuestView">QR code &amp; publish&hellip;</button>
+        <button class="dropdown-item" id="btnShareTableau">Share Tableau with a friend</button>
       </div>
     </div>
-
-    <button class="ghost-btn top-pill" id="btnHowTo">How-to videos</button>
   </div>
   <div class="hist-row">
     <button class="ghost-btn" id="btnUndo" title="Undo (Ctrl+Z)" disabled>&#8630; Undo</button>
@@ -4315,9 +4321,10 @@ document.querySelectorAll('.dropdown-menu').forEach(m=>{
     .observe(m, {attributes:true, attributeFilter:['class']});
 });
 wireDropdown('chartMenuBtn', 'chartMenu');
+wireDropdown('bigDayMenuBtn', 'bigDayMenu');
 wireDropdown('guestMenuBtn', 'guestMenu');
 wireDropdown('guestFinderMenuBtn', 'guestFinderMenu');
-wireDropdown('planMenuBtn', 'planMenu');
+// planMenuBtn removed — items moved to bigDayMenu
 document.addEventListener('click', ()=>{
   document.querySelectorAll('.dropdown-menu.open').forEach(m=> m.classList.remove('open'));
 });
@@ -8460,6 +8467,16 @@ function openBp(){
   b.title = document.getElementById('bpTitle').value; b.date = document.getElementById('bpDate').value; b.note = document.getElementById('bpNote').value; isDirty = true;
 }));
 document.getElementById('btnBridal').addEventListener('click', openBp);
+document.getElementById('btnNavTables').addEventListener('click', ()=>{ if((state.tables||[]).length) enterMain('seating'); else showSetupScreen(); });
+document.getElementById('btnNavFloor').addEventListener('click', ()=> enterMain('floorplan'));
+document.getElementById('btnNavChecklist').addEventListener('click', openChecklist);
+document.getElementById('btnNavGuestPage').addEventListener('click', openEventInfoModal);
+document.getElementById('btnShareTableau').addEventListener('click', ()=>{
+  const url = 'https://tableauevents.co.za';
+  const msg = 'Check out Tableau — a beautiful wedding seating chart and guest management app! ' + url;
+  if(navigator.share){ navigator.share({title:'Tableau Events', text:msg, url}).catch(()=>{}); }
+  else { try{ navigator.clipboard.writeText(url); toast('Link copied! Share tableauevents.co.za with a friend.'); }catch(e){ toast('tableauevents.co.za — share this with a friend!', 5000); } }
+});
 document.getElementById('bpClose').addEventListener('click', ()=> document.getElementById('bpModal').classList.add('hidden'));
 document.getElementById('bpAddPerson').addEventListener('click', ()=>{
   const b = bpData(); pushUndo(); const np = {id: uid('bp'), name:'', role:'', phone:''}; b.people.push(np); bpOpen.add(np.id); renderBp();
