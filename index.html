@@ -724,6 +724,27 @@
   .bp-pr{grid-template-columns:1.2fr 1.2fr 1fr 34px;}
   .bp-kr{grid-template-columns:2.4fr 1.3fr 1.3fr 34px;}
   .bp-cols{display:grid; gap:6px; font-size:11.5px; color:var(--ink-soft); margin:8px 0 4px; text-transform:uppercase; letter-spacing:.05em;}
+  /* ---- wedding checklist ---- */
+  #checklistScreen{max-width:700px; margin:0 auto; padding:0 0 60px;}
+  .cl-phase{margin:28px 0 0;}
+  .cl-phase-title{font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--sage-dark); margin:0 0 10px; padding-bottom:6px; border-bottom:1px solid var(--line);}
+  .cl-group-title{font-size:12px; font-weight:600; color:var(--ink-soft); margin:12px 0 4px; text-transform:uppercase; letter-spacing:.05em;}
+  .cl-item{display:grid; grid-template-columns:28px 1fr auto auto; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; margin:3px 0; background:var(--surface);}
+  .cl-item:hover{background:var(--hover);}
+  .cl-item.done .cl-label{text-decoration:line-through; color:var(--ink-soft);}
+  .cl-cb{width:18px; height:18px; cursor:pointer; accent-color:var(--sage-dark);}
+  .cl-label{font-size:14px; line-height:1.3; cursor:pointer; user-select:none;}
+  .cl-date{font-size:12.5px; padding:4px 7px; border:1px solid var(--line); border-radius:6px; background:var(--white); font:inherit; color:var(--ink); width:130px;}
+  .cl-cal{border:none; background:transparent; cursor:pointer; font-size:17px; padding:2px 4px; border-radius:6px; color:var(--sage-dark); line-height:1;}
+  .cl-cal:hover{background:var(--hover);}
+  .cl-cal[disabled]{opacity:.3; cursor:default;}
+  .cl-progress{font-size:13px; color:var(--ink-soft); margin:16px 0 0; text-align:center;}
+  .cl-progress strong{color:var(--sage-dark);}
+  @media(max-width:520px){
+    .cl-item{grid-template-columns:24px 1fr; grid-template-rows:auto auto;}
+    .cl-date{width:100%; grid-column:2;}
+    .cl-cal{grid-column:2; justify-self:start;}
+  }
   .bp-cols-j{grid-template-columns:118px 3fr 1.3fr 1.1fr 34px;}
   .bp-cols-k{grid-template-columns:2.4fr 1.3fr 1.3fr 34px;}
   .bp-sec .bp-sech{cursor:pointer; user-select:none; display:flex; align-items:center; justify-content:space-between; margin:0;}
@@ -1005,6 +1026,7 @@
     <button type="button" class="hub-card" data-hub="bridal" data-plan-need="2"><b>4. Bridal party page</b><span>Jobs for the day, packing lists and a private link for your bridal party.</span><em id="hubStatBridal"></em></button>
     <button type="button" class="hub-card" data-hub="vendors" data-plan-need="2"><b>5. Vendors</b><span>Hair and makeup, catering, photographer and more, with contact details your bridal party can tap.</span><em id="hubStatVendors"></em></button>
     <button type="button" class="hub-card" data-hub="photos" data-plan-need="2"><b>6. Group photos</b><span>Plan each group photo, who is in it, and WhatsApp the guests beforehand.</span><em id="hubStatPhotos"></em></button>
+    <button type="button" class="hub-card" data-hub="checklist" data-plan-need="2"><b>7. Wedding checklist</b><span>Important dates and tasks from booking vendors to the week before. Tick them off as you go.</span><em id="hubStatChecklist"></em></button>
   </div>
 </div>
 
@@ -1018,6 +1040,13 @@
     <div class="hub-card gs-card" style="grid-column:1 / -1;"><b>Or add guests one by one</b><span>Type each name in and choose a group. Good for small lists or last-minute additions.</span><button type="button" class="ghost-btn" id="btnGsManual">Add guests one by one</button></div>
   </div>
   <div id="gsStat" class="gs-stat hidden"><span id="gsStatText"></span><button type="button" class="primary-btn" id="btnGsNext">Next: set up your tables</button></div>
+</div>
+
+<div id="checklistScreen" class="hidden">
+  <button type="button" class="auth-link" id="btnChecklistBack">&larr; Back to &ldquo;Let&rsquo;s get started&rdquo;</button>
+  <h2>Wedding checklist</h2>
+  <p class="hint">Work through this at your own pace. Add a date to any item and tap the calendar icon to save it straight to your phone&rsquo;s calendar.</p>
+  <div id="checklistBody"></div>
 </div>
 
 <div id="accessModal" class="modal-overlay hidden" style="z-index:970;">
@@ -8661,6 +8690,188 @@ function phRender2(){ /* refresh WhatsApp links with the new wording without los
   });
 }
 
+/* ===================== WEDDING CHECKLIST ===================== */
+const CHECKLIST_PHASES = [
+  { id:'p1', title:'12 – 9 Months Before', groups:[
+    { title:'Budget & Vision', items:[
+      {id:'p1_budget',   label:'Set your wedding budget'},
+      {id:'p1_style',    label:'Decide on wedding style / theme'},
+      {id:'p1_date',     label:'Choose your wedding date'},
+      {id:'p1_venue',    label:'Book your venue'},
+      {id:'p1_guestlist',label:'Start your guest list'},
+    ]},
+    { title:'Key Vendor Bookings', items:[
+      {id:'p1_photo',    label:'Book photographer & videographer'},
+      {id:'p1_pastor',   label:'Book officiant / pastor'},
+      {id:'p1_caterer',  label:'Book caterer (or confirm venue catering)'},
+    ]},
+  ]},
+  { id:'p2', title:'8 – 6 Months Before', groups:[
+    { title:'Outfits & Styling', items:[
+      {id:'p2_dress',    label:'Wedding dress shopping'},
+      {id:'p2_alter',    label:'Book dress alterations'},
+      {id:'p2_bm',       label:'Bridesmaids dresses'},
+      {id:'p2_groom',    label:'Groom & groomsmen suits / outfits'},
+    ]},
+    { title:'Stationery & Rings', items:[
+      {id:'p2_invite',   label:'Design & order invitations'},
+      {id:'p2_savedate', label:'Send save-the-dates'},
+      {id:'p2_rings',    label:'Order wedding rings'},
+    ]},
+    { title:'More Vendors', items:[
+      {id:'p2_florist',  label:'Book florist'},
+      {id:'p2_music',    label:'Book DJ / band / musician'},
+      {id:'p2_hair',     label:'Book hair & makeup artist'},
+      {id:'p2_cake',     label:'Book cake baker'},
+    ]},
+  ]},
+  { id:'p3', title:'5 – 3 Months Before', groups:[
+    { title:'Guest Management', items:[
+      {id:'p3_sendinv',  label:'Send invitations'},
+      {id:'p3_rsvp',     label:'Track RSVPs'},
+      {id:'p3_dietary',  label:'Confirm dietary requirements'},
+      {id:'p3_transport',label:'Arrange guest transport (if needed)'},
+    ]},
+    { title:'Catering & Cake', items:[
+      {id:'p3_menu',     label:'Confirm final menu with caterer'},
+      {id:'p3_caketaste',label:'Cake tasting & design finalised'},
+    ]},
+    { title:'Flowers & D\xe9cor', items:[
+      {id:'p3_flowers',  label:'Finalise flower arrangements'},
+      {id:'p3_decor',    label:'Confirm d\xe9cor details'},
+    ]},
+  ]},
+  { id:'p4', title:'2 Months Before', groups:[
+    { title:'Final Decisions', items:[
+      {id:'p4_walkthru', label:'Final venue walk-through'},
+      {id:'p4_seating',  label:'Confirm seating plan'},
+      {id:'p4_prog',     label:'Confirm ceremony order / programme'},
+      {id:'p4_vows',     label:'Write vows (if applicable)'},
+    ]},
+    { title:'Pre-Wedding Celebrations', items:[
+      {id:'p4_henstag',  label:'Plan hen / stag / kitchen tea events'},
+    ]},
+  ]},
+  { id:'p5', title:'1 Month Before', groups:[
+    { title:'Final Admin', items:[
+      {id:'p5_numbers',  label:'Send final guest numbers to venue & caterer'},
+      {id:'p5_vendors',  label:'Confirm all vendors (send day schedule)'},
+      {id:'p5_payments', label:'Prepare vendor payments & gratuities'},
+      {id:'p5_fitting',  label:'Final dress fitting'},
+      {id:'p5_ekit',     label:'Prepare on-the-day emergency kit'},
+    ]},
+  ]},
+  { id:'p6', title:'2 Weeks Before', groups:[
+    { title:'Final Checks', items:[
+      {id:'p6_transport',label:'Confirm transportation arrangements'},
+      {id:'p6_shotlist', label:'Confirm photographer’s shot list'},
+      {id:'p6_chart',    label:'Finalise seating chart'},
+      {id:'p6_schedule', label:'Send day schedule to bridal party'},
+    ]},
+  ]},
+  { id:'p7', title:'1 Week Before', groups:[
+    { title:'The Last Stretch', items:[
+      {id:'p7_dress',    label:'Collect wedding dress'},
+      {id:'p7_honey',    label:'Prepare honeymoon bags'},
+      {id:'p7_gifts',    label:'Hand over gifts & d\xe9cor to coordinator'},
+      {id:'p7_rings',    label:'Confirm rings are ready & packed'},
+      {id:'p7_rest',     label:'Rest — enjoy your last days as a fianc\xe9!'},
+    ]},
+  ]},
+];
+
+function clData(){ if(!state.checklist||typeof state.checklist!=='object'||Array.isArray(state.checklist)) state.checklist={}; return state.checklist; }
+function clTotalItems(){ return CHECKLIST_PHASES.reduce((n,p)=>n+p.groups.reduce((m,g)=>m+g.items.length,0),0); }
+function clDoneCount(){ const d=clData(); return Object.values(d).filter(x=>x&&x.checked).length; }
+
+function clMakeIcs(label,dateStr){
+  const d=dateStr.replace(/-/g,'');
+  const dt=new Date(+dateStr.slice(0,4),+dateStr.slice(5,7)-1,+dateStr.slice(8,10)+1);
+  const next=dt.getFullYear()+String(dt.getMonth()+1).padStart(2,'0')+String(dt.getDate()).padStart(2,'0');
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Tableau Events//EN','BEGIN:VEVENT',
+    'DTSTART;VALUE=DATE:'+d,'DTEND;VALUE=DATE:'+next,'SUMMARY:'+label.replace(/,/g,'\\,'),
+    'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  return 'data:text/calendar;charset=utf8,'+encodeURIComponent(ics);
+}
+
+function openChecklist(){
+  if(!needPlan(2,'Wedding checklist')) return;
+  pushNav('checklist');
+  hideHub();
+  document.getElementById('mainLayout').classList.add('hidden');
+  document.getElementById('setupScreen').classList.add('hidden');
+  document.getElementById('hubBackBar').classList.add('hidden');
+  document.getElementById('guestScreen').classList.add('hidden');
+  document.getElementById('checklistScreen').classList.remove('hidden');
+  document.getElementById('topActions').style.display='flex';
+  document.getElementById('topSub').textContent=(state.eventName||'Your project')+' — Wedding checklist';
+  clRender();
+  window.scrollTo(0,0);
+}
+
+function clRender(){
+  const d=clData();
+  const body=document.getElementById('checklistBody');
+  body.innerHTML='';
+  CHECKLIST_PHASES.forEach(phase=>{
+    const sec=document.createElement('div'); sec.className='cl-phase';
+    const ph=document.createElement('div'); ph.className='cl-phase-title'; ph.textContent=phase.title;
+    sec.appendChild(ph);
+    phase.groups.forEach(grp=>{
+      const gt=document.createElement('div'); gt.className='cl-group-title'; gt.textContent=grp.title;
+      sec.appendChild(gt);
+      grp.items.forEach(item=>{
+        const entry=d[item.id]||{};
+        const row=document.createElement('div'); row.className='cl-item'+(entry.checked?' done':'');
+
+        const cb=document.createElement('input'); cb.type='checkbox'; cb.className='cl-cb'; cb.checked=!!entry.checked;
+        cb.addEventListener('change',()=>{
+          pushUndo(); const e=clData(); if(!e[item.id]) e[item.id]={};
+          e[item.id].checked=cb.checked; row.classList.toggle('done',cb.checked); isDirty=true; clUpdateStat();
+        });
+
+        const lbl=document.createElement('label'); lbl.className='cl-label'; lbl.textContent=item.label;
+        lbl.style.cursor='pointer';
+        lbl.addEventListener('click',()=>{ cb.checked=!cb.checked; cb.dispatchEvent(new Event('change')); });
+
+        const dateIn=document.createElement('input'); dateIn.type='date'; dateIn.className='cl-date';
+        dateIn.value=entry.date||'';
+
+        const calBtn=document.createElement('a'); calBtn.className='cl-cal'; calBtn.title='Add to calendar'; calBtn.textContent='📅';
+        calBtn.download=item.label.replace(/[^a-z0-9]/gi,'_')+'.ics';
+        const refreshCal=()=>{
+          if(dateIn.value){ calBtn.href=clMakeIcs(item.label,dateIn.value); calBtn.style.opacity='1'; }
+          else { calBtn.removeAttribute('href'); calBtn.style.opacity='0.3'; }
+        };
+        refreshCal();
+        dateIn.addEventListener('change',()=>{
+          const e=clData(); if(!e[item.id]) e[item.id]={};
+          e[item.id].date=dateIn.value; isDirty=true; refreshCal();
+        });
+        calBtn.addEventListener('click',e=>{ if(!dateIn.value) e.preventDefault(); });
+
+        row.append(cb,lbl,dateIn,calBtn);
+        sec.appendChild(row);
+      });
+    });
+    body.appendChild(sec);
+  });
+  const done=clDoneCount(),total=clTotalItems();
+  const prog=document.createElement('p'); prog.className='cl-progress';
+  prog.innerHTML='<strong>'+done+'</strong> of '+total+' tasks ticked off';
+  body.appendChild(prog);
+}
+
+function clUpdateStat(){
+  const done=clDoneCount(),total=clTotalItems();
+  hubStat('hubStatChecklist',done?done+'/'+total+' done':'Not started yet',done);
+}
+
+document.getElementById('btnChecklistBack').addEventListener('click',()=>{
+  document.getElementById('checklistScreen').classList.add('hidden');
+  showHub(false);
+});
+
 /* Preview ready-made jobs before adding */
 let bpPvState = null;
 function bpPreview(rows, role, auto, onDone, opts){
@@ -9109,7 +9320,8 @@ window.addEventListener('popstate', function(){
   const onGuest  = !document.getElementById('guestScreen').classList.contains('hidden');
   const onSetup  = !document.getElementById('setupScreen').classList.contains('hidden');
   const onMain   = !document.getElementById('mainLayout').classList.contains('hidden');
-  if(onGuest || onSetup || onMain){ showHub(false); return; }
+  const onChecklist = !document.getElementById('checklistScreen').classList.contains('hidden');
+  if(onGuest || onSetup || onMain || onChecklist){ showHub(false); return; }
   // 3. On hub — let the browser navigate away normally
 });
 // ─────────────────────────────────────────────────────────────────────────────
@@ -9121,6 +9333,7 @@ function showHub(first){
   document.getElementById('mainLayout').classList.add('hidden');
   document.getElementById('hubScreen').classList.remove('hidden');
   document.getElementById('guestScreen').classList.add('hidden'); document.getElementById('hubBackBar').classList.add('hidden');
+  document.getElementById('checklistScreen').classList.add('hidden');
   document.getElementById('topActions').style.display = 'flex';
   document.getElementById('floatingSaveBtn').style.display = 'none';
   const g = state.guests.length, t = (state.tables||[]).length;
@@ -9133,6 +9346,7 @@ function showHub(first){
   const nv = (state.vendors||[]).length, np = (state.photos||[]).length;
   hubStat('hubStatVendors', nv ? nv + (nv===1?' vendor added':' vendors added') : 'Not started yet', nv);
   hubStat('hubStatPhotos', np ? np + (np===1?' photo planned':' photos planned') : 'Not started yet', np);
+  clUpdateStat();
   document.getElementById('topSub').textContent = state.eventName || 'Your project';
   window.scrollTo(0,0);
 }
@@ -9158,6 +9372,8 @@ document.querySelectorAll('.hub-card').forEach(c=> c.addEventListener('click', (
     openVendors();
   } else if(k === 'photos'){
     openPhotos();
+  } else if(k === 'checklist'){
+    openChecklist();
   }
 }));
 let cameFromHub = false;
