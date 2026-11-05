@@ -8838,6 +8838,16 @@ function clMakeBulkIcs(items){
 }
 
 let clBatchMode=false, clBatchDateVal='';
+function _clBatchClick(e){
+  if(!clBatchMode||!clBatchDateVal) return;
+  if(e.target.closest('input,a,button')) return;
+  const targetRow=e.target.closest('[data-cl-id]'); if(!targetRow) return;
+  const itemId=targetRow.dataset.clId;
+  const data=clData(); if(!data[itemId]) data[itemId]={};
+  data[itemId].date=(data[itemId].date===clBatchDateVal)?'':clBatchDateVal;
+  isDirty=true;
+  const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
+}
 
 function openChecklist(){
   if(!needPlan(2,'Wedding checklist')) return;
@@ -8858,6 +8868,7 @@ function clRender(){
   const d=clData();
   const body=document.getElementById('checklistBody');
   const prevScrollY=window.scrollY;
+  body.removeEventListener('click',_clBatchClick);
   body.innerHTML='';
 
   /* ---- tip box ---- */
@@ -8945,37 +8956,7 @@ function clRender(){
     });
     body.appendChild(sec);
   });
-  /* ---- single delegated batch handler ---- */
-  if(clBatchMode && clBatchDateVal){
-    body.addEventListener('click',function batchDelegate(e){
-      if(!clBatchMode||!clBatchDateVal){ body.removeEventListener('click',batchDelegate); return; }
-      if(e.target.closest('input,a,button')) return;
-      const targetRow=e.target.closest('[data-cl-id]'); if(!targetRow) return;
-      const itemId=targetRow.dataset.clId;
-      const data=clData(); if(!data[itemId]) data[itemId]={};
-      if(data[itemId].date===clBatchDateVal){
-        data[itemId].date=''; targetRow.classList.remove('cl-pick-on');
-        const di=targetRow.querySelector('.cl-date'); if(di) di.value='';
-        const ca=targetRow.querySelector('.cl-cal'); if(ca){ ca.removeAttribute('href'); ca.style.opacity='0.3'; }
-      } else {
-        data[itemId].date=clBatchDateVal; targetRow.classList.add('cl-pick-on');
-        const di=targetRow.querySelector('.cl-date'); if(di) di.value=clBatchDateVal;
-        const ca=targetRow.querySelector('.cl-cal'); if(ca){
-          ca.href=clMakeIcs(data[itemId].label||itemId,clBatchDateVal); ca.style.opacity='1';
-        }
-      }
-      isDirty=true;
-      const datedItems2=[]; CHECKLIST_PHASES.forEach(p=>p.groups.forEach(g=>g.items.forEach(it=>{
-        const en=clData()[it.id]; if(en&&en.date) datedItems2.push({label:it.label,dateStr:en.date});
-      })));
-      const bulkBtn2=document.querySelector('.cl-bulk-btn');
-      if(bulkBtn2){
-        bulkBtn2.textContent='⬇️  Download all '+datedItems2.length+' dated item'+(datedItems2.length===1?'':'s')+' to calendar';
-        bulkBtn2.classList.toggle('hidden',!datedItems2.length);
-        if(datedItems2.length) bulkBtn2.href=clMakeBulkIcs(datedItems2);
-      }
-    });
-  }
+  if(clBatchMode&&clBatchDateVal) body.addEventListener('click',_clBatchClick);
 
   const done=clDoneCount(),total=clTotalItems();
   const prog=document.createElement('p'); prog.className='cl-progress';
