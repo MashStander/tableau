@@ -8894,29 +8894,41 @@ function clRender(){
     openBtn.addEventListener('click',()=>{ clBatchMode=true; clBatchSelected=new Set(); clRender(); window.scrollTo(0,prevScrollY); });
     batchBar.appendChild(openBtn);
   } else {
-    const hint=document.createElement('span'); hint.className='cl-batch-hint'; hint.style.flex='1 1 100%'; hint.style.marginBottom='6px';
-    hint.textContent='Step 1: tap the items you want to date (they turn green). Step 2: pick the date below to apply to all of them.';
-    const countSpan=document.createElement('span'); countSpan.style.cssText='font-size:13px;font-weight:600;color:var(--sage-dark);';
-    countSpan.textContent=clBatchSelected.size ? clBatchSelected.size+' item'+(clBatchSelected.size>1?'s':'')+' selected' : 'No items selected yet';
-    const label=document.createElement('label'); label.textContent='Apply date: '; label.style.cssText='font-size:13px;font-weight:600;';
-    const dateIn=document.createElement('input'); dateIn.type='date'; dateIn.className='cl-date'; dateIn.style.width='140px';
-    dateIn.addEventListener('change',()=>{
-      if(!dateIn.value||!clBatchSelected.size) return;
+    const hint=document.createElement('div'); hint.style.cssText='font-size:13px;color:var(--sage-dark);font-style:italic;width:100%;margin-bottom:8px;';
+    hint.textContent='Tick the items below, then pick a date and click Apply.';
+
+    const row2=document.createElement('div'); row2.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;';
+
+    const dateLabel=document.createElement('span'); dateLabel.textContent='Date:'; dateLabel.style.cssText='font-size:13px;font-weight:600;';
+    const batchDateIn=document.createElement('input'); batchDateIn.type='date'; batchDateIn.id='clBatchDateInput'; batchDateIn.className='cl-date'; batchDateIn.style.width='140px';
+
+    const applyBtn=document.createElement('button'); applyBtn.type='button';
+    applyBtn.style.cssText='background:var(--sage-dark);color:#fff;border:none;border-radius:20px;padding:6px 16px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;';
+    applyBtn.textContent='✓ Apply to ticked items';
+    applyBtn.addEventListener('click',()=>{
+      const dv=document.getElementById('clBatchDateInput').value;
+      if(!dv){ alert('Please pick a date first.'); return; }
       const store=clData();
-      clBatchSelected.forEach(id=>{
+      let count=0;
+      document.querySelectorAll('.cl-batch-cb:checked').forEach(cb=>{
+        const id=cb.dataset.batchId;
         if(!store[id]) store[id]={};
-        store[id].date=dateIn.value;
+        store[id].date=dv;
+        count++;
       });
+      if(!count){ alert('Please tick at least one item.'); return; }
       isDirty=true;
       clBatchSelected=new Set();
       clBatchMode=false;
       const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
     });
-    label.appendChild(dateIn);
+
     const cancelBtn=document.createElement('button'); cancelBtn.type='button'; cancelBtn.className='cl-batch-cancel';
     cancelBtn.textContent='✕ Cancel';
     cancelBtn.addEventListener('click',()=>{ clBatchMode=false; clBatchSelected=new Set(); const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
-    batchBar.append(hint,countSpan,label,cancelBtn);
+
+    row2.append(dateLabel,batchDateIn,applyBtn,cancelBtn);
+    batchBar.append(hint,row2);
   }
   body.appendChild(batchBar);
 
@@ -8930,8 +8942,6 @@ function clRender(){
       grp.items.forEach(item=>{
         const entry=d[item.id]||{};
         let rowCls='cl-item'+(entry.checked?' done':'');
-        if(clBatchMode) rowCls+=' cl-pick';
-        if(clBatchMode && clBatchSelected.has(item.id)) rowCls+=' cl-pick-on';
         const row=document.createElement('div'); row.className=rowCls; row.dataset.clId=item.id;
 
         const cb=document.createElement('input'); cb.type='checkbox'; cb.className='cl-cb'; cb.checked=!!entry.checked;
@@ -8943,7 +8953,7 @@ function clRender(){
         const lbl=document.createElement('span'); lbl.className='cl-label'; lbl.textContent=item.label;
         lbl.style.cursor='pointer';
         lbl.addEventListener('click',()=>{
-          if(clBatchMode){ /* handled by row click below */ return; }
+          if(clBatchMode) return;
           cb.checked=!cb.checked; cb.dispatchEvent(new Event('change'));
         });
 
@@ -8963,18 +8973,12 @@ function clRender(){
         });
         calBtn.addEventListener('click',e=>{ if(!dateIn.value) e.preventDefault(); });
 
-        /* batch-mode tap handler: select/deselect the row */
+        /* in batch mode: add a dedicated tick-box at the start of the row */
         if(clBatchMode){
-          const idSnap=item.id;
-          row.addEventListener('click',function(ev){
-            if(ev.target===cb||ev.target===dateIn||ev.target===calBtn) return;
-            if(clBatchSelected.has(idSnap)) clBatchSelected.delete(idSnap);
-            else clBatchSelected.add(idSnap);
-            row.classList.toggle('cl-pick-on', clBatchSelected.has(idSnap));
-            /* update the count label in the bar */
-            const countEl=document.querySelector('.cl-batch-bar span[style*="sage"]');
-            if(countEl) countEl.textContent=clBatchSelected.size ? clBatchSelected.size+' item'+(clBatchSelected.size>1?'s':'')+' selected' : 'No items selected yet';
-          });
+          const bcb=document.createElement('input'); bcb.type='checkbox'; bcb.className='cl-batch-cb cl-cb';
+          bcb.dataset.batchId=item.id; bcb.style.accentColor='var(--sage-dark)';
+          bcb.addEventListener('change',()=>{ row.classList.toggle('cl-pick-on',bcb.checked); });
+          row.appendChild(bcb);
         }
 
         row.append(cb,lbl,dateIn,calBtn);
