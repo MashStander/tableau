@@ -752,6 +752,14 @@
   .cl-bulk-btn{background:var(--sage-dark); color:#fff; border:none; border-radius:24px; padding:12px 24px; font:inherit; font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 3px 12px rgba(0,0,0,.18); transition:opacity .2s;}
   .cl-bulk-btn:hover{opacity:.88;}
   .cl-bulk-btn.hidden{display:none;}
+  .cl-batch-bar{background:var(--linen); border:1px solid var(--line); border-radius:10px; padding:10px 14px; margin:0 0 14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .cl-batch-open-btn{background:none; border:1px solid var(--sage-dark); color:var(--sage-dark); border-radius:20px; padding:6px 14px; font:inherit; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap;}
+  .cl-batch-open-btn:hover{background:var(--hover);}
+  .cl-batch-cancel{background:none; border:none; color:var(--ink-soft); font:inherit; font-size:13px; cursor:pointer; padding:4px 8px; border-radius:6px; margin-left:auto;}
+  .cl-batch-hint{font-size:13px; color:var(--sage-dark); font-style:italic; flex:1 1 100%;}
+  .cl-item.cl-pick{cursor:pointer; outline:2px dashed var(--sage-dark); outline-offset:2px;}
+  .cl-item.cl-pick-on{background:#e6f0e6 !important; outline:2px solid var(--sage-dark); outline-offset:2px;}
+  .cl-item.cl-pick-on .cl-label::after{content:' ✓'; color:var(--sage-dark); font-size:12px; font-weight:700;}
   @media(max-width:520px){
     .cl-item{grid-template-columns:24px 1fr; grid-template-rows:auto auto;}
     .cl-date{width:100%; grid-column:2;}
@@ -8829,6 +8837,8 @@ function clMakeBulkIcs(items){
   return 'data:text/calendar;charset=utf8,'+encodeURIComponent(lines.join('\r\n'));
 }
 
+let clBatchMode=false, clBatchDateVal='';
+
 function openChecklist(){
   if(!needPlan(2,'Wedding checklist')) return;
   pushNav('checklist');
@@ -8847,6 +8857,7 @@ function openChecklist(){
 function clRender(){
   const d=clData();
   const body=document.getElementById('checklistBody');
+  const prevScrollY=window.scrollY;
   body.innerHTML='';
 
   /* ---- tip box ---- */
@@ -8864,6 +8875,27 @@ function clRender(){
   tipBtn.addEventListener('click',()=>{ tipBtn.classList.toggle('open'); tipBody.classList.toggle('open'); });
   tip.append(tipBtn,tipBody);
   body.appendChild(tip);
+
+  /* ---- batch date bar ---- */
+  const batchBar=document.createElement('div'); batchBar.className='cl-batch-bar';
+  if(!clBatchMode){
+    const openBtn=document.createElement('button'); openBtn.type='button'; openBtn.className='cl-batch-open-btn';
+    openBtn.textContent='📅 Set one date for multiple items';
+    openBtn.addEventListener('click',()=>{ clBatchMode=true; clRender(); window.scrollTo(0,prevScrollY); });
+    batchBar.appendChild(openBtn);
+  } else {
+    const label=document.createElement('span'); label.textContent='Pick a date:'; label.style.fontSize='13px'; label.style.fontWeight='600';
+    const dateIn=document.createElement('input'); dateIn.type='date'; dateIn.className='cl-date'; dateIn.value=clBatchDateVal; dateIn.style.width='140px';
+    dateIn.addEventListener('change',()=>{ clBatchDateVal=dateIn.value; clRender(); window.scrollTo(0,prevScrollY); });
+    const hint=document.createElement('span'); hint.className='cl-batch-hint';
+    hint.textContent=clBatchDateVal ? 'Now tap any item below to give it this date. Tap again to remove it.' : 'Choose a date above, then tap the items you want to assign it to.';
+    const cancelBtn=document.createElement('button'); cancelBtn.type='button'; cancelBtn.className='cl-batch-cancel';
+    cancelBtn.textContent='✕ Done';
+    cancelBtn.addEventListener('click',()=>{ clBatchMode=false; clBatchDateVal=''; clRender(); window.scrollTo(0,prevScrollY); });
+    batchBar.append(label,dateIn,cancelBtn,hint);
+  }
+  body.appendChild(batchBar);
+
   CHECKLIST_PHASES.forEach(phase=>{
     const sec=document.createElement('div'); sec.className='cl-phase';
     const ph=document.createElement('div'); ph.className='cl-phase-title'; ph.textContent=phase.title;
@@ -8873,7 +8905,10 @@ function clRender(){
       sec.appendChild(gt);
       grp.items.forEach(item=>{
         const entry=d[item.id]||{};
-        const row=document.createElement('div'); row.className='cl-item'+(entry.checked?' done':'');
+        let rowCls='cl-item'+(entry.checked?' done':'');
+        if(clBatchMode && clBatchDateVal) rowCls+=' cl-pick';
+        if(clBatchMode && clBatchDateVal && entry.date===clBatchDateVal) rowCls+=' cl-pick-on';
+        const row=document.createElement('div'); row.className=rowCls;
 
         const cb=document.createElement('input'); cb.type='checkbox'; cb.className='cl-cb'; cb.checked=!!entry.checked;
         cb.addEventListener('change',()=>{
@@ -8883,7 +8918,10 @@ function clRender(){
 
         const lbl=document.createElement('label'); lbl.className='cl-label'; lbl.textContent=item.label;
         lbl.style.cursor='pointer';
-        lbl.addEventListener('click',()=>{ cb.checked=!cb.checked; cb.dispatchEvent(new Event('change')); });
+        lbl.addEventListener('click',()=>{
+          if(clBatchMode && clBatchDateVal) return; // batch mode handles via row click
+          cb.checked=!cb.checked; cb.dispatchEvent(new Event('change'));
+        });
 
         const dateIn=document.createElement('input'); dateIn.type='date'; dateIn.className='cl-date';
         dateIn.value=entry.date||'';
@@ -8900,6 +8938,36 @@ function clRender(){
           e[item.id].date=dateIn.value; isDirty=true; refreshCal();
         });
         calBtn.addEventListener('click',e=>{ if(!dateIn.value) e.preventDefault(); });
+
+        /* batch mode: clicking the row stamps / unstamps the shared date */
+        if(clBatchMode && clBatchDateVal){
+          row.addEventListener('click',e=>{
+            if(e.target===cb||e.target===dateIn||e.target===calBtn) return;
+            e.preventDefault();
+            const data=clData(); if(!data[item.id]) data[item.id]={};
+            if(data[item.id].date===clBatchDateVal){
+              data[item.id].date='';
+              row.classList.remove('cl-pick-on');
+              dateIn.value=''; refreshCal();
+            } else {
+              data[item.id].date=clBatchDateVal;
+              row.classList.add('cl-pick-on');
+              dateIn.value=clBatchDateVal; refreshCal();
+            }
+            isDirty=true;
+            /* update bulk button without full re-render */
+            const datedItems2=[];
+            CHECKLIST_PHASES.forEach(p=>p.groups.forEach(g=>g.items.forEach(it=>{
+              const en=clData()[it.id]; if(en&&en.date) datedItems2.push({label:it.label,dateStr:en.date});
+            })));
+            const bulkBtn2=document.querySelector('.cl-bulk-btn');
+            if(bulkBtn2){
+              bulkBtn2.textContent='⬇️  Download all '+datedItems2.length+' dated item'+(datedItems2.length===1?'':'s')+' to calendar';
+              bulkBtn2.classList.toggle('hidden',!datedItems2.length);
+              if(datedItems2.length) bulkBtn2.href=clMakeBulkIcs(datedItems2);
+            }
+          });
+        }
 
         row.append(cb,lbl,dateIn,calBtn);
         sec.appendChild(row);
