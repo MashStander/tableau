@@ -8908,7 +8908,7 @@ function clRender(){
         let rowCls='cl-item'+(entry.checked?' done':'');
         if(clBatchMode && clBatchDateVal) rowCls+=' cl-pick';
         if(clBatchMode && clBatchDateVal && entry.date===clBatchDateVal) rowCls+=' cl-pick-on';
-        const row=document.createElement('div'); row.className=rowCls;
+        const row=document.createElement('div'); row.className=rowCls; row.dataset.clId=item.id;
 
         const cb=document.createElement('input'); cb.type='checkbox'; cb.className='cl-cb'; cb.checked=!!entry.checked;
         cb.addEventListener('change',()=>{
@@ -8916,10 +8916,10 @@ function clRender(){
           e[item.id].checked=cb.checked; row.classList.toggle('done',cb.checked); isDirty=true; clUpdateStat();
         });
 
-        const lbl=document.createElement('label'); lbl.className='cl-label'; lbl.textContent=item.label;
+        const lbl=document.createElement('span'); lbl.className='cl-label'; lbl.textContent=item.label;
         lbl.style.cursor='pointer';
         lbl.addEventListener('click',()=>{
-          if(clBatchMode && clBatchDateVal) return; // batch mode handles via row click
+          if(clBatchMode && clBatchDateVal) return;
           cb.checked=!cb.checked; cb.dispatchEvent(new Event('change'));
         });
 
@@ -8939,44 +8939,44 @@ function clRender(){
         });
         calBtn.addEventListener('click',e=>{ if(!dateIn.value) e.preventDefault(); });
 
-        /* batch mode: clicking the row stamps / unstamps the shared date */
-        if(clBatchMode && clBatchDateVal){
-          dateIn.style.pointerEvents='none';
-          calBtn.style.pointerEvents='none';
-          row.addEventListener('click',e=>{
-            if(e.target.closest('input[type=checkbox]')) return;
-            e.preventDefault();
-            const data=clData(); if(!data[item.id]) data[item.id]={};
-            if(data[item.id].date===clBatchDateVal){
-              data[item.id].date='';
-              row.classList.remove('cl-pick-on');
-              dateIn.value=''; refreshCal();
-            } else {
-              data[item.id].date=clBatchDateVal;
-              row.classList.add('cl-pick-on');
-              dateIn.value=clBatchDateVal; refreshCal();
-            }
-            isDirty=true;
-            /* update bulk button without full re-render */
-            const datedItems2=[];
-            CHECKLIST_PHASES.forEach(p=>p.groups.forEach(g=>g.items.forEach(it=>{
-              const en=clData()[it.id]; if(en&&en.date) datedItems2.push({label:it.label,dateStr:en.date});
-            })));
-            const bulkBtn2=document.querySelector('.cl-bulk-btn');
-            if(bulkBtn2){
-              bulkBtn2.textContent='⬇️  Download all '+datedItems2.length+' dated item'+(datedItems2.length===1?'':'s')+' to calendar';
-              bulkBtn2.classList.toggle('hidden',!datedItems2.length);
-              if(datedItems2.length) bulkBtn2.href=clMakeBulkIcs(datedItems2);
-            }
-          });
-        }
-
         row.append(cb,lbl,dateIn,calBtn);
         sec.appendChild(row);
       });
     });
     body.appendChild(sec);
   });
+  /* ---- single delegated batch handler ---- */
+  if(clBatchMode && clBatchDateVal){
+    body.addEventListener('click',function batchDelegate(e){
+      if(!clBatchMode||!clBatchDateVal){ body.removeEventListener('click',batchDelegate); return; }
+      if(e.target.closest('input,a,button')) return;
+      const targetRow=e.target.closest('[data-cl-id]'); if(!targetRow) return;
+      const itemId=targetRow.dataset.clId;
+      const data=clData(); if(!data[itemId]) data[itemId]={};
+      if(data[itemId].date===clBatchDateVal){
+        data[itemId].date=''; targetRow.classList.remove('cl-pick-on');
+        const di=targetRow.querySelector('.cl-date'); if(di) di.value='';
+        const ca=targetRow.querySelector('.cl-cal'); if(ca){ ca.removeAttribute('href'); ca.style.opacity='0.3'; }
+      } else {
+        data[itemId].date=clBatchDateVal; targetRow.classList.add('cl-pick-on');
+        const di=targetRow.querySelector('.cl-date'); if(di) di.value=clBatchDateVal;
+        const ca=targetRow.querySelector('.cl-cal'); if(ca){
+          ca.href=clMakeIcs(data[itemId].label||itemId,clBatchDateVal); ca.style.opacity='1';
+        }
+      }
+      isDirty=true;
+      const datedItems2=[]; CHECKLIST_PHASES.forEach(p=>p.groups.forEach(g=>g.items.forEach(it=>{
+        const en=clData()[it.id]; if(en&&en.date) datedItems2.push({label:it.label,dateStr:en.date});
+      })));
+      const bulkBtn2=document.querySelector('.cl-bulk-btn');
+      if(bulkBtn2){
+        bulkBtn2.textContent='⬇️  Download all '+datedItems2.length+' dated item'+(datedItems2.length===1?'':'s')+' to calendar';
+        bulkBtn2.classList.toggle('hidden',!datedItems2.length);
+        if(datedItems2.length) bulkBtn2.href=clMakeBulkIcs(datedItems2);
+      }
+    });
+  }
+
   const done=clDoneCount(),total=clTotalItems();
   const prog=document.createElement('p'); prog.className='cl-progress';
   prog.innerHTML='<strong>'+done+'</strong> of '+total+' tasks ticked off';
