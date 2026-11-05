@@ -8848,21 +8848,6 @@ function clMakeBulkIcs(items){
 }
 
 let clBatchMode=false, clBatchDateVal='';
-function _clBatchClick(e){
-  if(!clBatchMode||!clBatchDateVal) return;
-  if(e.target.closest('input,a,button')) return;
-  const targetRow=e.target.closest('[data-cl-id]'); if(!targetRow) return;
-  e.stopPropagation();
-  const itemId=targetRow.dataset.clId;
-  const data=clData(); if(!data[itemId]) data[itemId]={};
-  const removing=(data[itemId].date===clBatchDateVal);
-  data[itemId].date=removing?'':clBatchDateVal;
-  isDirty=true;
-  /* update DOM directly — no clRender() so listeners stay stable */
-  targetRow.classList.toggle('cl-pick-on',!removing);
-  const rowDateIn=targetRow.querySelector('input[type=date]');
-  if(rowDateIn) rowDateIn.value=data[itemId].date;
-}
 
 function openChecklist(){
   if(!needPlan(2,'Wedding checklist')) return;
@@ -8883,7 +8868,6 @@ function clRender(){
   const d=clData();
   const body=document.getElementById('checklistBody');
   const prevScrollY=window.scrollY;
-  body.removeEventListener('click',_clBatchClick);
   body.innerHTML='';
 
   /* ---- tip box ---- */
@@ -8965,13 +8949,27 @@ function clRender(){
         });
         calBtn.addEventListener('click',e=>{ if(!dateIn.value) e.preventDefault(); });
 
+        /* batch-mode tap handler — per row, so no delegation complexity */
+        if(clBatchMode && clBatchDateVal){
+          const batchDate=clBatchDateVal; // snapshot value at render time
+          const itemIdSnap=item.id;
+          row.addEventListener('click',function(ev){
+            if(ev.target===cb||ev.target===dateIn||ev.target===calBtn) return;
+            const store=clData(); if(!store[itemIdSnap]) store[itemIdSnap]={};
+            const removing=(store[itemIdSnap].date===batchDate);
+            store[itemIdSnap].date=removing?'':batchDate;
+            isDirty=true;
+            row.classList.toggle('cl-pick-on',!removing);
+            dateIn.value=store[itemIdSnap].date;
+          });
+        }
+
         row.append(cb,lbl,dateIn,calBtn);
         sec.appendChild(row);
       });
     });
     body.appendChild(sec);
   });
-  if(clBatchMode&&clBatchDateVal) body.addEventListener('click',_clBatchClick);
 
   const done=clDoneCount(),total=clTotalItems();
   const prog=document.createElement('p'); prog.className='cl-progress';
