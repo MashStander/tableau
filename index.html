@@ -8973,15 +8973,15 @@ function clRender(){
         });
         calBtn.addEventListener('click',e=>{ if(!dateIn.value) e.preventDefault(); });
 
-        /* in batch mode: add a dedicated tick-box at the start of the row */
         if(clBatchMode){
+          /* replace the normal checkbox with a batch-select checkbox */
           const bcb=document.createElement('input'); bcb.type='checkbox'; bcb.className='cl-batch-cb cl-cb';
           bcb.dataset.batchId=item.id; bcb.style.accentColor='var(--sage-dark)';
           bcb.addEventListener('change',()=>{ row.classList.toggle('cl-pick-on',bcb.checked); });
-          row.appendChild(bcb);
+          row.append(bcb,lbl,dateIn,calBtn);
+        } else {
+          row.append(cb,lbl,dateIn,calBtn);
         }
-
-        row.append(cb,lbl,dateIn,calBtn);
         sec.appendChild(row);
       });
     });
