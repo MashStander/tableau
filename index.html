@@ -763,6 +763,7 @@
   .cl-bulk-btn:hover{opacity:.88;}
   .cl-bulk-btn.hidden{display:none;}
   .cl-batch-bar{background:var(--linen); border:1px solid var(--line); border-radius:10px; padding:10px 14px; margin:0 0 14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .cl-batch-bar.sticky{position:sticky; top:0; z-index:100; border-radius:0 0 10px 10px; box-shadow:0 3px 12px rgba(0,0,0,.12);}
   .cl-batch-open-btn{background:none; border:1px solid var(--sage-dark); color:var(--sage-dark); border-radius:20px; padding:6px 14px; font:inherit; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap;}
   .cl-batch-open-btn:hover{background:var(--hover);}
   .cl-batch-cancel{background:none; border:none; color:var(--ink-soft); font:inherit; font-size:13px; cursor:pointer; padding:4px 8px; border-radius:6px; margin-left:auto;}
@@ -8847,7 +8848,7 @@ function clMakeBulkIcs(items){
   return 'data:text/calendar;charset=utf8,'+encodeURIComponent(lines.join('\r\n'));
 }
 
-let clBatchMode=false, clBatchSelected=new Set();
+let clBatchMode=false, clBatchSelected=new Set(), clPickerOpen=null;
 
 function openChecklist(){
   if(!needPlan(2,'Wedding checklist')) return;
@@ -8887,7 +8888,7 @@ function clRender(){
   body.appendChild(tip);
 
   /* ---- batch date bar ---- */
-  const batchBar=document.createElement('div'); batchBar.className='cl-batch-bar';
+  const batchBar=document.createElement('div'); batchBar.className='cl-batch-bar'+(clBatchMode?' sticky':'');
   if(!clBatchMode){
     const openBtn=document.createElement('button'); openBtn.type='button'; openBtn.className='cl-batch-open-btn';
     openBtn.textContent='📅 Set one date for multiple items';
@@ -8973,15 +8974,71 @@ function clRender(){
         });
         calBtn.addEventListener('click',e=>{ if(!dateIn.value) e.preventDefault(); });
 
+        /* 👥 people button (5th column) */
+        const involved=(entry.involved||[]);
+        const peopleBtn=document.createElement('button'); peopleBtn.type='button';
+        peopleBtn.className='cl-people-btn'+(involved.length?' has-people':'');
+        peopleBtn.title='Share with bridal party';
+        peopleBtn.textContent=involved.length?'👥 '+involved.length:'👥';
+        peopleBtn.addEventListener('click',e=>{
+          e.stopPropagation();
+          clPickerOpen=(clPickerOpen===item.id?null:item.id);
+          const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
+        });
+
         if(clBatchMode){
-          /* replace the normal checkbox with a batch-select checkbox */
           const bcb=document.createElement('input'); bcb.type='checkbox'; bcb.className='cl-batch-cb cl-cb';
           bcb.dataset.batchId=item.id; bcb.style.accentColor='var(--sage-dark)';
           bcb.addEventListener('change',()=>{ row.classList.toggle('cl-pick-on',bcb.checked); });
           row.append(bcb,lbl,dateIn,calBtn);
         } else {
-          row.append(cb,lbl,dateIn,calBtn);
+          row.append(cb,lbl,dateIn,calBtn,peopleBtn);
         }
+
+        /* pills row — spans col 2 to end, inside the grid */
+        if(!clBatchMode && involved.length){
+          const pillRow=document.createElement('div'); pillRow.className='cl-people-row';
+          involved.forEach(name=>{
+            const pill=document.createElement('span'); pill.className='cl-person-pill'; pill.textContent=name;
+            const rem=document.createElement('button'); rem.type='button'; rem.textContent='×';
+            rem.addEventListener('click',e=>{ e.stopPropagation();
+              const store=clData(); if(!store[item.id]) store[item.id]={};
+              store[item.id].involved=(store[item.id].involved||[]).filter(n=>n!==name);
+              isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
+            });
+            pill.appendChild(rem); pillRow.appendChild(pill);
+          });
+          row.appendChild(pillRow);
+        }
+
+        /* inline picker — opens when this item's picker is active */
+        if(!clBatchMode && clPickerOpen===item.id){
+          const people=(bpData().people||[]).filter(p=>p.name&&p.name.trim());
+          const pickerDiv=document.createElement('div'); pickerDiv.className='cl-people-picker';
+          if(!people.length){
+            const empty=document.createElement('span'); empty.style.cssText='font-size:13px;color:var(--ink-soft);font-style:italic;';
+            empty.textContent='No bridal party members yet — add them on the Bridal Party tab.';
+            pickerDiv.appendChild(empty);
+          } else {
+            people.forEach(p=>{
+              const btn=document.createElement('button'); btn.type='button';
+              btn.className='cl-picker-person'+(involved.includes(p.name)?' picked':'');
+              btn.textContent=p.name+(p.role?' ('+p.role+')':'');
+              btn.addEventListener('click',e=>{ e.stopPropagation();
+                const store=clData(); if(!store[item.id]) store[item.id]={};
+                const inv=store[item.id].involved||[];
+                store[item.id].involved=inv.includes(p.name)?inv.filter(n=>n!==p.name):[...inv,p.name];
+                isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
+              });
+              pickerDiv.appendChild(btn);
+            });
+          }
+          const doneBtn=document.createElement('button'); doneBtn.type='button'; doneBtn.className='cl-picker-done'; doneBtn.textContent='Done';
+          doneBtn.addEventListener('click',e=>{ e.stopPropagation(); clPickerOpen=null; const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
+          pickerDiv.appendChild(doneBtn);
+          row.appendChild(pickerDiv);
+        }
+
         sec.appendChild(row);
       });
     });
