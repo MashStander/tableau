@@ -115,8 +115,8 @@
 
     <div id="pickView">
       <a class="guest-link hidden" id="guestLinkTop" href="#">Open the guest page<small>Look up a guest&rsquo;s table to help them on the day</small></a>
-      <h2 class="sec-head" data-sec="rolesSec">Wedding day Roles <span class="chev">&#9660;</span></h2>
-      <div class="sec-body" id="rolesSec">
+      <h2 class="sec-head collapsed" data-sec="rolesSec">Wedding day Roles <span class="chev">&#9660;</span></h2>
+      <div class="sec-body collapsed" id="rolesSec">
         <div class="names" id="names"></div>
       </div>
       <h2 id="contactsH" class="sec-head hidden" data-sec="contactsSec">Bridal party contacts <span class="chev">&#9660;</span></h2>
@@ -350,8 +350,8 @@ function initCollapse(){
 }
 function showSection(headId, bodyId){
   const h = el(headId), b = el(bodyId);
-  if(h) h.classList.remove('hidden');
-  if(b) b.classList.remove('hidden');
+  if(h){ h.classList.remove('hidden'); h.classList.add('collapsed'); }
+  if(b){ b.classList.remove('hidden'); b.classList.add('collapsed'); }
 }
 function renderImportantDates(){
   const dates = (DATA.importantDates || []).slice().sort((a, b) => {
