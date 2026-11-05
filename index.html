@@ -729,7 +729,7 @@
   .cl-phase{margin:28px 0 0;}
   .cl-phase-title{font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--sage-dark); margin:0 0 10px; padding-bottom:6px; border-bottom:1px solid var(--line);}
   .cl-group-title{font-size:12px; font-weight:600; color:var(--ink-soft); margin:12px 0 4px; text-transform:uppercase; letter-spacing:.05em;}
-  .cl-item{display:grid; grid-template-columns:28px 1fr auto auto; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; margin:3px 0; background:var(--surface);}
+  .cl-item{display:grid; grid-template-columns:28px 1fr auto auto auto; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; margin:3px 0; background:var(--surface);}
   .cl-item:hover{background:var(--hover);}
   .cl-item.done .cl-label{text-decoration:line-through; color:var(--ink-soft);}
   .cl-cb{width:18px; height:18px; cursor:pointer; accent-color:var(--sage-dark);}
@@ -738,6 +738,16 @@
   .cl-cal{border:none; background:transparent; cursor:pointer; font-size:17px; padding:2px 4px; border-radius:6px; color:var(--sage-dark); line-height:1;}
   .cl-cal:hover{background:var(--hover);}
   .cl-cal[disabled]{opacity:.3; cursor:default;}
+  .cl-people-btn{border:none; background:transparent; cursor:pointer; font-size:16px; padding:2px 4px; border-radius:6px; color:var(--ink-soft); line-height:1; white-space:nowrap;}
+  .cl-people-btn:hover{background:var(--hover); color:var(--sage-dark);}
+  .cl-people-btn.has-people{color:var(--sage-dark);}
+  .cl-people-row{grid-column:2 / -1; display:flex; flex-wrap:wrap; gap:5px; margin-top:2px;}
+  .cl-person-pill{display:inline-flex; align-items:center; gap:4px; font-size:12px; background:var(--linen); border:1px solid var(--line); border-radius:12px; padding:2px 8px; color:var(--ink);}
+  .cl-person-pill button{border:none; background:none; cursor:pointer; font-size:11px; color:var(--ink-soft); padding:0 0 0 2px; line-height:1;}
+  .cl-people-picker{grid-column:2 / -1; background:var(--white); border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:4px; display:flex; flex-wrap:wrap; gap:6px; align-items:center;}
+  .cl-picker-person{font-size:13px; padding:4px 10px; border-radius:14px; border:1px solid var(--line); background:var(--surface); cursor:pointer; user-select:none;}
+  .cl-picker-person.picked{background:var(--sage-dark); color:#fff; border-color:var(--sage-dark);}
+  .cl-picker-done{font-size:13px; font-weight:600; padding:4px 12px; border-radius:14px; border:none; background:var(--sage-dark); color:#fff; cursor:pointer; margin-left:auto;}
   .cl-progress{font-size:13px; color:var(--ink-soft); margin:16px 0 0; text-align:center;}
   .cl-progress strong{color:var(--sage-dark);}
   .cl-tip{background:var(--linen); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin:0 0 18px; font-size:13.5px; line-height:1.6;}
@@ -8842,11 +8852,16 @@ function _clBatchClick(e){
   if(!clBatchMode||!clBatchDateVal) return;
   if(e.target.closest('input,a,button')) return;
   const targetRow=e.target.closest('[data-cl-id]'); if(!targetRow) return;
+  e.stopPropagation();
   const itemId=targetRow.dataset.clId;
   const data=clData(); if(!data[itemId]) data[itemId]={};
-  data[itemId].date=(data[itemId].date===clBatchDateVal)?'':clBatchDateVal;
+  const removing=(data[itemId].date===clBatchDateVal);
+  data[itemId].date=removing?'':clBatchDateVal;
   isDirty=true;
-  const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
+  /* update DOM directly — no clRender() so listeners stay stable */
+  targetRow.classList.toggle('cl-pick-on',!removing);
+  const rowDateIn=targetRow.querySelector('input[type=date]');
+  if(rowDateIn) rowDateIn.value=data[itemId].date;
 }
 
 function openChecklist(){
