@@ -182,6 +182,8 @@
   .doc-imgs:first-child{margin-top:0;}
   .doc-img{width:100%; height:auto; border:1px solid var(--line); border-radius:8px; display:block; cursor:zoom-in; background:#fff;}
   .img-hint{font-size:12px; color:var(--ink-soft); text-align:center; margin-top:6px;}
+  /* ---- verse / quote ---- */
+  .verse-block{text-align:center; padding:18px 16px 10px; font-size:12.5px; color:var(--ink-soft); line-height:1.7; font-style:italic;}
 
   #lightbox{position:fixed; inset:0; z-index:100; background:rgba(20,18,15,.92); overflow:auto; -webkit-overflow-scrolling:touch; padding:56px 8px 24px;}
   #lightbox img{width:100%; height:auto; display:block; margin:0 auto; max-width:1200px; background:#fff;}
@@ -224,6 +226,8 @@
       </div>
     </div>
 
+    <div id="seatVerseBlock" class="verse-block hidden"></div>
+
     <div id="groupView" class="card hidden">
       <button class="back-btn" id="groupBack">&larr; Back</button>
       <h2 class="view-title" id="groupTitle"></h2>
@@ -257,10 +261,12 @@
   <div id="programSection" class="hidden">
     <button class="back-btn homeBack" data-home="1">&larr; Back</button>
     <div class="card"><h2 class="view-title">Programme</h2><div id="programBody"></div></div>
+    <div id="programVerseBlock" class="verse-block hidden"></div>
   </div>
   <div id="menuSection" class="hidden">
     <button class="back-btn homeBack" data-home="1">&larr; Back</button>
     <div class="card"><h2 class="view-title">Menu</h2><div id="menuBody"></div></div>
+    <div id="menuVerseBlock" class="verse-block hidden"></div>
   </div>
   <div id="giftsSection" class="hidden">
     <button class="back-btn homeBack" data-home="1">&larr; Back</button>
@@ -643,6 +649,13 @@ function applyData(){
   const w = document.getElementById('welcomeLine');
   w.textContent = info.welcome || '';
   w.classList.toggle('hidden', !info.welcome);
+  /* ---- verse / quote ---- */
+  const DEFAULT_VERSE = '“Now all glory to God, who is able, through his mighty power at work within us, to accomplish infinitely more than we might ask or think.”';
+  const verseText = (info.verse && info.verse.trim()) ? info.verse.trim() : DEFAULT_VERSE;
+  ['seatVerseBlock','programVerseBlock','menuVerseBlock'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){ el.textContent = verseText; el.classList.remove('hidden'); }
+  });
   renderSections();
   buildHome();
 }

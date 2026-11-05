@@ -1544,6 +1544,8 @@
       <input type="text" id="eiEventName" class="custom-num" maxlength="50" placeholder="e.g. Olivia &amp; Daniel" style="width:100%; margin-bottom:10px;">
       <label>Small line above it (optional)</label>
       <input type="text" id="eiWelcome" class="custom-num" maxlength="80" placeholder="e.g. Welcome to our wedding" style="width:100%; margin-bottom:10px;">
+      <label>Your favourite verse or quote (shown in small print on your guest page — leave blank for the default)</label>
+      <textarea id="eiVerse" class="custom-num" rows="3" style="width:100%; margin-bottom:10px;" placeholder="e.g. Now all glory to God, who is able, through his mighty power at work within us, to accomplish infinitely more than we might ask or think."></textarea>
       <label>Date of the event (guests also get an &ldquo;Add to calendar&rdquo; link and a countdown)</label>
       <input type="date" id="eiDate" class="custom-num" style="margin-bottom:10px;">
       <label>Cover photo or logo (best shape: wide, about 1200 &times; 600 px)</label>
@@ -7208,7 +7210,7 @@ function renderEiTemplates(){
   });
 }
 renderEiTemplates();
-const EI_FIELDS = {welcome:'eiWelcome', program:'eiProgram', menu:'eiMenu', links:'eiLinks', bankNote:'eiBankNote', bank:'eiBank', date:'eiDate', accent:'eiAccent', fontStyle:'eiFont', listBy:'eiListBy', albumUrl:'eiAlbumUrl', albumNote:'eiAlbumNote'};
+const EI_FIELDS = {welcome:'eiWelcome', verse:'eiVerse', program:'eiProgram', menu:'eiMenu', links:'eiLinks', bankNote:'eiBankNote', bank:'eiBank', date:'eiDate', accent:'eiAccent', fontStyle:'eiFont', listBy:'eiListBy', albumUrl:'eiAlbumUrl', albumNote:'eiAlbumNote'};
 const EI_SECTIONS = ['cover','program','menu','bank'];
 const EI_IMG_MAX = 4;
 function eiMax(sec){ return sec === 'cover' ? 1 : EI_IMG_MAX; }
@@ -7482,6 +7484,7 @@ function buildEventInfoForExport(){
   const urls = k => (im[k] || []).map(x=>x.url);
   return {
     welcome: (info.welcome||'').trim(),
+    verse: (info.verse||'').trim(),
     date: info.date || '',
     accent: info.accent || '',
     fontStyle: eiFontKey(info.fontStyle),
