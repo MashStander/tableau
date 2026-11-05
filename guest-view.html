@@ -210,6 +210,7 @@
   <!-- HOME: tappable choices -->
   <div id="homeView">
     <div id="tileGrid"></div>
+    <div id="homeVerseBlock" class="verse-block hidden"></div>
   </div>
 
   <!-- FIND MY SEAT -->
@@ -652,7 +653,7 @@ function applyData(){
   /* ---- verse / quote ---- */
   const DEFAULT_VERSE = '“Now all glory to God, who is able, through his mighty power at work within us, to accomplish infinitely more than we might ask or think.”';
   const verseText = (info.verse && info.verse.trim()) ? info.verse.trim() : DEFAULT_VERSE;
-  ['seatVerseBlock','programVerseBlock','menuVerseBlock'].forEach(id=>{
+  ['homeVerseBlock','seatVerseBlock','programVerseBlock','menuVerseBlock'].forEach(id=>{
     const el = document.getElementById(id);
     if(el){ el.textContent = verseText; el.classList.remove('hidden'); }
   });
