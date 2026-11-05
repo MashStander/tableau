@@ -8452,7 +8452,8 @@ function bpCollect(){
     vendors: vendorList().filter(v=> (v.name||'').trim()).map(v=>({type:(v.type||'').trim(), name:v.name.trim(), phone:(v.phone||'').trim(), email:(v.email||'').trim(), note:(v.note||'').trim()})),
     photos: photoList().filter(x=> (x.name||'').trim()).map(x=>({id:x.id, name:x.name.trim(), time:(x.time||'').trim(), place:(x.place||'').trim(), note:(x.note||'').trim(),
       people:(x.guestIds||[]).map(id=>{ const g = state.guests.find(q=>q.id===id); return g ? g.name : ''; }).concat(splitCommas(x.others)).filter(Boolean)})),
-    pack: b.pack.filter(k=> (k.what||'').trim()).map(k=>({id:k.id, what:k.what.trim(), who:(k.who||'').trim(), when:(k.when||'').trim()}))
+    pack: b.pack.filter(k=> (k.what||'').trim()).map(k=>({id:k.id, what:k.what.trim(), who:(k.who||'').trim(), when:(k.when||'').trim()})),
+    importantDates: Object.values(clData()).filter(x=> x && x.title && (x.involved||[]).length).map(x=>({title:x.title, date:x.date||'', involved:x.involved||[]}))
   };
 }
 function bpEnsureRoles(whoStrings){

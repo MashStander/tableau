@@ -22,7 +22,32 @@
   .status{background:var(--white); border:1px solid var(--line); border-radius:12px; padding:10px 14px; text-align:center; font-size:14px; margin-bottom:14px;}
   .status b{color:var(--sage-dark);}
   .note{background:var(--linen); border-radius:12px; padding:10px 14px; font-size:14px; margin-bottom:16px; white-space:pre-line;}
-  h2{font-family:'Cormorant Garamond',serif; font-size:22px; margin:22px 0 8px; color:var(--ink);}
+  /* collapsible section headings */
+  h2.sec-head{font-family:'Cormorant Garamond',serif; font-size:22px; margin:22px 0 0; color:var(--ink); display:flex; justify-content:space-between; align-items:center; cursor:pointer; user-select:none; padding-bottom:6px;}
+  h2.sec-head .chev{font-size:15px; color:var(--ink-soft); transition:transform .2s; display:inline-block; margin-left:6px;}
+  h2.sec-head.collapsed .chev{transform:rotate(-90deg);}
+  .sec-body{margin-top:8px;}
+  .sec-body.collapsed{display:none;}
+  /* Important dates */
+  .date-item{display:flex; gap:14px; align-items:center; background:var(--white); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-bottom:10px; cursor:pointer;}
+  .date-item:active{background:var(--linen);}
+  .date-left{text-align:center; min-width:44px; flex-shrink:0;}
+  .date-day{font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; color:var(--sage-dark); line-height:1;}
+  .date-mon{font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin-top:1px;}
+  .date-info{flex:1; min-width:0;}
+  .date-title{font-size:15px; font-weight:500;}
+  .date-hint{font-size:12.5px; color:var(--ink-soft); margin-top:2px;}
+  .date-tap{font-size:11.5px; color:var(--sage-dark); margin-top:3px;}
+  /* popup */
+  #datePopup{position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.45); display:flex; align-items:flex-end; justify-content:center;}
+  #datePopup.hidden{display:none !important;}
+  .popup-sheet{background:var(--paper); border-radius:20px 20px 0 0; padding:22px 20px 40px; width:100%; max-width:560px; max-height:80vh; overflow-y:auto;}
+  .popup-sheet h3{font-family:'Cormorant Garamond',serif; font-size:26px; color:var(--sage-dark); margin:0 0 2px;}
+  .popup-date-line{font-size:14px; color:var(--ink-soft); margin-bottom:16px;}
+  .popup-label{font-size:12.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:10px;}
+  .popup-people{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;}
+  .popup-person{background:var(--white); border:1px solid var(--line); border-radius:20px; padding:7px 14px; font-size:14px; font-weight:500;}
+  .popup-close{width:100%; background:var(--sage-dark); color:#fff; border:none; border-radius:12px; padding:13px; font:inherit; font-size:15px; font-weight:500; cursor:pointer;}
   .names{display:flex; flex-wrap:wrap; gap:10px;}
   .name-btn{flex:1 1 140px; border:1px solid var(--line); background:var(--white); border-radius:14px; padding:14px 12px; font:inherit; font-size:16px; font-weight:500; color:var(--ink); cursor:pointer; text-align:left;}
   .name-btn small{display:block; color:var(--ink-soft); font-weight:400; font-size:12.5px; margin-top:2px;}
@@ -90,14 +115,36 @@
 
     <div id="pickView">
       <a class="guest-link hidden" id="guestLinkTop" href="#">Open the guest page<small>Look up a guest&rsquo;s table to help them on the day</small></a>
-      <h2>Tap your name</h2>
-      <div class="names" id="names"></div>
-      <h2 id="contactsH" class="hidden">Contacts</h2>
-      <div id="contacts"></div>
-      <h2 id="vendorsH" class="hidden">Vendors</h2>
-      <div id="vendorsBox"></div>
-      <h2 id="photosH" class="hidden">Group photos</h2>
-      <div id="photosBox"></div>
+      <h2 class="sec-head" data-sec="rolesSec">Wedding day Roles <span class="chev">&#9660;</span></h2>
+      <div class="sec-body" id="rolesSec">
+        <div class="names" id="names"></div>
+      </div>
+      <h2 id="contactsH" class="sec-head hidden" data-sec="contactsSec">Bridal party contacts <span class="chev">&#9660;</span></h2>
+      <div class="sec-body hidden" id="contactsSec">
+        <div id="contacts"></div>
+      </div>
+      <h2 id="vendorsH" class="sec-head hidden" data-sec="vendorsSec">Vendors <span class="chev">&#9660;</span></h2>
+      <div class="sec-body hidden" id="vendorsSec">
+        <div id="vendorsBox"></div>
+      </div>
+      <h2 id="photosH" class="sec-head hidden" data-sec="photosSec">Group photos <span class="chev">&#9660;</span></h2>
+      <div class="sec-body hidden" id="photosSec">
+        <div id="photosBox"></div>
+      </div>
+      <h2 id="datesH" class="sec-head hidden" data-sec="datesSec">Important dates <span class="chev">&#9660;</span></h2>
+      <div class="sec-body hidden" id="datesSec">
+        <div id="datesBox"></div>
+      </div>
+    </div>
+
+    <div id="datePopup" class="hidden">
+      <div class="popup-sheet">
+        <h3 id="popupTitle"></h3>
+        <div class="popup-date-line" id="popupDateLine"></div>
+        <div class="popup-label">Who&rsquo;s involved</div>
+        <div class="popup-people" id="popupPeople"></div>
+        <button class="popup-close" onclick="closeDatePopup()">Close</button>
+      </div>
     </div>
 
     <div id="personView" class="hidden">
@@ -132,6 +179,7 @@ function pad(n){ return (n < 10 ? '0' : '') + n; }
 function todayStr(){ const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
 function nowMins(){ if(FORCE_NOW) return mins(FORCE_NOW); const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
 const MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MN_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const DN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 function parseDate(s){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
 function daysTo(s){ const d = parseDate(s); if(!d) return null; const t = parseDate(todayStr()); return Math.round((d - t) / 86400000); }
@@ -218,6 +266,7 @@ function start(){
   DATA.jobs = (DATA.jobs || []).map(j => { j.day = j.day || 'wedding'; return j; });
   curDay = 'wedding';
   dayList().forEach(k => { if(dayStateFor(k) === 'today' && !FORCE_NOW) curDay = k; });
+  DATA.importantDates = (DATA.importantDates || []).filter(x => x && x.title);
   DATA.jobs = (DATA.jobs || []).slice().sort((a, b) => (mins(a.time) == null ? 9999 : mins(a.time)) - (mins(b.time) == null ? 9999 : mins(b.time)));
   try{ doneSet = new Set(JSON.parse(localStorage.getItem('bp-done-' + (SLUG || 'preview')) || '[]')); }catch(e){ doneSet = new Set(); }
   document.title = (DATA.title ? DATA.title + ' – ' : '') + 'Bridal party guide';
@@ -229,7 +278,7 @@ function start(){
     ['guestLinkTop','guestLinkPerson'].forEach(id => { el(id).href = DATA.guestUrl; el(id).classList.remove('hidden'); });
   }
   el('loading').classList.add('hidden'); el('main').classList.remove('hidden');
-  renderPick(); renderVendors(); renderPhotosPick(); tick(); setInterval(tick, 30000);
+  initCollapse(); renderPick(); renderVendors(); renderPhotosPick(); renderImportantDates(); tick(); setInterval(tick, 30000);
 }
 function renderStatus(){
   const st = dayState(), n = daysTo(DATA.date);
@@ -250,7 +299,7 @@ function renderPick(){
     b.onclick = () => openPerson(i); box.appendChild(b);
   });
   const withPhone = DATA.people.filter(p => p.phone);
-  el('contactsH').classList.toggle('hidden', !withPhone.length);
+  if(withPhone.length) showSection('contactsH','contactsSec');
   const c = el('contacts'); c.innerHTML = '';
   withPhone.forEach(p => {
     const wa = phoneDigits(p.phone), digits = '+' + wa;
@@ -267,7 +316,7 @@ function contactRow(name, sub, phone, email){
   return row;
 }
 function renderVendors(){
-  el('vendorsH').classList.toggle('hidden', !DATA.vendors.length);
+  if(DATA.vendors.length) showSection('vendorsH','vendorsSec');
   const box = el('vendorsBox'); box.innerHTML = '';
   DATA.vendors.forEach(v => box.appendChild(contactRow(v.name, [v.type, v.note].filter(Boolean).join(' · '), v.phone, v.email)));
 }
@@ -285,9 +334,65 @@ function photoRows(box, me){
   });
 }
 function renderPhotosPick(){
-  el('photosH').classList.toggle('hidden', !DATA.photos.length);
+  if(DATA.photos.length) showSection('photosH','photosSec');
   const box = el('photosBox'); box.innerHTML = ''; if(DATA.photos.length) photoRows(box, null);
 }
+function initCollapse(){
+  document.querySelectorAll('h2.sec-head').forEach(h => {
+    h.addEventListener('click', () => {
+      const body = el(h.dataset.sec);
+      if(!body) return;
+      const collapse = !body.classList.contains('collapsed');
+      body.classList.toggle('collapsed', collapse);
+      h.classList.toggle('collapsed', collapse);
+    });
+  });
+}
+function showSection(headId, bodyId){
+  const h = el(headId), b = el(bodyId);
+  if(h) h.classList.remove('hidden');
+  if(b) b.classList.remove('hidden');
+}
+function renderImportantDates(){
+  const dates = (DATA.importantDates || []).slice().sort((a, b) => {
+    const da = parseDate(a.date), db = parseDate(b.date);
+    if(!da && !db) return 0; if(!da) return 1; if(!db) return -1;
+    return da - db;
+  });
+  if(!dates.length) return;
+  showSection('datesH','datesSec');
+  const box = el('datesBox'); box.innerHTML = '';
+  dates.forEach(item => {
+    const d = parseDate(item.date);
+    const involved = item.involved || [];
+    const row = document.createElement('div'); row.className = 'date-item';
+    row.innerHTML = '<div class="date-left">' +
+      (d ? '<div class="date-day">' + d.getDate() + '</div><div class="date-mon">' + MN_SHORT[d.getMonth()] + '</div>' : '<div class="date-day">&ndash;</div>') +
+      '</div><div class="date-info"><div class="date-title">' + esc(item.title) + '</div>' +
+      '<div class="date-hint">' + involved.length + ' ' + (involved.length === 1 ? 'person' : 'people') + ' involved</div>' +
+      '<div class="date-tap">Tap to see who &rsaquo;</div></div>';
+    row.addEventListener('click', () => openDatePopup(item));
+    box.appendChild(row);
+  });
+}
+function openDatePopup(item){
+  const d = parseDate(item.date);
+  const dateStr = d ? (DN[d.getDay()] + ', ' + d.getDate() + ' ' + MN[d.getMonth()] + ' ' + d.getFullYear()) : (item.date || '');
+  el('popupTitle').textContent = item.title;
+  el('popupDateLine').textContent = dateStr;
+  const pp = el('popupPeople'); pp.innerHTML = '';
+  (item.involved || []).forEach(name => {
+    const span = document.createElement('span'); span.className = 'popup-person'; span.textContent = name;
+    pp.appendChild(span);
+  });
+  el('datePopup').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeDatePopup(){
+  el('datePopup').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+document.addEventListener('click', e => { if(e.target.id === 'datePopup') closeDatePopup(); });
 function openPerson(i){
   current = i;
   el('pickView').classList.add('hidden'); el('personView').classList.remove('hidden');
