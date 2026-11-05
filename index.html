@@ -740,6 +740,18 @@
   .cl-cal[disabled]{opacity:.3; cursor:default;}
   .cl-progress{font-size:13px; color:var(--ink-soft); margin:16px 0 0; text-align:center;}
   .cl-progress strong{color:var(--sage-dark);}
+  .cl-tip{background:var(--linen); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin:0 0 18px; font-size:13.5px; line-height:1.6;}
+  .cl-tip-toggle{background:none; border:none; font:inherit; font-size:13.5px; font-weight:600; color:var(--sage-dark); cursor:pointer; padding:0; display:flex; align-items:center; gap:6px; width:100%;}
+  .cl-tip-toggle::after{content:'\25BE'; display:inline-block; transition:transform .2s; margin-left:auto;}
+  .cl-tip-toggle.open::after{transform:rotate(180deg);}
+  .cl-tip-body{display:none; margin-top:10px;}
+  .cl-tip-body.open{display:block;}
+  .cl-tip-body ol{margin:6px 0 0 18px; padding:0;}
+  .cl-tip-body li{margin:4px 0;}
+  .cl-bulk-wrap{position:sticky; bottom:16px; text-align:center; margin-top:24px;}
+  .cl-bulk-btn{background:var(--sage-dark); color:#fff; border:none; border-radius:24px; padding:12px 24px; font:inherit; font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 3px 12px rgba(0,0,0,.18); transition:opacity .2s;}
+  .cl-bulk-btn:hover{opacity:.88;}
+  .cl-bulk-btn.hidden{display:none;}
   @media(max-width:520px){
     .cl-item{grid-template-columns:24px 1fr; grid-template-rows:auto auto;}
     .cl-date{width:100%; grid-column:2;}
@@ -8802,13 +8814,19 @@ function clTotalItems(){ return CHECKLIST_PHASES.reduce((n,p)=>n+p.groups.reduce
 function clDoneCount(){ const d=clData(); return Object.values(d).filter(x=>x&&x.checked).length; }
 
 function clMakeIcs(label,dateStr){
-  const d=dateStr.replace(/-/g,'');
-  const dt=new Date(+dateStr.slice(0,4),+dateStr.slice(5,7)-1,+dateStr.slice(8,10)+1);
-  const next=dt.getFullYear()+String(dt.getMonth()+1).padStart(2,'0')+String(dt.getDate()).padStart(2,'0');
-  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Tableau Events//EN','BEGIN:VEVENT',
-    'DTSTART;VALUE=DATE:'+d,'DTEND;VALUE=DATE:'+next,'SUMMARY:'+label.replace(/,/g,'\\,'),
-    'END:VEVENT','END:VCALENDAR'].join('\r\n');
-  return 'data:text/calendar;charset=utf8,'+encodeURIComponent(ics);
+  return clMakeBulkIcs([{label,dateStr}]);
+}
+function clMakeBulkIcs(items){
+  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Tableau Events//EN'];
+  items.forEach(({label,dateStr})=>{
+    const d=dateStr.replace(/-/g,'');
+    const dt=new Date(+dateStr.slice(0,4),+dateStr.slice(5,7)-1,+dateStr.slice(8,10)+1);
+    const next=dt.getFullYear()+String(dt.getMonth()+1).padStart(2,'0')+String(dt.getDate()).padStart(2,'0');
+    lines.push('BEGIN:VEVENT','DTSTART;VALUE=DATE:'+d,'DTEND;VALUE=DATE:'+next,
+      'SUMMARY:'+label.replace(/,/g,'\\,'),'END:VEVENT');
+  });
+  lines.push('END:VCALENDAR');
+  return 'data:text/calendar;charset=utf8,'+encodeURIComponent(lines.join('\r\n'));
 }
 
 function openChecklist(){
@@ -8830,6 +8848,22 @@ function clRender(){
   const d=clData();
   const body=document.getElementById('checklistBody');
   body.innerHTML='';
+
+  /* ---- tip box ---- */
+  const tip=document.createElement('div'); tip.className='cl-tip';
+  const tipBtn=document.createElement('button'); tipBtn.className='cl-tip-toggle'; tipBtn.type='button';
+  tipBtn.textContent='📅  How to add these dates to your calendar';
+  const tipBody=document.createElement('div'); tipBody.className='cl-tip-body';
+  tipBody.innerHTML='<ol>'
+    +'<li>Set a date on any task using the date box next to it.</li>'
+    +'<li>Tap the 📅 button next to that task — a small file (.ics) downloads to your device.</li>'
+    +'<li><b>On your phone:</b> WhatsApp or email that file to yourself, then tap it on your phone — your calendar app will ask to save it. Or use the <em>Download all dated items</em> button below and do it in one go.</li>'
+    +'<li><b>On your laptop:</b> double-click the downloaded file and it opens straight in Outlook, Apple Calendar, or Google Calendar.</li>'
+    +'<li><b>To email it:</b> attach the .ics file to an email, send it to yourself, and open the attachment on your phone or computer.</li>'
+    +'</ol>';
+  tipBtn.addEventListener('click',()=>{ tipBtn.classList.toggle('open'); tipBody.classList.toggle('open'); });
+  tip.append(tipBtn,tipBody);
+  body.appendChild(tip);
   CHECKLIST_PHASES.forEach(phase=>{
     const sec=document.createElement('div'); sec.className='cl-phase';
     const ph=document.createElement('div'); ph.className='cl-phase-title'; ph.textContent=phase.title;
@@ -8877,6 +8911,19 @@ function clRender(){
   const prog=document.createElement('p'); prog.className='cl-progress';
   prog.innerHTML='<strong>'+done+'</strong> of '+total+' tasks ticked off';
   body.appendChild(prog);
+
+  /* ---- bulk calendar download ---- */
+  const datedItems=[];
+  CHECKLIST_PHASES.forEach(ph=>ph.groups.forEach(g=>g.items.forEach(item=>{
+    const e=d[item.id]; if(e&&e.date) datedItems.push({label:item.label,dateStr:e.date});
+  })));
+  const bulkWrap=document.createElement('div'); bulkWrap.className='cl-bulk-wrap';
+  const bulkBtn=document.createElement('a'); bulkBtn.className='cl-bulk-btn'+(datedItems.length?'':' hidden');
+  bulkBtn.textContent='⬇️  Download all '+datedItems.length+' dated item'+(datedItems.length===1?'':'s')+' to calendar';
+  bulkBtn.download='Wedding_Checklist_Dates.ics';
+  if(datedItems.length) bulkBtn.href=clMakeBulkIcs(datedItems);
+  bulkWrap.appendChild(bulkBtn);
+  body.appendChild(bulkWrap);
 }
 
 function clUpdateStat(){
