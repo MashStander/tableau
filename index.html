@@ -8941,8 +8941,10 @@ function clRender(){
 
         /* batch mode: clicking the row stamps / unstamps the shared date */
         if(clBatchMode && clBatchDateVal){
+          dateIn.style.pointerEvents='none';
+          calBtn.style.pointerEvents='none';
           row.addEventListener('click',e=>{
-            if(e.target===cb||e.target===dateIn||e.target===calBtn) return;
+            if(e.target.closest('input[type=checkbox]')) return;
             e.preventDefault();
             const data=clData(); if(!data[item.id]) data[item.id]={};
             if(data[item.id].date===clBatchDateVal){
