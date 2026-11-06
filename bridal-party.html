@@ -30,6 +30,9 @@
   .sec-body.collapsed{display:none !important;}
   /* Important dates */
   .date-item{display:flex; gap:14px; align-items:center; background:var(--white); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-bottom:10px; cursor:pointer;}
+  .date-item.done{opacity:.7; background:var(--linen);}
+  .date-item.done .date-title{text-decoration:line-through; color:var(--ink-soft);}
+  .date-done-badge{font-size:17px; margin-right:2px;}
   .date-item:active{background:var(--linen);}
   .date-left{text-align:center; min-width:44px; flex-shrink:0;}
   .date-day{font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; color:var(--sage-dark); line-height:1;}
@@ -365,10 +368,11 @@ function renderImportantDates(){
   dates.forEach(item => {
     const d = parseDate(item.date);
     const involved = item.involved || [];
-    const row = document.createElement('div'); row.className = 'date-item';
+    const row = document.createElement('div'); row.className = 'date-item' + (item.checked ? ' done' : '');
+    const doneBadge = item.checked ? '<span class="date-done-badge">✅</span>' : '';
     row.innerHTML = '<div class="date-left">' +
       (d ? '<div class="date-day">' + d.getDate() + '</div><div class="date-mon">' + MN_SHORT[d.getMonth()] + '</div>' : '<div class="date-day">&ndash;</div>') +
-      '</div><div class="date-info"><div class="date-title">' + esc(item.title) + '</div>' +
+      '</div><div class="date-info"><div class="date-title">' + doneBadge + esc(item.title) + '</div>' +
       '<div class="date-hint">' + involved.length + ' ' + (involved.length === 1 ? 'person' : 'people') + ' involved</div>' +
       '<div class="date-tap">Tap to see who &rsaquo;</div></div>';
     row.addEventListener('click', () => openDatePopup(item));

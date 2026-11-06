@@ -8497,7 +8497,7 @@ function bpCollect(){
     photos: photoList().filter(x=> (x.name||'').trim()).map(x=>({id:x.id, name:x.name.trim(), time:(x.time||'').trim(), place:(x.place||'').trim(), note:(x.note||'').trim(),
       people:(x.guestIds||[]).map(id=>{ const g = state.guests.find(q=>q.id===id); return g ? g.name : ''; }).concat(splitCommas(x.others)).filter(Boolean)})),
     pack: b.pack.filter(k=> (k.what||'').trim()).map(k=>({id:k.id, what:k.what.trim(), who:(k.who||'').trim(), when:(k.when||'').trim()})),
-    importantDates: (function(){ const store=clData(), out=[]; (CHECKLIST_PHASES||[]).forEach(ph=>{ ph.groups.forEach(grp=>{ grp.items.forEach(item=>{ const e=store[item.id]||{}; if((e.involved||[]).length && !e.bpHide) out.push({title:item.label, date:e.date||'', involved:e.involved}); }); }); }); clCustomData().forEach(ci=>{ const e=store[ci.id]||{}; if((e.involved||[]).length && !e.bpHide) out.push({title:ci.label, date:e.date||'', involved:e.involved}); }); return out; })()
+    importantDates: (function(){ const store=clData(), out=[]; (CHECKLIST_PHASES||[]).forEach(ph=>{ ph.groups.forEach(grp=>{ grp.items.forEach(item=>{ const e=store[item.id]||{}; if((e.involved||[]).length && !e.bpHide) out.push({title:item.label, date:e.date||'', involved:e.involved, checked:!!e.checked}); }); }); }); clCustomData().forEach(ci=>{ const e=store[ci.id]||{}; if((e.involved||[]).length && !e.bpHide) out.push({title:ci.label, date:e.date||'', involved:e.involved, checked:!!e.checked}); }); return out; })()
   };
 }
 function bpEnsureRoles(whoStrings){
@@ -8988,8 +8988,10 @@ function clRender(){
       const gt=document.createElement('div'); gt.className='cl-group-title'; gt.textContent=grp.title;
       sec.appendChild(gt);
       const grpKey = phase.id + '||' + grp.title;
+      let hiddenCount=0;
       grp.items.forEach(item=>{
         const entry=d[item.id]||{};
+        if(entry.clHide){ hiddenCount++; return; }
         let rowCls='cl-item'+(entry.checked?' done':'');
         const row=document.createElement('div'); row.className=rowCls; row.dataset.clId=item.id;
 
@@ -9039,8 +9041,12 @@ function clRender(){
         eyeBtn.className='cl-bp-toggle'+(bpHidden?' bp-hidden':'');
         eyeBtn.title=bpHidden?'Hidden from bridal party page (click to show)':'Visible on bridal party page (click to hide)';
         eyeBtn.textContent='👁';
-        eyeBtn.style.display=involved.length?'':'none';
         eyeBtn.addEventListener('click',ev=>{ ev.stopPropagation(); const store=clData(); if(!store[item.id]) store[item.id]={}; store[item.id].bpHide=!store[item.id].bpHide; isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
+
+        const delItemBtn=document.createElement('button'); delItemBtn.type='button'; delItemBtn.title='Hide this item';
+        delItemBtn.style.cssText='background:none;border:none;cursor:pointer;color:var(--ink-soft);font-size:16px;padding:2px 4px;line-height:1;opacity:.5;';
+        delItemBtn.textContent='×';
+        delItemBtn.addEventListener('click',ev=>{ ev.stopPropagation(); const store=clData(); if(!store[item.id]) store[item.id]={}; store[item.id].clHide=true; isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
 
         if(clBatchMode){
           const bcb=document.createElement('input'); bcb.type='checkbox'; bcb.className='cl-batch-cb cl-cb';
@@ -9048,7 +9054,7 @@ function clRender(){
           bcb.addEventListener('change',()=>{ row.classList.toggle('cl-pick-on',bcb.checked); });
           row.append(bcb,lbl,dateIn,calBtn);
         } else {
-          row.append(cb,lbl,dateIn,calBtn,peopleBtn,eyeBtn);
+          row.append(cb,lbl,dateIn,calBtn,peopleBtn,eyeBtn,delItemBtn);
         }
 
         /* pills row — spans col 2 to end, inside the grid */
@@ -9098,6 +9104,20 @@ function clRender(){
         sec.appendChild(row);
       });
 
+      /* ---- restore hidden items link ---- */
+      if(hiddenCount>0){
+        const restoreRow=document.createElement('div'); restoreRow.style.cssText='padding:2px 0 2px 4px;';
+        const restoreBtn=document.createElement('button'); restoreBtn.type='button';
+        restoreBtn.style.cssText='background:none;border:none;color:var(--ink-soft);font-size:12px;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit;';
+        restoreBtn.textContent='↩ Restore '+hiddenCount+' hidden item'+(hiddenCount===1?'':'s');
+        restoreBtn.addEventListener('click',()=>{
+          const store=clData();
+          grp.items.forEach(item=>{ if(store[item.id]&&store[item.id].clHide) delete store[item.id].clHide; });
+          isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
+        });
+        restoreRow.appendChild(restoreBtn); sec.appendChild(restoreRow);
+      }
+
       /* ---- custom items for this group ---- */
       clCustomData().filter(ci=>ci.grpKey===grpKey).forEach(ci=>{
         const entry=d[ci.id]||{};
@@ -9130,7 +9150,7 @@ function clRender(){
         const ciEyeBtn=document.createElement('button'); ciEyeBtn.type='button';
         ciEyeBtn.className='cl-bp-toggle'+(ciBpHidden?' bp-hidden':'');
         ciEyeBtn.title=ciBpHidden?'Hidden from bridal party page (click to show)':'Visible on bridal party page (click to hide)';
-        ciEyeBtn.textContent='👁'; ciEyeBtn.style.display=involved.length?'':'none';
+        ciEyeBtn.textContent='👁';
         ciEyeBtn.addEventListener('click',ev=>{ ev.stopPropagation(); const store=clData(); if(!store[ci.id]) store[ci.id]={}; store[ci.id].bpHide=!store[ci.id].bpHide; isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
         if(clBatchMode){
           const bcb=document.createElement('input'); bcb.type='checkbox'; bcb.className='cl-batch-cb cl-cb'; bcb.dataset.batchId=ci.id; bcb.style.accentColor='var(--sage-dark)';
