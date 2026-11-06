@@ -729,7 +729,7 @@
   .cl-phase{margin:28px 0 0;}
   .cl-phase-title{font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--sage-dark); margin:0 0 10px; padding-bottom:6px; border-bottom:1px solid var(--line);}
   .cl-group-title{font-size:12px; font-weight:600; color:var(--ink-soft); margin:12px 0 4px; text-transform:uppercase; letter-spacing:.05em;}
-  .cl-item{display:grid; grid-template-columns:28px 1fr auto auto; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; margin:3px 0; background:var(--surface);}
+  .cl-item{display:grid; grid-template-columns:28px 1fr auto auto auto; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; margin:3px 0; background:var(--surface);}
   .cl-item:hover{background:var(--hover);}
   .cl-item.done .cl-label{text-decoration:line-through; color:var(--ink-soft);}
   .cl-cb{width:18px; height:18px; cursor:pointer; accent-color:var(--sage-dark);}
@@ -765,6 +765,9 @@
   .cl-pop-person.on{background:var(--sage-dark);color:#fff;border-color:var(--sage-dark);}
   .cl-pop-del{color:#b03020;}
   .cl-pop-close{width:100%;background:var(--sage-dark);color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:16px;}
+  .cl-menu-btn{background:none;border:none;cursor:pointer;color:var(--ink-soft);font-size:20px;padding:0 4px;line-height:1;letter-spacing:0;font-weight:700;opacity:.55;transition:opacity .12s;}
+  .cl-menu-btn:hover,.cl-menu-btn:active{opacity:1;color:var(--sage-dark);}
+  .cl-item:not(.done) .cl-menu-btn{opacity:.45;}
   .cl-people-row{grid-column:2 / -1; display:flex; flex-wrap:wrap; gap:5px; margin-top:2px;}
   .cl-person-pill{display:inline-flex; align-items:center; gap:4px; font-size:12px; background:var(--linen); border:1px solid var(--line); border-radius:12px; padding:2px 8px; color:var(--ink);}
   .cl-person-pill button{border:none; background:none; cursor:pointer; font-size:11px; color:var(--ink-soft); padding:0 0 0 2px; line-height:1;}
@@ -1342,7 +1345,7 @@
 
     <!-- Delete -->
     <button type="button" class="cl-pop-row cl-pop-del" id="clPopDelete">
-      <span class="cl-pop-icon">🗑</span>
+      <span class="cl-pop-icon">❌</span>
       <span class="cl-pop-text">
         <div class="cl-pop-label">Delete item</div>
         <div class="cl-pop-hint">Remove from checklist (can restore later)</div>
@@ -9080,11 +9083,13 @@ function clRender(){
         refreshCal();
         dateIn.addEventListener('change',()=>{ const e=clData(); if(!e[id]) e[id]={}; e[id].date=dateIn.value; isDirty=true; refreshCal(); });
         calBtn.addEventListener('click',ev=>{ if(!dateIn.value) ev.preventDefault(); });
+        const menuBtn=document.createElement('button'); menuBtn.type='button'; menuBtn.className='cl-menu-btn'; menuBtn.title='Options'; menuBtn.textContent='⋮';
+        menuBtn.addEventListener('click',ev=>{ ev.stopPropagation(); clOpenItemPopup(id,label,isCustom); });
         if(clBatchMode){
           const bcb=document.createElement('input'); bcb.type='checkbox'; bcb.className='cl-batch-cb cl-cb'; bcb.dataset.batchId=id; bcb.style.accentColor='var(--sage-dark)';
           bcb.addEventListener('change',()=>{ row.classList.toggle('cl-pick-on',bcb.checked); });
           row.append(bcb,lbl,dateIn,calBtn);
-        } else { row.append(cb,lbl,dateIn,calBtn); }
+        } else { row.append(cb,lbl,dateIn,calBtn,menuBtn); }
         const involved=(entry.involved||[]);
         if(!clBatchMode && involved.length){
           const pillRow=document.createElement('div'); pillRow.className='cl-people-row';
@@ -9192,7 +9197,7 @@ function clPopupRefreshVis(){
   const btn=document.getElementById('clPopBpToggle');
   btn.querySelector('.cl-pop-label').textContent=hidden?'Hidden from bridal party':'Visible on bridal party page';
   btn.querySelector('.cl-pop-hint').textContent=hidden?'Tap to show it again':'Tap to hide from bridal party';
-  btn.querySelector('.cl-pop-icon').textContent=hidden?'🙈':'👁';
+  btn.querySelector('.cl-pop-icon').textContent=hidden?'🚫':'👁';
 }
 
 function clPopupRefreshDone(){
