@@ -747,6 +747,9 @@
   .cl-add-input{flex:1;min-width:140px;border:1px solid var(--sage);border-radius:8px;padding:5px 10px;font-size:14px;font-family:inherit;outline:none;}
   .cl-add-save-btn{background:var(--sage-dark,#5a3e28);color:#fff;border:none;border-radius:8px;padding:5px 14px;font-size:13px;cursor:pointer;font-family:inherit;}
   .cl-add-cancel-btn{background:none;border:1px solid #ccc;color:var(--ink-soft);border-radius:8px;padding:5px 12px;font-size:13px;cursor:pointer;font-family:inherit;}
+  .cl-bp-toggle{background:none;border:none;cursor:pointer;font-size:15px;padding:2px 3px;line-height:1;border-radius:5px;opacity:.55;transition:opacity .15s;}
+  .cl-bp-toggle:hover{opacity:1;}
+  .cl-bp-toggle.bp-hidden{opacity:.25;filter:grayscale(1);}
   .cl-people-row{grid-column:2 / -1; display:flex; flex-wrap:wrap; gap:5px; margin-top:2px;}
   .cl-person-pill{display:inline-flex; align-items:center; gap:4px; font-size:12px; background:var(--linen); border:1px solid var(--line); border-radius:12px; padding:2px 8px; color:var(--ink);}
   .cl-person-pill button{border:none; background:none; cursor:pointer; font-size:11px; color:var(--ink-soft); padding:0 0 0 2px; line-height:1;}
@@ -7922,7 +7925,7 @@ function refreshBpPublishFloat(){
   const btn = document.getElementById('btnBpPublishFloat');
   const onChecklist = !document.getElementById('checklistScreen').classList.contains('hidden');
   const bpOpen = !document.getElementById('bpModal').classList.contains('hidden');
-  const hasBp = !!(bpData && bpData().slug);
+  const hasBp = !!(bpData && (bpData().people||[]).some(p=>p.name&&p.name.trim()));
   const ready = hasAccess && sb && cloudUser && cloudEnabled;
   btn.classList.toggle('hidden', !(ready && hasBp && (onChecklist || bpOpen)));
   /* shift guest publish button up if both would overlap */
@@ -8494,7 +8497,7 @@ function bpCollect(){
     photos: photoList().filter(x=> (x.name||'').trim()).map(x=>({id:x.id, name:x.name.trim(), time:(x.time||'').trim(), place:(x.place||'').trim(), note:(x.note||'').trim(),
       people:(x.guestIds||[]).map(id=>{ const g = state.guests.find(q=>q.id===id); return g ? g.name : ''; }).concat(splitCommas(x.others)).filter(Boolean)})),
     pack: b.pack.filter(k=> (k.what||'').trim()).map(k=>({id:k.id, what:k.what.trim(), who:(k.who||'').trim(), when:(k.when||'').trim()})),
-    importantDates: (function(){ const store=clData(), out=[]; (CHECKLIST_PHASES||[]).forEach(ph=>{ ph.groups.forEach(grp=>{ grp.items.forEach(item=>{ const e=store[item.id]||{}; if((e.involved||[]).length) out.push({title:item.label, date:e.date||'', involved:e.involved}); }); }); }); clCustomData().forEach(ci=>{ const e=store[ci.id]||{}; if((e.involved||[]).length) out.push({title:ci.label, date:e.date||'', involved:e.involved}); }); return out; })()
+    importantDates: (function(){ const store=clData(), out=[]; (CHECKLIST_PHASES||[]).forEach(ph=>{ ph.groups.forEach(grp=>{ grp.items.forEach(item=>{ const e=store[item.id]||{}; if((e.involved||[]).length && !e.bpHide) out.push({title:item.label, date:e.date||'', involved:e.involved}); }); }); }); clCustomData().forEach(ci=>{ const e=store[ci.id]||{}; if((e.involved||[]).length && !e.bpHide) out.push({title:ci.label, date:e.date||'', involved:e.involved}); }); return out; })()
   };
 }
 function bpEnsureRoles(whoStrings){
@@ -9031,13 +9034,21 @@ function clRender(){
           const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
         });
 
+        const bpHidden=!!(entry.bpHide);
+        const eyeBtn=document.createElement('button'); eyeBtn.type='button';
+        eyeBtn.className='cl-bp-toggle'+(bpHidden?' bp-hidden':'');
+        eyeBtn.title=bpHidden?'Hidden from bridal party page (click to show)':'Visible on bridal party page (click to hide)';
+        eyeBtn.textContent='👁';
+        eyeBtn.style.display=involved.length?'':'none';
+        eyeBtn.addEventListener('click',ev=>{ ev.stopPropagation(); const store=clData(); if(!store[item.id]) store[item.id]={}; store[item.id].bpHide=!store[item.id].bpHide; isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
+
         if(clBatchMode){
           const bcb=document.createElement('input'); bcb.type='checkbox'; bcb.className='cl-batch-cb cl-cb';
           bcb.dataset.batchId=item.id; bcb.style.accentColor='var(--sage-dark)';
           bcb.addEventListener('change',()=>{ row.classList.toggle('cl-pick-on',bcb.checked); });
           row.append(bcb,lbl,dateIn,calBtn);
         } else {
-          row.append(cb,lbl,dateIn,calBtn,peopleBtn);
+          row.append(cb,lbl,dateIn,calBtn,peopleBtn,eyeBtn);
         }
 
         /* pills row — spans col 2 to end, inside the grid */
@@ -9115,11 +9126,17 @@ function clRender(){
           const store=clData(); delete store[ci.id]; isDirty=true;
           const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
         });
+        const ciBpHidden=!!(entry.bpHide);
+        const ciEyeBtn=document.createElement('button'); ciEyeBtn.type='button';
+        ciEyeBtn.className='cl-bp-toggle'+(ciBpHidden?' bp-hidden':'');
+        ciEyeBtn.title=ciBpHidden?'Hidden from bridal party page (click to show)':'Visible on bridal party page (click to hide)';
+        ciEyeBtn.textContent='👁'; ciEyeBtn.style.display=involved.length?'':'none';
+        ciEyeBtn.addEventListener('click',ev=>{ ev.stopPropagation(); const store=clData(); if(!store[ci.id]) store[ci.id]={}; store[ci.id].bpHide=!store[ci.id].bpHide; isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
         if(clBatchMode){
           const bcb=document.createElement('input'); bcb.type='checkbox'; bcb.className='cl-batch-cb cl-cb'; bcb.dataset.batchId=ci.id; bcb.style.accentColor='var(--sage-dark)';
           bcb.addEventListener('change',()=>{ row.classList.toggle('cl-pick-on',bcb.checked); });
           row.append(bcb,lbl,dateIn,calBtn);
-        } else { row.append(cb,lbl,dateIn,calBtn,peopleBtn,delBtn); }
+        } else { row.append(cb,lbl,dateIn,calBtn,peopleBtn,ciEyeBtn,delBtn); }
         if(!clBatchMode && involved.length){
           const pillRow=document.createElement('div'); pillRow.className='cl-people-row';
           involved.forEach(name=>{ const pill=document.createElement('span'); pill.className='cl-person-pill'; pill.textContent=name; const rem=document.createElement('button'); rem.type='button'; rem.textContent='×'; rem.addEventListener('click',ev=>{ ev.stopPropagation(); const store=clData(); if(!store[ci.id]) store[ci.id]={}; store[ci.id].involved=(store[ci.id].involved||[]).filter(n=>n!==name); isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy); }); pill.appendChild(rem); pillRow.appendChild(pill); });
