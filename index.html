@@ -1082,7 +1082,9 @@
 <div id="checklistScreen" class="hidden">
   <button type="button" class="auth-link" id="btnChecklistBack">&larr; Back to &ldquo;Let&rsquo;s get started&rdquo;</button>
   <h2>Wedding checklist</h2>
-  <p class="hint">Work through this at your own pace. Add a date to any item and tap the calendar icon to save it straight to your phone&rsquo;s calendar.</p>
+  <p class="hint">Work through this at your own pace.<br><br>
+  &bull; Add a date to any item and tap the calendar icon to save it straight to your phone&rsquo;s Google/Android/Apple calendar.<br>
+  &bull; Where your bridal party is involved (tastings/fittings, etc.), select their names from the icon beside the calendar icon and this will appear as a timeline on their mobile bridal party page.</p>
   <div id="checklistBody"></div>
 </div>
 
@@ -7581,6 +7583,12 @@ document.getElementById('btnEventInfoCancel').addEventListener('click', ()=>{
   removeFromStorage(eiNewPaths);
   document.getElementById('eventInfoModal').classList.add('hidden');
 });
+document.getElementById('eventInfoModal').addEventListener('click', e=>{
+  if(e.target === document.getElementById('eventInfoModal')){
+    removeFromStorage(eiNewPaths);
+    document.getElementById('eventInfoModal').classList.add('hidden');
+  }
+});
 document.getElementById('btnEventInfoSave').addEventListener('click', ()=>{
   if(eiBusy > 0){ toast('Please wait for the picture to finish uploading.'); return; }
   const info = {};
@@ -8510,6 +8518,7 @@ document.getElementById('btnShareTableau').addEventListener('click', ()=>{
   else { try{ navigator.clipboard.writeText(url); toast('Link copied! Share tableauevents.co.za with a friend.'); }catch(e){ toast('tableauevents.co.za — share this with a friend!', 5000); } }
 });
 document.getElementById('bpClose').addEventListener('click', ()=> document.getElementById('bpModal').classList.add('hidden'));
+document.getElementById('bpModal').addEventListener('click', e=>{ if(e.target === document.getElementById('bpModal')) document.getElementById('bpModal').classList.add('hidden'); });
 document.getElementById('bpAddPerson').addEventListener('click', ()=>{
   const b = bpData(); pushUndo(); const np = {id: uid('bp'), name:'', role:'', phone:''}; b.people.push(np); bpOpen.add(np.id); renderBp();
   const rows = document.querySelectorAll('#bpPeople .bp-row'); if(rows.length) rows[rows.length-1].querySelector('input').focus();
