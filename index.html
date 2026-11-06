@@ -741,6 +741,12 @@
   .cl-people-btn{border:none; background:transparent; cursor:pointer; font-size:16px; padding:2px 4px; border-radius:6px; color:var(--ink-soft); line-height:1; white-space:nowrap;}
   .cl-people-btn:hover{background:var(--hover); color:var(--sage-dark);}
   .cl-people-btn.has-people{color:var(--sage-dark);}
+  .cl-add-row{display:flex;align-items:center;gap:8px;padding:4px 0 4px 2px;flex-wrap:wrap;}
+  .cl-add-item-btn{background:none;border:1px dashed var(--sage);color:var(--sage-dark);border-radius:8px;padding:5px 14px;font-size:13px;cursor:pointer;font-family:inherit;transition:background .15s;}
+  .cl-add-item-btn:hover{background:rgba(122,92,62,.08);}
+  .cl-add-input{flex:1;min-width:140px;border:1px solid var(--sage);border-radius:8px;padding:5px 10px;font-size:14px;font-family:inherit;outline:none;}
+  .cl-add-save-btn{background:var(--sage-dark,#5a3e28);color:#fff;border:none;border-radius:8px;padding:5px 14px;font-size:13px;cursor:pointer;font-family:inherit;}
+  .cl-add-cancel-btn{background:none;border:1px solid #ccc;color:var(--ink-soft);border-radius:8px;padding:5px 12px;font-size:13px;cursor:pointer;font-family:inherit;}
   .cl-people-row{grid-column:2 / -1; display:flex; flex-wrap:wrap; gap:5px; margin-top:2px;}
   .cl-person-pill{display:inline-flex; align-items:center; gap:4px; font-size:12px; background:var(--linen); border:1px solid var(--line); border-radius:12px; padding:2px 8px; color:var(--ink);}
   .cl-person-pill button{border:none; background:none; cursor:pointer; font-size:11px; color:var(--ink-soft); padding:0 0 0 2px; line-height:1;}
@@ -8488,7 +8494,7 @@ function bpCollect(){
     photos: photoList().filter(x=> (x.name||'').trim()).map(x=>({id:x.id, name:x.name.trim(), time:(x.time||'').trim(), place:(x.place||'').trim(), note:(x.note||'').trim(),
       people:(x.guestIds||[]).map(id=>{ const g = state.guests.find(q=>q.id===id); return g ? g.name : ''; }).concat(splitCommas(x.others)).filter(Boolean)})),
     pack: b.pack.filter(k=> (k.what||'').trim()).map(k=>({id:k.id, what:k.what.trim(), who:(k.who||'').trim(), when:(k.when||'').trim()})),
-    importantDates: (function(){ const store=clData(), out=[]; (CHECKLIST_PHASES||[]).forEach(ph=>{ ph.groups.forEach(grp=>{ grp.items.forEach(item=>{ const e=store[item.id]||{}; if((e.involved||[]).length) out.push({title:item.label, date:e.date||'', involved:e.involved}); }); }); }); return out; })()
+    importantDates: (function(){ const store=clData(), out=[]; (CHECKLIST_PHASES||[]).forEach(ph=>{ ph.groups.forEach(grp=>{ grp.items.forEach(item=>{ const e=store[item.id]||{}; if((e.involved||[]).length) out.push({title:item.label, date:e.date||'', involved:e.involved}); }); }); }); clCustomData().forEach(ci=>{ const e=store[ci.id]||{}; if((e.involved||[]).length) out.push({title:ci.label, date:e.date||'', involved:e.involved}); }); return out; })()
   };
 }
 function bpEnsureRoles(whoStrings){
