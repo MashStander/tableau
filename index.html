@@ -1545,11 +1545,12 @@
       <li><span class="ls-n">5</span><div class="ls-t"><b>One QR code <span class="ls-chip free">Free</span></b>Guests scan it, find their name and see their table marked with a red star. <a href="https://tableauevents.co.za/guest-view.html?event=dee-quinn-ush3v" target="_blank" rel="noopener">Try a live example on your phone</a>.</div></li>
       <li><span class="ls-n">6</span><div class="ls-t"><b>Make it yours <span class="ls-chip free">Free</span></b>Add your photo, date, colours and style, all saved to your account.</div></li>
       <li class="ls-paid"><span class="ls-n">7</span><div class="ls-t"><b>Menu, programme and gifts <button type="button" class="ls-chip" data-plan="1">Guest page plan &middot; R100 a year</button></b>An add-on to your QR guest page. Upload your menu, programme and banking details so guests have them right on their phones (Canva templates available). <a href="https://tableauevents.co.za/guest-view.html?event=dee-quinn-l6q3f" target="_blank" rel="noopener">See a live example on your phone</a>.</div></li>
-      <li class="ls-paid"><span class="ls-n">8</span><div class="ls-t"><b>Bridal party page <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Jobs, packing lists and vendor contacts on a private link.</div></li>
-      <li class="ls-paid"><span class="ls-n">9</span><div class="ls-t"><b>Vendors and group photos <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Keep every contact in one place, plan each group photo and WhatsApp the guests in it.</div></li>
-      <li class="ls-paid"><span class="ls-n">10</span><div class="ls-t"><b>The whole weekend <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Add a day before and a day after, each with its own programme.</div></li>
+      <li class="ls-paid"><span class="ls-n">8</span><div class="ls-t"><b>Wedding checklist <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>A built-in task list organised by how far out you are — from 12 months to the week before. Tick items off, assign tasks to people, and hide anything that doesn't apply to your wedding.</div></li>
+      <li class="ls-paid"><span class="ls-n">9</span><div class="ls-t"><b>Bridal party page <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Jobs, packing lists and vendor contacts on a private link.</div></li>
+      <li class="ls-paid"><span class="ls-n">10</span><div class="ls-t"><b>Vendors and group photos <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Keep every contact in one place, plan each group photo and WhatsApp the guests in it.</div></li>
+      <li class="ls-paid"><span class="ls-n">11</span><div class="ls-t"><b>The whole weekend <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Add a day before and a day after, each with its own programme.</div></li>
     </ol>
-    <p class="landing-steps-note">Steps 1 to 6 are free. Steps 7 to 10 are optional paid plans: Guest page R100 a year, Full planner R200 a year. <a id="lsPlans">See what each plan includes</a></p>
+    <p class="landing-steps-note">Steps 1 to 6 are free. Steps 7 to 11 are optional paid plans: Guest page R100 a year, Full planner R200 a year. <a id="lsPlans">See what each plan includes</a></p>
     </div>
   </div>
 </div>
@@ -7933,7 +7934,7 @@ document.getElementById('accessPlans').addEventListener('click', e=>{
 });
 
 /* landing page steps: shortcuts and plan info */
-document.getElementById('lsTry').addEventListener('click', ()=> document.getElementById('btnLandSkip').click());
+// lsTry handled by tryNoAccountPopup script below
 document.getElementById('lsPlans').addEventListener('click', ()=> openPlanInfo(2));
 document.querySelector('.landing-steps').addEventListener('click', e=>{ const b = e.target.closest('.ls-chip[data-plan]'); if(b) openPlanInfo(+b.dataset.plan); });
 document.getElementById('eiMoreBtn').addEventListener('click', ()=> openPlanInfo(1));
@@ -10130,5 +10131,57 @@ function escapeAttr(str){
 }
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "be579bcee3e94e09a386e86132979b21"}'></script><!-- End Cloudflare Web Analytics -->
+
+<!-- Try without account warning popup -->
+<div id="tryNoAccountPopup" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fdf9f5;border-radius:16px;max-width:360px;width:100%;padding:32px 28px 24px;box-shadow:0 8px 32px rgba(0,0,0,.18);text-align:center;font-family:Georgia,serif;">
+    <div style="font-size:36px;margin-bottom:12px;">👋</div>
+    <h3 style="font-size:18px;color:#4a5e3a;margin:0 0 12px;">Just so you know</h3>
+    <p style="font-size:15px;color:#2c2c2c;line-height:1.6;margin:0 0 20px;">You can explore freely, but <strong>you won't be able to save your project</strong> without an account.</p>
+    <p style="font-size:14px;color:#666;margin:0 0 24px;">Creating an account, table seating and floor plans are <strong>free</strong>.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button id="tryPopupSignup" type="button" style="background:#4a5e3a;color:#fff;border:none;border-radius:8px;padding:12px 20px;font-size:15px;cursor:pointer;font-family:Georgia,serif;">Create a free account</button>
+      <button id="tryPopupContinue" type="button" style="background:none;border:1px solid #c5bfb5;border-radius:8px;padding:11px 20px;font-size:14px;cursor:pointer;color:#666;font-family:Georgia,serif;">Continue without an account</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  function showTryPopup(e){
+    if(e) e.preventDefault();
+    document.getElementById('tryNoAccountPopup').style.display='flex';
+  }
+  function hideTryPopup(){
+    document.getElementById('tryNoAccountPopup').style.display='none';
+  }
+  // intercept "play around on the site first" link
+  var lsTry = document.getElementById('lsTry');
+  if(lsTry) lsTry.addEventListener('click', showTryPopup);
+  // intercept "Try it without an account" button on landing
+  var btnSkip = document.getElementById('btnLandSkip');
+  if(btnSkip) btnSkip.addEventListener('click', showTryPopup, true);
+  // "Create a free account" → open sign-up
+  document.getElementById('tryPopupSignup').addEventListener('click', function(){
+    hideTryPopup();
+    // open the auth screen in sign-up mode
+    var authScreen = document.getElementById('authScreen');
+    if(authScreen){ authScreen.classList.remove('hidden'); }
+    var authToggle = document.getElementById('authToggleMode');
+    // switch to create-account mode if currently in sign-in mode
+    if(authToggle && authToggle.textContent.trim().toLowerCase().includes('create')){
+      authToggle.click();
+    }
+  });
+  // "Continue without an account" → proceed as before (fire original skip logic)
+  document.getElementById('tryPopupContinue').addEventListener('click', function(){
+    hideTryPopup();
+    document.getElementById('btnLandSkip').dispatchEvent(new MouseEvent('click',{bubbles:false}));
+  });
+  // close if clicking the dark backdrop
+  document.getElementById('tryNoAccountPopup').addEventListener('click', function(e){
+    if(e.target===this) hideTryPopup();
+  });
+})();
+</script>
 </body>
 </html>
