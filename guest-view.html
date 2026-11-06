@@ -894,9 +894,8 @@ function renderFloorPlan(guest){
   const key = 'tableauBridalSlug-' + EVENT_SLUG;
   function go(slug){ location.href = 'bridal-party.html?event=' + encodeURIComponent(slug); }
   document.getElementById('bpEnter').addEventListener('click', ()=>{
-    let saved = ''; try{ saved = localStorage.getItem(key) || ''; }catch(e){}
-    if(saved){ go(saved); return; }
-    document.getElementById('bpBox').classList.toggle('hidden');
+    if(!EVENT_SLUG){ const msg = document.getElementById('bpMsg'); document.getElementById('bpBox').classList.remove('hidden'); msg.textContent = 'Please open this page using the QR code or the full link (it must include ?event=... at the end).'; return; }
+    document.getElementById('bpBox').classList.remove('hidden');
     document.getElementById('bpCode').focus();
   });
   async function submit(){
@@ -905,6 +904,7 @@ function renderFloorPlan(guest){
     if(Date.now() < lockUntil){ document.getElementById('bpMsg').textContent = 'Too many tries. Please wait a minute and try again.'; return; }
     const msg = document.getElementById('bpMsg'); msg.textContent = '';
     if(code.length < 4){ msg.textContent = 'Please type your 4-digit code.'; return; }
+    if(!EVENT_SLUG){ msg.textContent = 'Please open this page using the QR code or the full link.'; return; }
     try{
       const r = await fetch(SB_URL + '/rest/v1/rpc/get_published', {method:'POST', headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}, body: JSON.stringify({p_slug:'bp-' + EVENT_SLUG + '-' + code})});
       const j = await r.json();
