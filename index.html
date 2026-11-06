@@ -8889,7 +8889,7 @@ function clRender(){
   body.appendChild(tip);
 
   /* ---- batch date bar ---- */
-  const batchBar=document.createElement('div'); batchBar.className='cl-batch-bar'+(clBatchMode?' sticky':'');
+  const batchBar=document.createElement('div'); batchBar.className='cl-batch-bar sticky';
   if(!clBatchMode){
     const openBtn=document.createElement('button'); openBtn.type='button'; openBtn.className='cl-batch-open-btn';
     openBtn.textContent='📅 Set one date for multiple items';
