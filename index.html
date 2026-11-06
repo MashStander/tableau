@@ -729,7 +729,7 @@
   .cl-phase{margin:28px 0 0;}
   .cl-phase-title{font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--sage-dark); margin:0 0 10px; padding-bottom:6px; border-bottom:1px solid var(--line);}
   .cl-group-title{font-size:12px; font-weight:600; color:var(--ink-soft); margin:12px 0 4px; text-transform:uppercase; letter-spacing:.05em;}
-  .cl-item{display:grid; grid-template-columns:28px 1fr auto auto auto; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; margin:3px 0; background:var(--surface);}
+  .cl-item{display:grid; grid-template-columns:28px 1fr auto auto auto auto auto; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; margin:3px 0; background:var(--surface);}
   .cl-item:hover{background:var(--hover);}
   .cl-item.done .cl-label{text-decoration:line-through; color:var(--ink-soft);}
   .cl-cb{width:18px; height:18px; cursor:pointer; accent-color:var(--sage-dark);}
@@ -7925,9 +7925,8 @@ function refreshBpPublishFloat(){
   const btn = document.getElementById('btnBpPublishFloat');
   const onChecklist = !document.getElementById('checklistScreen').classList.contains('hidden');
   const bpOpen = !document.getElementById('bpModal').classList.contains('hidden');
-  const hasBp = !!(bpData && (bpData().people||[]).some(p=>p.name&&p.name.trim()));
-  const ready = hasAccess && sb && cloudUser && cloudEnabled;
-  btn.classList.toggle('hidden', !(ready && hasBp && (onChecklist || bpOpen)));
+  const ready = !!(sb && cloudUser && cloudEnabled);
+  btn.classList.toggle('hidden', !(ready && (onChecklist || bpOpen)));
   /* shift guest publish button up if both would overlap */
   document.getElementById('btnPublishFloat').style.bottom = (!document.getElementById('btnPublishFloat').classList.contains('hidden') && !btn.classList.contains('hidden')) ? '74px' : '18px';
 }
@@ -8910,6 +8909,7 @@ function openChecklist(){
   document.getElementById('topSub').textContent=(state.eventName||'Your project')+' — Wedding checklist';
   clRender();
   window.scrollTo(0,0);
+  refreshBpPublishFloat();
 }
 
 function clRender(){
