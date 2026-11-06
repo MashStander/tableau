@@ -729,7 +729,7 @@
   .cl-phase{margin:28px 0 0;}
   .cl-phase-title{font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--sage-dark); margin:0 0 10px; padding-bottom:6px; border-bottom:1px solid var(--line);}
   .cl-group-title{font-size:12px; font-weight:600; color:var(--ink-soft); margin:12px 0 4px; text-transform:uppercase; letter-spacing:.05em;}
-  .cl-item{display:grid; grid-template-columns:28px 1fr auto auto auto auto auto; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; margin:3px 0; background:var(--surface);}
+  .cl-item{display:grid; grid-template-columns:28px 1fr auto auto; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; margin:3px 0; background:var(--surface);}
   .cl-item:hover{background:var(--hover);}
   .cl-item.done .cl-label{text-decoration:line-through; color:var(--ink-soft);}
   .cl-cb{width:18px; height:18px; cursor:pointer; accent-color:var(--sage-dark);}
@@ -747,9 +747,24 @@
   .cl-add-input{flex:1;min-width:140px;border:1px solid var(--sage);border-radius:8px;padding:5px 10px;font-size:14px;font-family:inherit;outline:none;}
   .cl-add-save-btn{background:var(--sage-dark,#5a3e28);color:#fff;border:none;border-radius:8px;padding:5px 14px;font-size:13px;cursor:pointer;font-family:inherit;}
   .cl-add-cancel-btn{background:none;border:1px solid #ccc;color:var(--ink-soft);border-radius:8px;padding:5px 12px;font-size:13px;cursor:pointer;font-family:inherit;}
-  .cl-bp-toggle{background:none;border:none;cursor:pointer;font-size:15px;padding:2px 3px;line-height:1;border-radius:5px;opacity:.55;transition:opacity .15s;}
-  .cl-bp-toggle:hover{opacity:1;}
-  .cl-bp-toggle.bp-hidden{opacity:.25;filter:grayscale(1);}
+  .cl-heading-row{font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--sage-dark);padding:12px 10px 2px;margin-top:4px;}
+  /* item management popup */
+  #clItemPopup{position:fixed;inset:0;z-index:400;display:flex;align-items:flex-end;justify-content:center;}
+  #clItemPopup.hidden{display:none!important;}
+  .cl-pop-back{position:absolute;inset:0;background:rgba(0,0,0,.45);}
+  .cl-pop-sheet{position:relative;background:var(--paper);border-radius:20px 20px 0 0;padding:20px 18px 36px;width:100%;max-width:560px;max-height:88vh;overflow-y:auto;}
+  .cl-pop-title{font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--sage-dark);margin-bottom:14px;padding-right:28px;line-height:1.2;}
+  .cl-pop-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer;width:100%;background:none;border-left:none;border-right:none;border-top:none;font-family:inherit;text-align:left;}
+  .cl-pop-row:last-of-type{border-bottom:none;}
+  .cl-pop-icon{font-size:19px;width:26px;text-align:center;flex-shrink:0;}
+  .cl-pop-text{flex:1;}
+  .cl-pop-label{font-size:14px;font-weight:500;color:var(--ink);}
+  .cl-pop-hint{font-size:12px;color:var(--ink-soft);margin-top:1px;}
+  .cl-pop-people{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+  .cl-pop-person{background:var(--linen);border:1px solid var(--line);border-radius:14px;padding:4px 12px;font-size:13px;cursor:pointer;font-family:inherit;transition:background .12s;}
+  .cl-pop-person.on{background:var(--sage-dark);color:#fff;border-color:var(--sage-dark);}
+  .cl-pop-del{color:#b03020;}
+  .cl-pop-close{width:100%;background:var(--sage-dark);color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:16px;}
   .cl-people-row{grid-column:2 / -1; display:flex; flex-wrap:wrap; gap:5px; margin-top:2px;}
   .cl-person-pill{display:inline-flex; align-items:center; gap:4px; font-size:12px; background:var(--linen); border:1px solid var(--line); border-radius:12px; padding:2px 8px; color:var(--ink);}
   .cl-person-pill button{border:none; background:none; cursor:pointer; font-size:11px; color:var(--ink-soft); padding:0 0 0 2px; line-height:1;}
@@ -1284,6 +1299,58 @@
 
   <div class="setup-divider"><span>or</span></div>
   <button class="ghost-btn wide-btn" id="btnLoadSetup">Load an existing chart</button>
+</div>
+
+<!-- ===================== CHECKLIST ITEM POPUP ===================== -->
+<div id="clItemPopup" class="hidden">
+  <div class="cl-pop-back" id="clPopBackdrop"></div>
+  <div class="cl-pop-sheet">
+    <div class="cl-pop-title" id="clPopTitle">Item</div>
+
+    <!-- People -->
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:6px;">Assign to bridal party</div>
+    <div class="cl-pop-people" id="clPopPeople"></div>
+
+    <div style="margin-top:16px;border-top:1px solid var(--line);"></div>
+
+    <!-- BP visibility toggle -->
+    <button type="button" class="cl-pop-row" id="clPopBpToggle">
+      <span class="cl-pop-icon">👁</span>
+      <span class="cl-pop-text">
+        <div class="cl-pop-label">Visible on bridal party page</div>
+        <div class="cl-pop-hint">Tap to hide from bridal party</div>
+      </span>
+    </button>
+
+    <!-- Calendar download -->
+    <button type="button" class="cl-pop-row" id="clPopCalBtn">
+      <span class="cl-pop-icon">📅</span>
+      <span class="cl-pop-text">
+        <div class="cl-pop-label">Save to calendar</div>
+        <div class="cl-pop-hint">Download this item as a .ics file</div>
+      </span>
+    </button>
+
+    <!-- Mark done toggle -->
+    <button type="button" class="cl-pop-row" id="clPopDoneToggle">
+      <span class="cl-pop-icon">✅</span>
+      <span class="cl-pop-text">
+        <div class="cl-pop-label">Mark as done</div>
+        <div class="cl-pop-hint">Tick this item off your list</div>
+      </span>
+    </button>
+
+    <!-- Delete -->
+    <button type="button" class="cl-pop-row cl-pop-del" id="clPopDelete">
+      <span class="cl-pop-icon">🗑</span>
+      <span class="cl-pop-text">
+        <div class="cl-pop-label">Delete item</div>
+        <div class="cl-pop-hint">Remove from checklist (can restore later)</div>
+      </span>
+    </button>
+
+    <button type="button" class="cl-pop-close" id="clPopClose">Done</button>
+  </div>
 </div>
 
 <!-- floating action buttons — outside all screen containers so they're never hidden by screen switches -->
@@ -8991,189 +9058,61 @@ function clRender(){
       sec.appendChild(gt);
       const grpKey = phase.id + '||' + grp.title;
       let hiddenCount=0;
-      grp.items.forEach(item=>{
-        const entry=d[item.id]||{};
-        if(entry.clHide){ hiddenCount++; return; }
-        let rowCls='cl-item'+(entry.checked?' done':'');
-        const row=document.createElement('div'); row.className=rowCls; row.dataset.clId=item.id;
 
+      /* helper: render one item row (shared by built-in + custom) */
+      function renderClRow(id, label, isCustom){
+        const entry=d[id]||{};
+        if(!isCustom && entry.clHide){ hiddenCount++; return; }
+        if(entry.type==='heading'){
+          const hd=document.createElement('div'); hd.className='cl-heading-row'; hd.textContent=entry.label||label;
+          sec.appendChild(hd); return;
+        }
+        const row=document.createElement('div'); row.className='cl-item'+(entry.checked?' done':''); row.dataset.clId=id;
         const cb=document.createElement('input'); cb.type='checkbox'; cb.className='cl-cb'; cb.checked=!!entry.checked;
-        cb.addEventListener('change',()=>{
-          pushUndo(); const e=clData(); if(!e[item.id]) e[item.id]={};
-          e[item.id].checked=cb.checked; row.classList.toggle('done',cb.checked); isDirty=true; clUpdateStat();
-        });
-
-        const lbl=document.createElement('span'); lbl.className='cl-label'; lbl.textContent=item.label;
+        cb.addEventListener('change',()=>{ pushUndo(); const e=clData(); if(!e[id]) e[id]={}; e[id].checked=cb.checked; row.classList.toggle('done',cb.checked); isDirty=true; clUpdateStat(); });
+        const lbl=document.createElement('span'); lbl.className='cl-label'; lbl.textContent=label;
         lbl.style.cursor='pointer';
-        lbl.addEventListener('click',()=>{
-          if(clBatchMode) return;
-          cb.checked=!cb.checked; cb.dispatchEvent(new Event('change'));
-        });
-
-        const dateIn=document.createElement('input'); dateIn.type='date'; dateIn.className='cl-date';
-        dateIn.value=entry.date||'';
-
-        const calBtn=document.createElement('a'); calBtn.className='cl-cal'; calBtn.title='Add to calendar'; calBtn.textContent='📅';
-        calBtn.download=item.label.replace(/[^a-z0-9]/gi,'_')+'.ics';
-        const refreshCal=()=>{
-          if(dateIn.value){ calBtn.href=clMakeIcs(item.label,dateIn.value); calBtn.style.opacity='1'; }
-          else { calBtn.removeAttribute('href'); calBtn.style.opacity='0.3'; }
-        };
+        lbl.addEventListener('click',ev=>{ ev.stopPropagation(); if(clBatchMode){ cb.checked=!cb.checked; cb.dispatchEvent(new Event('change')); return; } clOpenItemPopup(id,label,isCustom); });
+        const dateIn=document.createElement('input'); dateIn.type='date'; dateIn.className='cl-date'; dateIn.value=entry.date||'';
+        const calBtn=document.createElement('a'); calBtn.className='cl-cal'; calBtn.title='Save to calendar'; calBtn.textContent='📅';
+        calBtn.download=label.replace(/[^a-z0-9]/gi,'_')+'.ics';
+        const refreshCal=()=>{ if(dateIn.value){ calBtn.href=clMakeIcs(label,dateIn.value); calBtn.style.opacity='1'; } else { calBtn.removeAttribute('href'); calBtn.style.opacity='0.3'; } };
         refreshCal();
-        dateIn.addEventListener('change',()=>{
-          const e=clData(); if(!e[item.id]) e[item.id]={};
-          e[item.id].date=dateIn.value; isDirty=true; refreshCal();
-        });
-        calBtn.addEventListener('click',e=>{ if(!dateIn.value) e.preventDefault(); });
-
-        /* 👥 people button (5th column) */
-        const involved=(entry.involved||[]);
-        const peopleBtn=document.createElement('button'); peopleBtn.type='button';
-        peopleBtn.className='cl-people-btn'+(involved.length?' has-people':'');
-        peopleBtn.title='Share with bridal party';
-        peopleBtn.textContent=involved.length?'👥 '+involved.length:'👥';
-        peopleBtn.addEventListener('click',e=>{
-          e.stopPropagation();
-          clPickerOpen=(clPickerOpen===item.id?null:item.id);
-          const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
-        });
-
-        const bpHidden=!!(entry.bpHide);
-        const eyeBtn=document.createElement('button'); eyeBtn.type='button';
-        eyeBtn.className='cl-bp-toggle'+(bpHidden?' bp-hidden':'');
-        eyeBtn.title=bpHidden?'Hidden from bridal party page (click to show)':'Visible on bridal party page (click to hide)';
-        eyeBtn.textContent='👁';
-        eyeBtn.addEventListener('click',ev=>{ ev.stopPropagation(); const store=clData(); if(!store[item.id]) store[item.id]={}; store[item.id].bpHide=!store[item.id].bpHide; isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
-
-        const delItemBtn=document.createElement('button'); delItemBtn.type='button'; delItemBtn.title='Hide this item';
-        delItemBtn.style.cssText='background:none;border:none;cursor:pointer;color:var(--ink-soft);font-size:16px;padding:2px 4px;line-height:1;opacity:.5;';
-        delItemBtn.textContent='×';
-        delItemBtn.addEventListener('click',ev=>{ ev.stopPropagation(); const store=clData(); if(!store[item.id]) store[item.id]={}; store[item.id].clHide=true; isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
-
+        dateIn.addEventListener('change',()=>{ const e=clData(); if(!e[id]) e[id]={}; e[id].date=dateIn.value; isDirty=true; refreshCal(); });
+        calBtn.addEventListener('click',ev=>{ if(!dateIn.value) ev.preventDefault(); });
         if(clBatchMode){
-          const bcb=document.createElement('input'); bcb.type='checkbox'; bcb.className='cl-batch-cb cl-cb';
-          bcb.dataset.batchId=item.id; bcb.style.accentColor='var(--sage-dark)';
+          const bcb=document.createElement('input'); bcb.type='checkbox'; bcb.className='cl-batch-cb cl-cb'; bcb.dataset.batchId=id; bcb.style.accentColor='var(--sage-dark)';
           bcb.addEventListener('change',()=>{ row.classList.toggle('cl-pick-on',bcb.checked); });
           row.append(bcb,lbl,dateIn,calBtn);
-        } else {
-          row.append(cb,lbl,dateIn,calBtn,peopleBtn,eyeBtn,delItemBtn);
-        }
-
-        /* pills row — spans col 2 to end, inside the grid */
+        } else { row.append(cb,lbl,dateIn,calBtn); }
+        const involved=(entry.involved||[]);
         if(!clBatchMode && involved.length){
           const pillRow=document.createElement('div'); pillRow.className='cl-people-row';
-          involved.forEach(name=>{
-            const pill=document.createElement('span'); pill.className='cl-person-pill'; pill.textContent=name;
-            const rem=document.createElement('button'); rem.type='button'; rem.textContent='×';
-            rem.addEventListener('click',e=>{ e.stopPropagation();
-              const store=clData(); if(!store[item.id]) store[item.id]={};
-              store[item.id].involved=(store[item.id].involved||[]).filter(n=>n!==name);
-              isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
-            });
-            pill.appendChild(rem); pillRow.appendChild(pill);
-          });
+          involved.forEach(name=>{ const pill=document.createElement('span'); pill.className='cl-person-pill'; pill.textContent=name; pillRow.appendChild(pill); });
           row.appendChild(pillRow);
         }
-
-        /* inline picker — opens when this item's picker is active */
-        if(!clBatchMode && clPickerOpen===item.id){
-          const people=(bpData().people||[]).filter(p=>p.name&&p.name.trim());
-          const pickerDiv=document.createElement('div'); pickerDiv.className='cl-people-picker';
-          if(!people.length){
-            const empty=document.createElement('span'); empty.style.cssText='font-size:13px;color:var(--ink-soft);font-style:italic;';
-            empty.textContent='No bridal party members yet — add them on the Bridal Party tab.';
-            pickerDiv.appendChild(empty);
-          } else {
-            people.forEach(p=>{
-              const btn=document.createElement('button'); btn.type='button';
-              btn.className='cl-picker-person'+(involved.includes(p.name)?' picked':'');
-              btn.textContent=p.name+(p.role?' ('+p.role+')':'');
-              btn.addEventListener('click',e=>{ e.stopPropagation();
-                const store=clData(); if(!store[item.id]) store[item.id]={};
-                const inv=store[item.id].involved||[];
-                store[item.id].involved=inv.includes(p.name)?inv.filter(n=>n!==p.name):[...inv,p.name];
-                isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
-              });
-              pickerDiv.appendChild(btn);
-            });
-          }
-          const doneBtn=document.createElement('button'); doneBtn.type='button'; doneBtn.className='cl-picker-done'; doneBtn.textContent='Done';
-          doneBtn.addEventListener('click',e=>{ e.stopPropagation(); clPickerOpen=null; const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
-          pickerDiv.appendChild(doneBtn);
-          row.appendChild(pickerDiv);
-        }
-
         sec.appendChild(row);
-      });
+      }
+
+      grp.items.forEach(item=>renderClRow(item.id, item.label, false));
 
       /* ---- restore hidden items link ---- */
       if(hiddenCount>0){
         const restoreRow=document.createElement('div'); restoreRow.style.cssText='padding:2px 0 2px 4px;';
         const restoreBtn=document.createElement('button'); restoreBtn.type='button';
-        restoreBtn.style.cssText='background:none;border:none;color:var(--ink-soft);font-size:12px;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit;';
-        restoreBtn.textContent='↩ Restore '+hiddenCount+' hidden item'+(hiddenCount===1?'':'s');
+        restoreBtn.style.cssText='background:none;border:none;color:var(--sage-dark);font-size:12px;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit;';
+        restoreBtn.textContent='↩ Restore '+hiddenCount+' deleted item'+(hiddenCount===1?'':'s');
         restoreBtn.addEventListener('click',()=>{
-          const store=clData();
-          grp.items.forEach(item=>{ if(store[item.id]&&store[item.id].clHide) delete store[item.id].clHide; });
+          const store=clData(); grp.items.forEach(item=>{ if(store[item.id]&&store[item.id].clHide) delete store[item.id].clHide; });
           isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
         });
         restoreRow.appendChild(restoreBtn); sec.appendChild(restoreRow);
       }
 
-      /* ---- custom items for this group ---- */
+      /* ---- custom items + headings for this group ---- */
       clCustomData().filter(ci=>ci.grpKey===grpKey).forEach(ci=>{
-        const entry=d[ci.id]||{};
-        const row=document.createElement('div'); row.className='cl-item'+(entry.checked?' done':''); row.dataset.clId=ci.id;
-        const cb=document.createElement('input'); cb.type='checkbox'; cb.className='cl-cb'; cb.checked=!!entry.checked;
-        cb.addEventListener('change',()=>{ pushUndo(); const e=clData(); if(!e[ci.id]) e[ci.id]={}; e[ci.id].checked=cb.checked; row.classList.toggle('done',cb.checked); isDirty=true; clUpdateStat(); });
-        const lbl=document.createElement('span'); lbl.className='cl-label'; lbl.textContent=ci.label; lbl.style.cursor='pointer';
-        lbl.addEventListener('click',()=>{ if(clBatchMode) return; cb.checked=!cb.checked; cb.dispatchEvent(new Event('change')); });
-        const dateIn=document.createElement('input'); dateIn.type='date'; dateIn.className='cl-date'; dateIn.value=entry.date||'';
-        const calBtn=document.createElement('a'); calBtn.className='cl-cal'; calBtn.title='Add to calendar'; calBtn.textContent='📅';
-        calBtn.download=ci.label.replace(/[^a-z0-9]/gi,'_')+'.ics';
-        const refreshCal=()=>{ if(dateIn.value){ calBtn.href=clMakeIcs(ci.label,dateIn.value); calBtn.style.opacity='1'; } else { calBtn.removeAttribute('href'); calBtn.style.opacity='0.3'; } };
-        refreshCal();
-        dateIn.addEventListener('change',()=>{ const e=clData(); if(!e[ci.id]) e[ci.id]={}; e[ci.id].date=dateIn.value; isDirty=true; refreshCal(); });
-        calBtn.addEventListener('click',ev=>{ if(!dateIn.value) ev.preventDefault(); });
-        const involved=(entry.involved||[]);
-        const peopleBtn=document.createElement('button'); peopleBtn.type='button';
-        peopleBtn.className='cl-people-btn'+(involved.length?' has-people':''); peopleBtn.title='Share with bridal party';
-        peopleBtn.textContent=involved.length?'👥 '+involved.length:'👥';
-        peopleBtn.addEventListener('click',ev=>{ ev.stopPropagation(); clPickerOpen=(clPickerOpen===ci.id?null:ci.id); const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
-        const delBtn=document.createElement('button'); delBtn.type='button'; delBtn.title='Remove item';
-        delBtn.style.cssText='background:none;border:none;cursor:pointer;color:var(--ink-soft);font-size:16px;padding:2px 4px;line-height:1;';
-        delBtn.textContent='×';
-        delBtn.addEventListener('click',ev=>{ ev.stopPropagation();
-          state.clCustomItems=clCustomData().filter(x=>x.id!==ci.id);
-          const store=clData(); delete store[ci.id]; isDirty=true;
-          const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
-        });
-        const ciBpHidden=!!(entry.bpHide);
-        const ciEyeBtn=document.createElement('button'); ciEyeBtn.type='button';
-        ciEyeBtn.className='cl-bp-toggle'+(ciBpHidden?' bp-hidden':'');
-        ciEyeBtn.title=ciBpHidden?'Hidden from bridal party page (click to show)':'Visible on bridal party page (click to hide)';
-        ciEyeBtn.textContent='👁';
-        ciEyeBtn.addEventListener('click',ev=>{ ev.stopPropagation(); const store=clData(); if(!store[ci.id]) store[ci.id]={}; store[ci.id].bpHide=!store[ci.id].bpHide; isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
-        if(clBatchMode){
-          const bcb=document.createElement('input'); bcb.type='checkbox'; bcb.className='cl-batch-cb cl-cb'; bcb.dataset.batchId=ci.id; bcb.style.accentColor='var(--sage-dark)';
-          bcb.addEventListener('change',()=>{ row.classList.toggle('cl-pick-on',bcb.checked); });
-          row.append(bcb,lbl,dateIn,calBtn);
-        } else { row.append(cb,lbl,dateIn,calBtn,peopleBtn,ciEyeBtn,delBtn); }
-        if(!clBatchMode && involved.length){
-          const pillRow=document.createElement('div'); pillRow.className='cl-people-row';
-          involved.forEach(name=>{ const pill=document.createElement('span'); pill.className='cl-person-pill'; pill.textContent=name; const rem=document.createElement('button'); rem.type='button'; rem.textContent='×'; rem.addEventListener('click',ev=>{ ev.stopPropagation(); const store=clData(); if(!store[ci.id]) store[ci.id]={}; store[ci.id].involved=(store[ci.id].involved||[]).filter(n=>n!==name); isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy); }); pill.appendChild(rem); pillRow.appendChild(pill); });
-          row.appendChild(pillRow);
-        }
-        if(!clBatchMode && clPickerOpen===ci.id){
-          const people=(bpData().people||[]).filter(p=>p.name&&p.name.trim());
-          const pickerDiv=document.createElement('div'); pickerDiv.className='cl-people-picker';
-          if(!people.length){ const empty=document.createElement('span'); empty.style.cssText='font-size:13px;color:var(--ink-soft);font-style:italic;'; empty.textContent='No bridal party members yet — add them on the Bridal Party tab.'; pickerDiv.appendChild(empty); }
-          else { people.forEach(p=>{ const btn=document.createElement('button'); btn.type='button'; btn.className='cl-picker-person'+(involved.includes(p.name)?' picked':''); btn.textContent=p.name+(p.role?' ('+p.role+')':''); btn.addEventListener('click',ev=>{ ev.stopPropagation(); const store=clData(); if(!store[ci.id]) store[ci.id]={}; const inv=store[ci.id].involved||[]; store[ci.id].involved=inv.includes(p.name)?inv.filter(n=>n!==p.name):[...inv,p.name]; isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy); }); pickerDiv.appendChild(btn); }); }
-          const doneBtn=document.createElement('button'); doneBtn.type='button'; doneBtn.className='cl-picker-done'; doneBtn.textContent='Done';
-          doneBtn.addEventListener('click',ev=>{ ev.stopPropagation(); clPickerOpen=null; const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
-          pickerDiv.appendChild(doneBtn); row.appendChild(pickerDiv);
-        }
-        sec.appendChild(row);
+        if(ci.type==='heading'){ const hd=document.createElement('div'); hd.className='cl-heading-row'; hd.textContent=ci.label; sec.appendChild(hd); return; }
+        renderClRow(ci.id, ci.label, true);
       });
 
       /* ---- + Add item button ---- */
@@ -9197,7 +9136,25 @@ function clRender(){
           cancelBtn2.addEventListener('click',()=>{ const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
           inp.addEventListener('keydown',e=>{ if(e.key==='Enter') doSave(); if(e.key==='Escape'){ const sy=window.scrollY; clRender(); window.scrollTo(0,sy); } });
         });
-        addRow.appendChild(addBtn);
+        const addHdgBtn=document.createElement('button'); addHdgBtn.type='button'; addHdgBtn.className='cl-add-item-btn';
+        addHdgBtn.textContent='+ Add heading'; addHdgBtn.style.cssText='margin-left:8px;opacity:.7;';
+        addHdgBtn.addEventListener('click',()=>{
+          const inp=document.createElement('input'); inp.type='text'; inp.className='cl-add-input'; inp.placeholder='Heading text…'; inp.maxLength=80;
+          const saveBtn=document.createElement('button'); saveBtn.type='button'; saveBtn.className='cl-add-save-btn'; saveBtn.textContent='Add';
+          const cancelBtn3=document.createElement('button'); cancelBtn3.type='button'; cancelBtn3.className='cl-add-cancel-btn'; cancelBtn3.textContent='Cancel';
+          addRow.innerHTML=''; addRow.append(inp,saveBtn,cancelBtn3);
+          inp.focus();
+          const doSave=()=>{
+            const label=inp.value.trim(); if(!label) return;
+            const newId='hdg_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);
+            clCustomData().push({id:newId, grpKey, label, type:'heading'});
+            isDirty=true; const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
+          };
+          saveBtn.addEventListener('click',doSave);
+          cancelBtn3.addEventListener('click',()=>{ const sy=window.scrollY; clRender(); window.scrollTo(0,sy); });
+          inp.addEventListener('keydown',e=>{ if(e.key==='Enter') doSave(); if(e.key==='Escape'){ const sy=window.scrollY; clRender(); window.scrollTo(0,sy); } });
+        });
+        addRow.append(addBtn, addHdgBtn);
         sec.appendChild(addRow);
       }
     });
@@ -9209,19 +9166,109 @@ function clRender(){
   prog.innerHTML='<strong>'+done+'</strong> of '+total+' tasks ticked off';
   body.appendChild(prog);
 
-  /* ---- bulk calendar download ---- */
-  const datedItems=[];
-  CHECKLIST_PHASES.forEach(ph=>ph.groups.forEach(g=>g.items.forEach(item=>{
-    const e=d[item.id]; if(e&&e.date) datedItems.push({label:item.label,dateStr:e.date});
-  })));
-  const bulkWrap=document.createElement('div'); bulkWrap.className='cl-bulk-wrap';
-  const bulkBtn=document.createElement('a'); bulkBtn.className='cl-bulk-btn'+(datedItems.length?'':' hidden');
-  bulkBtn.textContent='⬇️  Download all '+datedItems.length+' dated item'+(datedItems.length===1?'':'s')+' to calendar';
-  bulkBtn.download='Wedding_Checklist_Dates.ics';
-  if(datedItems.length) bulkBtn.href=clMakeBulkIcs(datedItems);
-  bulkWrap.appendChild(bulkBtn);
-  body.appendChild(bulkWrap);
 }
+
+
+/* ===================== CHECKLIST ITEM POPUP ===================== */
+let clPopupId=null, clPopupIsCustom=false;
+
+function clOpenItemPopup(id, label, isCustom){
+  clPopupId=id; clPopupIsCustom=isCustom;
+  const entry=clData()[id]||{};
+  document.getElementById('clPopTitle').textContent=label;
+  clPopupRefreshVis(); clPopupRefreshDone(); clPopupRefreshPeople();
+  document.getElementById('clItemPopup').classList.remove('hidden');
+}
+
+function clCloseItemPopup(){
+  document.getElementById('clItemPopup').classList.add('hidden');
+  clPopupId=null;
+}
+
+function clPopupRefreshVis(){
+  if(!clPopupId) return;
+  const entry=clData()[clPopupId]||{};
+  const hidden=!!entry.bpHide;
+  const btn=document.getElementById('clPopBpToggle');
+  btn.querySelector('.cl-pop-label').textContent=hidden?'Hidden from bridal party':'Visible on bridal party page';
+  btn.querySelector('.cl-pop-hint').textContent=hidden?'Tap to show it again':'Tap to hide from bridal party';
+  btn.querySelector('.cl-pop-icon').textContent=hidden?'🙈':'👁';
+}
+
+function clPopupRefreshDone(){
+  if(!clPopupId) return;
+  const entry=clData()[clPopupId]||{};
+  const done=!!entry.checked;
+  const btn=document.getElementById('clPopDoneToggle');
+  btn.querySelector('.cl-pop-label').textContent=done?'Mark as not done':'Mark as done';
+  btn.querySelector('.cl-pop-hint').textContent=done?'Remove the done status':'Tick this item off your list';
+  btn.querySelector('.cl-pop-icon').textContent=done?'↩':'✅';
+}
+
+function clPopupRefreshPeople(){
+  if(!clPopupId) return;
+  const entry=clData()[clPopupId]||{};
+  const involved=entry.involved||[];
+  const people=(bpData().people||[]).filter(p=>p.name&&p.name.trim());
+  const wrap=document.getElementById('clPopPeople');
+  wrap.innerHTML='';
+  if(!people.length){
+    const msg=document.createElement('span'); msg.style.cssText='font-size:13px;color:var(--ink-soft);font-style:italic;';
+    msg.textContent='No bridal party members yet — add them on the Bridal Party tab.';
+    wrap.appendChild(msg); return;
+  }
+  people.forEach(p=>{
+    const btn=document.createElement('button'); btn.type='button';
+    btn.className='cl-pop-person'+(involved.includes(p.name)?' on':'');
+    btn.textContent=p.name+(p.role?' ('+p.role+')':'');
+    btn.addEventListener('click',()=>{
+      const store=clData(); if(!store[clPopupId]) store[clPopupId]={};
+      const inv=store[clPopupId].involved||[];
+      store[clPopupId].involved=inv.includes(p.name)?inv.filter(n=>n!==p.name):[...inv,p.name];
+      isDirty=true; btn.classList.toggle('on',store[clPopupId].involved.includes(p.name));
+      const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+document.getElementById('clPopBpToggle').addEventListener('click',()=>{
+  if(!clPopupId) return;
+  const store=clData(); if(!store[clPopupId]) store[clPopupId]={};
+  store[clPopupId].bpHide=!store[clPopupId].bpHide;
+  isDirty=true; clPopupRefreshVis(); const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
+});
+
+document.getElementById('clPopDoneToggle').addEventListener('click',()=>{
+  if(!clPopupId) return;
+  pushUndo(); const store=clData(); if(!store[clPopupId]) store[clPopupId]={};
+  store[clPopupId].checked=!store[clPopupId].checked;
+  isDirty=true; clUpdateStat(); clPopupRefreshDone(); const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
+});
+
+document.getElementById('clPopCalBtn').addEventListener('click',()=>{
+  if(!clPopupId) return;
+  const entry=clData()[clPopupId]||{};
+  if(!entry.date){ alert('Set a date for this item first (the 📅 on the row).'); return; }
+  const title=document.getElementById('clPopTitle').textContent;
+  const a=document.createElement('a'); a.download=title.replace(/[^a-z0-9]/gi,'_')+'.ics';
+  a.href=clMakeIcs(title,entry.date); a.click();
+});
+
+document.getElementById('clPopDelete').addEventListener('click',()=>{
+  if(!clPopupId) return;
+  if(clPopupIsCustom){
+    state.clCustomItems=clCustomData().filter(x=>x.id!==clPopupId);
+    const store=clData(); delete store[clPopupId];
+  } else {
+    const store=clData(); if(!store[clPopupId]) store[clPopupId]={};
+    store[clPopupId].clHide=true;
+  }
+  isDirty=true; clCloseItemPopup(); const sy=window.scrollY; clRender(); window.scrollTo(0,sy);
+});
+
+document.getElementById('clPopClose').addEventListener('click', clCloseItemPopup);
+document.getElementById('clPopBackdrop').addEventListener('click', clCloseItemPopup);
 
 function clUpdateStat(){
   const done=clDoneCount(),total=clTotalItems();
