@@ -1280,6 +1280,7 @@
 <!-- ===================== MAIN APP ===================== -->
 <div id="mainLayout" class="hidden">
 <button type="button" id="btnPublishFloat" class="hidden" style="position:fixed; right:18px; bottom:18px; z-index:60; background:#2f6f4f; color:#fff; border:none; border-radius:28px; padding:13px 22px; font-size:15px; font-weight:600; font-family:inherit; box-shadow:0 6px 18px rgba(0,0,0,.28); cursor:pointer;">Publish changes</button>
+<button type="button" id="btnBpPublishFloat" class="hidden" style="position:fixed; right:18px; bottom:18px; z-index:65; background:#7a5c3e; color:#fff; border:none; border-radius:28px; padding:13px 22px; font-size:15px; font-weight:600; font-family:inherit; box-shadow:0 6px 18px rgba(0,0,0,.28); cursor:pointer;">📋 Publish to bridal party</button>
 
   <div id="sidebar">
 
@@ -7909,6 +7910,26 @@ document.getElementById('btnPublishFloat').addEventListener('click', async ()=>{
   if(btn.classList.contains('hidden')) toast('Published ✓ Guests see the latest now.');
   else toast('Could not publish. Check your internet and try again.');
 });
+
+/* ---- Floating bridal party publish button ---- */
+function refreshBpPublishFloat(){
+  const btn = document.getElementById('btnBpPublishFloat');
+  const onChecklist = !document.getElementById('checklistScreen').classList.contains('hidden');
+  const bpOpen = !document.getElementById('bpModal').classList.contains('hidden');
+  const hasBp = !!(bpData && bpData().slug);
+  const ready = hasAccess && sb && cloudUser && cloudEnabled;
+  btn.classList.toggle('hidden', !(ready && hasBp && (onChecklist || bpOpen)));
+  /* shift guest publish button up if both would overlap */
+  document.getElementById('btnPublishFloat').style.bottom = (!document.getElementById('btnPublishFloat').classList.contains('hidden') && !btn.classList.contains('hidden')) ? '74px' : '18px';
+}
+setInterval(refreshBpPublishFloat, 2000);
+document.getElementById('btnBpPublishFloat').addEventListener('click', async ()=>{
+  const btn = document.getElementById('btnBpPublishFloat');
+  btn.disabled = true; btn.textContent = 'Publishing…';
+  await publishBridal();
+  btn.disabled = false; btn.textContent = '📋 Publish to bridal party';
+  refreshBpPublishFloat();
+});
 async function publishGuestPage(){
   if(!hasAccess){ document.getElementById('finderModal').classList.add('hidden'); openAccessModal(); return; }
   if(!(sb && cloudUser && cloudEnabled)){ refreshFinderModal(); return; }
@@ -7942,6 +7963,12 @@ document.getElementById('finderEventName').addEventListener('input', ()=>{ state
 document.getElementById('btnFinderClose').addEventListener('click', ()=>{
   if(!document.getElementById('finderMain').classList.contains('hidden')) saveFinderInputs();
   document.getElementById('finderModal').classList.add('hidden');
+});
+document.getElementById('finderModal').addEventListener('click', e=>{
+  if(e.target === document.getElementById('finderModal')){
+    if(!document.getElementById('finderMain').classList.contains('hidden')) saveFinderInputs();
+    document.getElementById('finderModal').classList.add('hidden');
+  }
 });
 document.getElementById('btnFinderSignIn').addEventListener('click', ()=>{
   document.getElementById('finderModal').classList.add('hidden');
@@ -8461,7 +8488,7 @@ function bpCollect(){
     photos: photoList().filter(x=> (x.name||'').trim()).map(x=>({id:x.id, name:x.name.trim(), time:(x.time||'').trim(), place:(x.place||'').trim(), note:(x.note||'').trim(),
       people:(x.guestIds||[]).map(id=>{ const g = state.guests.find(q=>q.id===id); return g ? g.name : ''; }).concat(splitCommas(x.others)).filter(Boolean)})),
     pack: b.pack.filter(k=> (k.what||'').trim()).map(k=>({id:k.id, what:k.what.trim(), who:(k.who||'').trim(), when:(k.when||'').trim()})),
-    importantDates: (function(){ const store=clData(), out=[]; (CHECKLIST_PHASES||[]).forEach(ph=>{ ph.groups.forEach(grp=>{ grp.items.forEach(item=>{ const e=store[item.id]||{}; if((e.involved||[]).length) out.push({title:item.label, date:e.date||'', involved:e.involved}); }); }); }); return out; })()
+    importantDates: (function(){ const store=clData(), out=[]; (CHECKLIST_PHASES||[]).forEach(ph=>{ ph.groups.forEach(grp=>{ grp.items.forEach(item=>{ const e=store[item.id]||{}; if((e.involved||[]).length || e.date) out.push({title:item.label, date:e.date||'', involved:e.involved||[]}); }); }); }); return out; })()
   };
 }
 function bpEnsureRoles(whoStrings){
