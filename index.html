@@ -10135,7 +10135,6 @@ function escapeAttr(str){
 <!-- Try without account warning popup -->
 <div id="tryNoAccountPopup" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:20px;">
   <div style="background:#fdf9f5;border-radius:16px;max-width:360px;width:100%;padding:32px 28px 24px;box-shadow:0 8px 32px rgba(0,0,0,.18);text-align:center;font-family:Georgia,serif;">
-    <div style="font-size:36px;margin-bottom:12px;">👋</div>
     <h3 style="font-size:18px;color:#4a5e3a;margin:0 0 12px;">Just so you know</h3>
     <p style="font-size:15px;color:#2c2c2c;line-height:1.6;margin:0 0 20px;">You can explore freely, but <strong>you won't be able to save your project</strong> without an account.</p>
     <p style="font-size:14px;color:#666;margin:0 0 24px;">Creating an account, table seating and floor plans are <strong>free</strong>.</p>
@@ -10147,35 +10146,44 @@ function escapeAttr(str){
 </div>
 <script>
 (function(){
+  var popupOpen = false;
   function showTryPopup(e){
     if(e) e.preventDefault();
+    popupOpen = true;
     document.getElementById('tryNoAccountPopup').style.display='flex';
   }
   function hideTryPopup(){
     document.getElementById('tryNoAccountPopup').style.display='none';
+    popupOpen = false;
+  }
+  function doSkip(){
+    // run the original skip logic directly without re-triggering the popup
+    if(typeof cloudEnabled !== 'undefined') cloudEnabled = false;
+    if(typeof hideLanding === 'function') hideLanding();
+    if(typeof updateAccountMenu === 'function') updateAccountMenu();
   }
   // intercept "play around on the site first" link
   var lsTry = document.getElementById('lsTry');
   if(lsTry) lsTry.addEventListener('click', showTryPopup);
   // intercept "Try it without an account" button on landing
   var btnSkip = document.getElementById('btnLandSkip');
-  if(btnSkip) btnSkip.addEventListener('click', showTryPopup, true);
+  if(btnSkip) btnSkip.addEventListener('click', function(e){
+    if(!popupOpen){ e.stopImmediatePropagation(); showTryPopup(e); }
+  }, true);
   // "Create a free account" → open sign-up
   document.getElementById('tryPopupSignup').addEventListener('click', function(){
     hideTryPopup();
-    // open the auth screen in sign-up mode
     var authScreen = document.getElementById('authScreen');
     if(authScreen){ authScreen.classList.remove('hidden'); }
     var authToggle = document.getElementById('authToggleMode');
-    // switch to create-account mode if currently in sign-in mode
     if(authToggle && authToggle.textContent.trim().toLowerCase().includes('create')){
       authToggle.click();
     }
   });
-  // "Continue without an account" → proceed as before (fire original skip logic)
+  // "Continue without an account" → run skip logic directly
   document.getElementById('tryPopupContinue').addEventListener('click', function(){
     hideTryPopup();
-    document.getElementById('btnLandSkip').dispatchEvent(new MouseEvent('click',{bubbles:false}));
+    doSkip();
   });
   // close if clicking the dark backdrop
   document.getElementById('tryNoAccountPopup').addEventListener('click', function(e){
