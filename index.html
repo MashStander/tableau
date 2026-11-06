@@ -8889,7 +8889,7 @@ function clRender(){
   body.appendChild(tip);
 
   /* ---- batch date bar ---- */
-  const batchBar=document.createElement('div'); batchBar.className='cl-batch-bar sticky';
+  const batchBar=document.createElement('div'); batchBar.className='cl-batch-bar'+(clBatchMode?' sticky':'');
   if(!clBatchMode){
     const openBtn=document.createElement('button'); openBtn.type='button'; openBtn.className='cl-batch-open-btn';
     openBtn.textContent='📅 Set one date for multiple items';
@@ -9225,7 +9225,8 @@ async function publishBridal(){
     isDirty = true;
     await saveCloudNow();
     const unnamed = data.people.filter(p=>!p.name).length;
-    st.textContent = 'Published ✓ ' + b.published + codeNote + (data.guestUrl ? ' — includes a button to the guest page' : ' — no guest page button yet: publish your guest page first, then publish this again') + (unnamed ? ' — ' + unnamed + ' ' + (unnamed===1?'person has':'people have') + ' no name yet, so their button shows their role.' : '');
+    const dateCount = (data.importantDates||[]).length;
+    st.textContent = 'Published ✓ ' + b.published + ' — ' + dateCount + ' important date' + (dateCount===1?'':'s') + ' included' + codeNote + (data.guestUrl ? ' — includes a button to the guest page' : ' — no guest page button yet: publish your guest page first, then publish this again') + (unnamed ? ' — ' + unnamed + ' ' + (unnamed===1?'person has':'people have') + ' no name yet, so their button shows their role.' : '');
     bpRefreshShare();
   }catch(e){
     st.textContent = 'Could not publish. Check your internet connection and try again.';
