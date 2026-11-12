@@ -7735,7 +7735,7 @@ async function buyPlan(tier){
   const btn = document.getElementById('accessBuyBtn' + tier);
   if(btn){ btn.disabled = true; btn.textContent = 'Redirecting…'; }
   try{
-    const res = await fetch('/.netlify/functions/payfast-initiate', {
+    const res = await fetch('https://tableau-payfast-initiate.mash-stander.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tier, email: cloudUser.email, firstName: cloudUser.user_metadata?.display_name || '' }),
