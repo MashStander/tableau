@@ -37,6 +37,16 @@
     min-height:100vh;
   }
   h1,h2,h3{font-family:'Lora',serif; margin:0; font-weight:600;}
+  /* Admin/functional screens use Plus Jakarta Sans for headings */
+  #hubScreen h2, #hubScreen h3,
+  #guestScreen h2, #guestScreen h3,
+  #setupScreen h2, #setupScreen h3,
+  #projectList h2, #projectList h3,
+  .modal h2, .modal h3,
+  .panel h2, .panel h3 {
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-weight:600;
+  }
   button{font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer;}
   .hidden{display:none !important;}
 
@@ -49,7 +59,7 @@
   }
   #topbar > div:first-child{padding-left:305px; white-space:nowrap; min-height:60px;}
   #topbar h1{font-size:30px; letter-spacing:.3px; position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
-  #topbar .tagline{color:var(--rose); font-size:13px; font-style:italic; font-family:'Lora',serif; margin-top:1px;}
+  #topbar .tagline{color:var(--rose); font-size:13px; font-family:'Lora',serif; font-weight:500; margin-top:1px;}
   #topbar .sub{color:var(--ink-soft); font-size:13px; margin-top:2px;}
   #topbar .actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end;}
   .ghost-btn{
@@ -998,7 +1008,7 @@
 <div id="topbar">
   <div>
     <h1>Tableau</h1>
-    <div class="tagline">Drag, drop, and set the perfect tone.</div>
+    <div class="tagline">Familiar, with a spritz of magic.</div>
     <div class="sub" id="topSub">Set up your table to begin</div>
   </div>
   <div class="actions" id="topActions" style="display:none;">
@@ -1501,7 +1511,7 @@
 <div id="landingScreen" class="auth-screen hidden">
   <div class="auth-card landing-card">
     <div class="auth-logo landing-logo" role="img" aria-label="Tableau"></div>
-    <p class="landing-tag">Drag, drop, and set the perfect tone.</p>
+    <p class="landing-tag">Familiar, with a spritz of magic.</p>
     <p class="landing-sub">Your whole wedding day in one place: seat your guests, design the room, plan the day with your bridal party, and share one QR code with your guests.</p>
     <p class="landing-desktop-note">Tip: Tableau works best on a computer. On a phone, seating works but the floor plan does not yet.</p>
 
