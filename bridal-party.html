@@ -7,23 +7,23 @@
 <meta name="theme-color" content="#5c6a52">
 <title>Bridal party guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Corinthia:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#faf6ef; --linen:#f1ead9; --ink:#2f2a24; --ink-soft:#6b6255;
-    --sage:#7c8a70; --sage-dark:#5c6a52; --rose:#c98a7d; --line:#e2d8c3; --white:#fffdf8; --danger:#b5564a; --gold:#c2a24e;
+    --paper:#f6f3e9; --linen:#ede9db; --ink:#3a3330; --ink-soft:#7a7068;
+    --sage:#94ab96; --sage-dark:#6e8a70; --rose:#f98484; --line:#ddd9cc; --white:#fdfaf4; --danger:#e05050; --gold:#c2a24e;
   }
   *{box-sizing:border-box;}
   html,body{margin:0; min-height:100%;}
-  body{font-family:'Jost',sans-serif; background:var(--paper); color:var(--ink); line-height:1.45; -webkit-text-size-adjust:100%;}
+  body{font-family:'Plus Jakarta Sans',sans-serif; background:var(--paper); color:var(--ink); line-height:1.45; -webkit-text-size-adjust:100%;}
   .wrap{max-width:560px; margin:0 auto; padding:20px 16px 60px;}
-  h1{font-family:'Cormorant Garamond',serif; font-size:32px; line-height:1.15; margin:6px 0 2px; color:var(--sage-dark); text-align:center;}
+  h1{font-family:'Lora',serif; font-size:32px; line-height:1.15; margin:6px 0 2px; color:var(--sage-dark); text-align:center;}
   .sub{text-align:center; color:var(--ink-soft); font-size:14px; margin-bottom:14px;}
   .status{background:var(--white); border:1px solid var(--line); border-radius:12px; padding:10px 14px; text-align:center; font-size:14px; margin-bottom:14px;}
   .status b{color:var(--sage-dark);}
   .note{background:var(--linen); border-radius:12px; padding:10px 14px; font-size:14px; margin-bottom:16px; white-space:pre-line;}
   /* collapsible section headings */
-  h2.sec-head{font-family:'Cormorant Garamond',serif; font-size:22px; margin:22px 0 0; color:var(--ink); display:flex; justify-content:space-between; align-items:center; cursor:pointer; user-select:none; padding-bottom:6px;}
+  h2.sec-head{font-family:'Lora',serif; font-size:22px; margin:22px 0 0; color:var(--ink); display:flex; justify-content:space-between; align-items:center; cursor:pointer; user-select:none; padding-bottom:6px;}
   h2.sec-head .chev{font-size:15px; color:var(--ink-soft); transition:transform .2s; display:inline-block; margin-left:6px;}
   h2.sec-head.collapsed .chev{transform:rotate(-90deg);}
   .sec-body{margin-top:8px;}
@@ -35,7 +35,7 @@
   .date-done-badge{font-size:17px; margin-right:2px;}
   .date-item:active{background:var(--linen);}
   .date-left{text-align:center; min-width:44px; flex-shrink:0;}
-  .date-day{font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; color:var(--sage-dark); line-height:1;}
+  .date-day{font-family:'Lora',serif; font-size:26px; font-weight:700; color:var(--sage-dark); line-height:1;}
   .date-mon{font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin-top:1px;}
   .date-info{flex:1; min-width:0;}
   .date-title{font-size:15px; font-weight:500;}
@@ -45,7 +45,7 @@
   #datePopup{position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.45); display:flex; align-items:flex-end; justify-content:center;}
   #datePopup.hidden{display:none !important;}
   .popup-sheet{background:var(--paper); border-radius:20px 20px 0 0; padding:22px 20px 40px; width:100%; max-width:560px; max-height:80vh; overflow-y:auto;}
-  .popup-sheet h3{font-family:'Cormorant Garamond',serif; font-size:26px; color:var(--sage-dark); margin:0 0 2px;}
+  .popup-sheet h3{font-family:'Lora',serif; font-size:26px; color:var(--sage-dark); margin:0 0 2px;}
   .popup-date-line{font-size:14px; color:var(--ink-soft); margin-bottom:16px;}
   .popup-label{font-size:12.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:10px;}
   .popup-people{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;}
@@ -59,7 +59,7 @@
   .name-btn.all small{color:#e5eadf;}
   .back{background:none; border:none; color:var(--sage-dark); font:inherit; font-size:15px; padding:6px 0; cursor:pointer; text-decoration:underline;}
   .who-head{margin:6px 0 10px;}
-  .who-head .nm{font-family:'Cormorant Garamond',serif; font-size:30px; color:var(--sage-dark); line-height:1.1;}
+  .who-head .nm{font-family:'Lora',serif; font-size:30px; color:var(--sage-dark); line-height:1.1;}
   .who-head .rl{color:var(--ink-soft); font-size:14px;}
   .group-title{font-size:12.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; margin:18px 0 8px; display:flex; align-items:center; gap:8px;}
   .group-title .dot{width:9px; height:9px; border-radius:50%; background:var(--sage);}
