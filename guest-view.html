@@ -8,8 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Corinthia:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#f6f3e9;
-    --linen:#ede9db;
+    --paper:#fffefb;
+    --linen:#f2efea;
     --ink:#3a3330;
     --ink-soft:#7a7068;
     --sage:#94ab96;
@@ -18,7 +18,7 @@
     --wood:#f4d284;
     --wood-dark:#d4a832;
     --line:#ddd9cc;
-    --white:#fdfaf4;
+    --white:#ffffff;
     --danger:#e05050;
   }
   *{box-sizing:border-box;}
@@ -262,7 +262,7 @@
         <div class="fp-tools"><span>The star marks your table.</span><button id="fpZoomBtn" type="button">Zoom in</button></div>
       </div>
       <div id="paneMates" class="mates hidden">
-        <h3>Sitting at this table</h3>
+        <h3 id="tableMatesTitle">Sitting at this table</h3>
         <div id="matesList"></div>
       </div>
     </div>
@@ -271,25 +271,25 @@
   <!-- INFO SECTIONS -->
   <div id="programSection" class="hidden">
     <button class="back-btn homeBack" data-home="1">&larr; Back</button>
-    <div class="card"><h2 class="view-title">Programme</h2><div id="programBody"></div></div>
+    <div class="card"><h2 class="view-title" id="programTitle">Programme</h2><div id="programBody"></div></div>
     <div id="programVerseBlock" class="verse-block hidden"></div>
   </div>
   <div id="menuSection" class="hidden">
     <button class="back-btn homeBack" data-home="1">&larr; Back</button>
-    <div class="card"><h2 class="view-title">Menu</h2><div id="menuBody"></div></div>
+    <div class="card"><h2 class="view-title" id="menuTitle">Menu</h2><div id="menuBody"></div></div>
     <div id="menuVerseBlock" class="verse-block hidden"></div>
   </div>
   <div id="giftsSection" class="hidden">
     <button class="back-btn homeBack" data-home="1">&larr; Back</button>
-    <div class="card"><h2 class="view-title">Gifts</h2><div id="giftsBody"></div></div>
+    <div class="card"><h2 class="view-title" id="giftsTitle">Gifts</h2><div id="giftsBody"></div></div>
   </div>
   <div id="photosSection" class="hidden">
     <button class="back-btn homeBack" data-home="1">&larr; Back</button>
-    <div class="card"><h2 class="view-title">Photos &amp; videos</h2><div id="photosBody"></div></div>
+    <div class="card"><h2 class="view-title" id="photosTitle">Photos &amp; videos</h2><div id="photosBody"></div></div>
   </div>
   <div id="linksSection" class="hidden">
     <button class="back-btn homeBack" data-home="1">&larr; Back</button>
-    <div class="card"><h2 class="view-title">Links &amp; info</h2><div id="linksBody"></div></div>
+    <div class="card"><h2 class="view-title" id="linksTitle">Links &amp; info</h2><div id="linksBody"></div></div>
   </div>
 
   <div class="bp-foot" id="bpFoot">
@@ -358,18 +358,36 @@ document.querySelectorAll('.homeBack').forEach(b=> b.addEventListener('click', (
 /* ---------- home tiles ---------- */
 function buildHome(){
   const info = SEAT_DATA.info || {};
+  const lbl = info.labels || {};
+  const L = {
+    seat:       lbl.seat       || 'Find my seat',
+    program:    lbl.program    || 'Programme',
+    menu:       lbl.menu       || 'Menu',
+    gifts:      lbl.gifts      || 'Gifts',
+    photos:     lbl.photos     || 'Photos & videos',
+    links:      lbl.links      || 'Links & info',
+    tablemates: lbl.tablemates || 'Sitting at this table'
+  };
+  // Push labels into section headings
+  ['program','menu','gifts','photos','links'].forEach(id=>{
+    const el = document.getElementById(id+'Title');
+    if(el) el.textContent = L[id];
+  });
+  const matEl = document.getElementById('tableMatesTitle');
+  if(matEl) matEl.textContent = L.tablemates;
+
   const tiles = [];
-  tiles.push({id:'seat', label:'Find my seat', sub:'Search your name or browse by letter', wide:true});
+  tiles.push({id:'seat', label:L.seat, sub:'Search your name or browse by letter', wide:true});
   if((info.program && info.program.length) || (info.programDays && info.programDays.length) || imgs(info,'program').length)
-    tiles.push({id:'program', label:'Programme', sub:'The order of the day'});
+    tiles.push({id:'program', label:L.program, sub:'The order of the day'});
   if((info.menu && info.menu.length) || imgs(info,'menu').length)
-    tiles.push({id:'menu', label:'Menu', sub:'What is being served'});
+    tiles.push({id:'menu', label:L.menu, sub:'What is being served'});
   if((info.bank && info.bank.length) || info.bankNote || imgs(info,'bank').length)
-    tiles.push({id:'gifts', label:'Gifts', sub:'Banking details'});
+    tiles.push({id:'gifts', label:L.gifts, sub:'Banking details'});
   if(info.album && /^https:\/\//i.test(info.album.url || ''))
-    tiles.push({id:'photos', label:'Photos & videos', sub:'Share your pictures from the day'});
+    tiles.push({id:'photos', label:L.photos, sub:'Share your pictures from the day'});
   if(info.links && info.links.some(l => /^https?:\/\//i.test(l.url)))
-    tiles.push({id:'links', label:'Links & info', sub:'Website and more'});
+    tiles.push({id:'links', label:L.links, sub:'Website and more'});
   availableSections = tiles.map(t=>t.id);
 
   const grid = document.getElementById('tileGrid');
