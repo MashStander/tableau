@@ -246,6 +246,8 @@
   #addGuestForm input[type=text], #addGuestForm select{
     padding:8px 9px; border:1px solid var(--line); border-radius:3px; font-size:13.5px; font-family:'Plus Jakarta Sans',sans-serif; width:100%;
   }
+  .add-guest-files{display:flex; gap:8px; margin-top:10px;}
+  .add-guest-files .ghost-btn{flex:1; padding:8px 6px; font-size:13px;}
   #addGuestForm button{background:var(--sage-dark); color:#fff; border:none; padding:9px; border-radius:3px; font-size:13.5px;}
 
   #guestSearchWrap{padding:14px 20px 4px;}
@@ -1411,13 +1413,17 @@
       <h3>
         <span class="collapse-toggle" id="addGuestToggle"><span class="chev" id="addGuestChev"></span> Add a guest <span class="collapse-hint">(Click to collapse section)</span></span>
       </h3>
-      <p class="section-desc" id="addGuestDesc">Add guests individually, or tap Import/Export Guests (top right) to upload a list from Excel.</p>
+      <p class="section-desc" id="addGuestDesc">Add guests individually, or use the buttons below to download our guest list template and upload your list from your computer.</p>
       <div id="addGuestBody">
         <form id="addGuestForm">
           <input type="text" id="newGuestName" placeholder="Guest name" maxlength="40" required>
           <select id="newGuestGroup"></select>
           <button type="submit">Add to list</button>
         </form>
+        <div class="add-guest-files">
+          <button type="button" class="ghost-btn" id="btnSideTemplate">Download template</button>
+          <button type="button" class="ghost-btn" id="btnSideImport">Upload guest list</button>
+        </div>
       </div>
     </div>
 
@@ -9952,6 +9958,8 @@ document.getElementById('btnGuestBack').addEventListener('click', ()=> showHub(f
 document.getElementById('btnHubBack').addEventListener('click', ()=> showHub(false));
 document.getElementById('btnGsTemplate').addEventListener('click', downloadGuestTemplate);
 document.getElementById('btnGsImport').addEventListener('click', openImportInfo);
+document.getElementById('btnSideTemplate').addEventListener('click', downloadGuestTemplate);
+document.getElementById('btnSideImport').addEventListener('click', openImportInfo);
 document.getElementById('hubDl').addEventListener('click', downloadGuestTemplate);
 document.getElementById('hubUp').addEventListener('click', openImportInfo);
 document.getElementById('hubManual').addEventListener('click', ()=> document.getElementById('btnGsManual').click());
