@@ -1727,7 +1727,7 @@
     <ul class="steps "><li>Guests tap <b>Find my seat</b>, <b>Programme</b>, <b>Menu</b> or <b>Gifts</b>.</li><li>For each one, type it in, add a picture (e.g. a photo of your menu), or both.</li><li>Empty sections stay hidden.</li><li><b>Anyone with your link sees this page</b>, including banking details. Only add what you are happy to share.</li></ul>
     <div class="ei-block">
       <h4>Your event</h4>
-      <label>Names or event title (shown big at the top)</label>
+      <label>Names or event title (shown big at the top). Leave blank if your names are already on your cover photo.</label>
       <input type="text" id="eiEventName" class="custom-num" maxlength="50" placeholder="e.g. Olivia &amp; Daniel" style="width:100%; margin-bottom:10px;">
       <label>Small line above it (optional)</label>
       <input type="text" id="eiWelcome" class="custom-num" maxlength="80" placeholder="e.g. Welcome to our wedding" style="width:100%; margin-bottom:10px;">
@@ -2093,11 +2093,11 @@
     <div id="tableDimsRectFields">
       <div class="fp-setup-row">
         <div class="field-row">
-          <label>Width (<span id="tableDimsUnitA"></span>)</label>
+          <label>Length &ndash; long side (<span id="tableDimsUnitA"></span>)</label>
           <input type="number" min="0.1" step="0.1" class="custom-num" id="tableDimsWidth" style="width:100%;">
         </div>
         <div class="field-row">
-          <label>Length (<span id="tableDimsUnitB"></span>)</label>
+          <label>Width &ndash; short side (<span id="tableDimsUnitB"></span>)</label>
           <input type="number" min="0.1" step="0.1" class="custom-num" id="tableDimsLength" style="width:100%;">
         </div>
       </div>
@@ -5553,9 +5553,10 @@ document.getElementById('btnConfirmTableDims').addEventListener('click', ()=>{
     const l = parseFloat(document.getElementById('tableDimsLength').value);
     if(!w || w <= 0 || !l || l <= 0){ toast('Enter a valid width and length.'); return; }
     pushUndo();
-    item.w = round2(w);
-    item.h = round2(l);
+    item.w = round2(Math.max(w, l));
+    item.h = round2(Math.min(w, l));
   }
+  item.customSize = true;
   document.getElementById('tableDimsModal').classList.add('hidden');
   dimsEditingItem = null;
   renderFloorPlan();
@@ -5598,7 +5599,10 @@ document.getElementById('btnConfirmAddTable').addEventListener('click', ()=>{
     state.tables[idx] = newTable;
     if(newTable.dim && JSON.stringify(newTable.dim) !== oldDimKey && state.floorPlan){
       const fpItem = state.floorPlan.items.find(it=> it.tableId === newTable.id);
-      if(fpItem){ const sz = defaultFloorSize('table', newTable, state.floorPlan.unit); fpItem.w = sz.w; fpItem.h = sz.h; }
+      if(fpItem){ const sz = defaultFloorSize('table', newTable, state.floorPlan.unit); fpItem.w = sz.w; fpItem.h = sz.h; delete fpItem.customSize; }
+    } else if(!newTable.dim && state.floorPlan){
+      const fpItem = state.floorPlan.items.find(it=> it.tableId === newTable.id);
+      if(fpItem && !fpItem.customSize){ const sz = defaultFloorSize('table', newTable, state.floorPlan.unit); fpItem.w = sz.w; fpItem.h = sz.h; }
     }
     document.getElementById('addTableModal').classList.add('hidden');
     updateTopSub();
@@ -6319,7 +6323,7 @@ function defaultFloorSize(kind, table, unit){
       return {w: round2(metersToUnit(w,unit)), h: round2(metersToUnit(h,unit))};
     }
     const w = table.seatsPerSide*0.65 + (table.hasEnds ? 1 : 0) + (table.oneSide ? 0.3 : 0);
-    return {w: round2(metersToUnit(w,unit)), h: round2(metersToUnit(table.oneSide ? 0.9 : 1,unit))};
+    return {w: round2(metersToUnit(w,unit)), h: round2(metersToUnit(0.8,unit))};
   }
   const metersDefaults = {dancefloor:{w:4,h:4}, restroom:{w:1.5,h:1.5}, podium:{w:1.5,h:1}, bar:{w:3,h:1}, label:{w:1.5,h:1}};
   const m = metersDefaults[kind] || {w:1,h:1};
@@ -6421,8 +6425,28 @@ document.getElementById('fpEditRoomBtn').addEventListener('click', ()=>{
 let fpShowNames = (function(){ try{ return localStorage.getItem('tableauFpNames') !== '0'; }catch(e){ return true; } })();
 document.getElementById('fpNamesToggle').checked = fpShowNames;
 document.getElementById('fpNamesToggle').addEventListener('change', e=>{ fpShowNames = e.target.checked; try{ localStorage.setItem('tableauFpNames', fpShowNames ? '1' : '0'); }catch(err){} renderFloorPlan(); });
+/* One-off update for plans made before table depths were corrected:
+   tables still at the old estimated size get the new, truer size;
+   tables whose size was changed by hand are left alone. */
+function fpUpgradeTableSizes(fp){
+  if(!fp || fp.sizesV2 || !Array.isArray(fp.items)) return;
+  fp.items.forEach(item=>{
+    if(item.kind !== 'table' || item.customSize) return;
+    const t = state.tables.find(x=> x.id === item.tableId);
+    if(!t || t.dim || t.shape === 'round' || t.shape === 'u') return;
+    const oldW = round2(metersToUnit(t.seatsPerSide*0.65 + (t.hasEnds ? 1 : 0) + (t.oneSide ? 0.3 : 0), fp.unit));
+    const oldH = round2(metersToUnit(t.oneSide ? 0.9 : 1, fp.unit));
+    if(Math.abs(item.w - oldW) < 0.02 && Math.abs(item.h - oldH) < 0.02){
+      const sz = defaultFloorSize('table', t, fp.unit); item.w = sz.w; item.h = sz.h;
+    } else {
+      item.customSize = true;
+    }
+  });
+  fp.sizesV2 = true;
+}
 function renderFloorPlan(){
   const fp = state.floorPlan;
+  fpUpgradeTableSizes(fp);
   const setup = document.getElementById('floorPlanSetup');
   const body = document.getElementById('floorPlanBody');
   if(!fp){
@@ -6708,6 +6732,18 @@ function buildFloorItemEl(item){
       fp.items.push(copy);
       renderFloorPlan();
       toast('Copy made \u2014 drag it where you want it.');
+    });
+  } else {
+    el.title = 'Drag to move, or double-click to send back to the side list';
+    el.addEventListener('dblclick', e=>{
+      if(e.target.closest('button') || e.target.tagName === 'INPUT') return;
+      e.stopPropagation();
+      pushUndo();
+      fp.items = fp.items.filter(x=> x.id !== item.id);
+      if(typeof fpSelected !== 'undefined') fpSelected.delete(item.id);
+      renderFloorPlan();
+      const t = state.tables.find(x=> x.id === item.tableId);
+      toast((t ? t.name : 'Table') + ' sent back to the side list.');
     });
   }
 

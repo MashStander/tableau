@@ -211,7 +211,7 @@
   <div class="header">
     <div id="coverFrame" class="cover-frame hidden"><img id="coverImg" alt=""></div>
     <p id="welcomeLine" class="welcome hidden"></p>
-    <h1 id="pageTitle">Welcome</h1>
+    <h1 id="pageTitle" class="hidden"></h1>
     <div id="dateLine" class="date-line hidden"></div>
     <div id="countdownLine" class="countdown hidden"></div>
     <a id="calLink" class="cal-link hidden">Add to my calendar</a>
@@ -659,7 +659,8 @@ function applyData(){
   applyTheme(info);
   renderHeader(info);
   renderLetterGrid();
-  document.getElementById('pageTitle').textContent = SEAT_DATA.eventName || 'Welcome';
+  { const t = document.getElementById('pageTitle'), nm = (SEAT_DATA.eventName || '').trim();
+    t.textContent = nm; t.classList.toggle('hidden', !nm); }   // left blank = names are on the cover photo
   document.title = SEAT_DATA.eventName || 'Event guide';
   try{
     const acc = /^#[0-9a-f]{6}$/i.test((SEAT_DATA.info||{}).accent || '') ? SEAT_DATA.info.accent : '#7c8a70';
