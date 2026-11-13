@@ -577,22 +577,33 @@
     width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:3px;
     font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; background:var(--white);
   }
-  #floorPlanBody{display:flex; flex-wrap:nowrap; gap:14px 20px; width:100%; align-items:flex-start; justify-content:center;}
-  #fpPaletteLeft{order:1;}
-  #floorCanvasWrap{order:2; flex:1 1 0; min-width:0;}
-  #fpPaletteRight{order:3;}
-  #fpToggleRow{flex:0 0 100%;}
+  #floorPlanBody{
+    display:grid;
+    grid-template-columns:200px 1fr 200px;
+    grid-template-areas:"toggle toggle toggle" "left canvas right";
+    gap:14px;
+    width:100%;
+    align-items:start;
+  }
+  #fpToggleRow{grid-area:toggle;}
+  #fpPaletteLeft{grid-area:left; position:sticky; top:0;}
+  #floorCanvasWrap{grid-area:canvas; min-width:0; overflow:auto;}
+  #fpPaletteRight{grid-area:right; position:sticky; top:0;}
   #fpPaletteToggle{padding:7px 14px; font-size:13px;}
-  #floorPlanBody.palette-collapsed #fpPaletteLeft{display:none;}
+  #floorPlanBody.palette-collapsed{
+    grid-template-columns:1fr;
+    grid-template-areas:"toggle" "canvas";
+  }
+  #floorPlanBody.palette-collapsed #fpPaletteLeft,
   #floorPlanBody.palette-collapsed #fpPaletteRight{display:none;}
-  #floorCanvasWrap{min-width:0;}
   @media (max-width:760px){
-    .fp-side-panel{width:100%; position:static; flex:0 0 100%;}
-    #floorCanvasWrap{flex:0 0 100%; padding:10px;}
+    #floorPlanBody{grid-template-columns:1fr; grid-template-areas:"toggle" "left" "canvas" "right";}
+    .fp-side-panel{width:100%; position:static;}
+    #floorCanvasWrap{padding:10px;}
   }
   .fp-side-panel{
-    width:200px; flex-shrink:0; background:var(--white); border:1px solid var(--line); border-radius:5px;
-    padding:16px; position:sticky; top:0; align-self:flex-start;
+    background:var(--white); border:1px solid var(--line); border-radius:5px;
+    padding:16px; position:sticky; top:0; align-self:start;
   }
   .fp-palette-section{margin-bottom:18px;}
   .fp-palette-section h4{font-size:13px; text-transform:uppercase; letter-spacing:.6px; color:var(--ink-soft); margin-bottom:10px; font-weight:500;}
