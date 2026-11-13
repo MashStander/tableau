@@ -1846,9 +1846,27 @@
 
     <!-- Section labels (language customisation) -->
     <details id="eiLabelsSection" style="margin:16px 0 8px;">
-      <summary style="cursor:pointer; font-size:13px; font-weight:600; color:var(--ink); user-select:none;">🌍 Section labels (Afrikaans / custom language)</summary>
+      <summary style="cursor:pointer; font-size:13px; font-weight:600; color:var(--ink); user-select:none;">🌍 Guest page language (section labels)</summary>
       <div style="margin-top:12px; font-size:13px; color:var(--ink-soft); line-height:1.5; margin-bottom:10px;">
-        Leave any field blank to use the default English label. Fill in your own words to show guests the guest page in another language.
+        Pick a language to fill in all the labels at once. You can then change any word you like. Blank boxes show the English label.
+      </div>
+      <div style="margin-bottom:12px;">
+        <label for="eiLabelLang" style="font-size:12px; color:var(--ink-soft);">Language</label>
+        <select id="eiLabelLang" class="custom-num" style="width:100%; box-sizing:border-box;">
+          <option value="">Choose a language&hellip;</option>
+          <option value="en">English</option>
+          <option value="af">Afrikaans</option>
+          <option value="zu">isiZulu</option>
+          <option value="xh">isiXhosa</option>
+          <option value="st">Sesotho</option>
+          <option value="tn">Setswana</option>
+          <option value="nso">Sepedi</option>
+          <option value="ve">Tshiven&#7693;a</option>
+          <option value="ts">Xitsonga</option>
+          <option value="ss">siSwati</option>
+          <option value="nr">isiNdebele</option>
+        </select>
+        <div style="font-size:12px; color:var(--ink-soft); margin-top:5px; line-height:1.45;">Tip: ask a home-language speaker to check the words before you share the page.</div>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
         <div>
@@ -7575,6 +7593,7 @@ function openEventInfoModal(){
     const el = document.getElementById('eiLabel'+k);
     if(el) el.value = lbl[k.toLowerCase()] || '';
   });
+  document.getElementById('eiLabelLang').value = LABEL_LANGS[info.labelLang] ? info.labelLang : '';
   const im = info.images || {};
   eiImages = {cover:(im.cover||[]).slice(), program:(im.program||[]).slice(), menu:(im.menu||[]).slice(), bank:(im.bank||[]).slice()};
   eiNewPaths = []; eiRemoved = []; eiBusy = 0;
@@ -7748,6 +7767,40 @@ document.getElementById('eventInfoModal').addEventListener('click', e=>{
     document.getElementById('eventInfoModal').classList.add('hidden');
   }
 });
+/* ---- Guest page language: fill all section labels at once ---- */
+const LABEL_KEYS = [['seat','eiLabelSeat'],['program','eiLabelProgram'],['menu','eiLabelMenu'],['gifts','eiLabelGifts'],['photos','eiLabelPhotos'],['links','eiLabelLinks'],['tablemates','eiLabelTableMates']];
+const LABEL_LANGS = {
+  en:  {seat:'', program:'', menu:'', gifts:'', photos:'', links:'', tablemates:''},
+  af:  {seat:'Vind my sitplek', program:'Program', menu:'Spyskaart', gifts:'Geskenke', photos:"Foto's en video's", links:'Skakels en inligting', tablemates:'Sit by hierdie tafel'},
+  zu:  {seat:'Thola isihlalo sami', program:'Uhlelo', menu:'Imenyu', gifts:'Izipho', photos:'Izithombe namavidiyo', links:'Izixhumanisi nolwazi', tablemates:'Abahlezi kuleli tafula'},
+  xh:  {seat:'Fumana isihlalo sam', program:'Inkqubo', menu:'Imenyu', gifts:'Izipho', photos:'Iifoto neevidiyo', links:'Amakhonkco nolwazi', tablemates:'Abahlala kule tafile'},
+  st:  {seat:'Fumana setulo sa ka', program:'Lenaneo', menu:'Menyu', gifts:'Dimpho', photos:'Ditshwantsho le divideo', links:'Dihokelo le tlhahisoleseding', tablemates:'Ba dutseng tafoleng ena'},
+  tn:  {seat:'Bona setulo sa me', program:'Lenaneo', menu:'Menyu', gifts:'Dimpho', photos:'Ditshwantsho le dibidio', links:'Dikgolagano le tshedimosetso', tablemates:'Ba ba dutseng mo tafoleng e'},
+  nso: {seat:'Hwetša setulo sa ka', program:'Lenaneo', menu:'Menyu', gifts:'Dimpho', photos:'Diswantšho le dibidio', links:'Dikgokagano le tshedimošo', tablemates:'Ba dutšego tafoleng ye'},
+  ve:  {seat:'Wanani tshidulo tshanga', program:'Mbekanyamushumo', menu:'Menyu', gifts:'Zwifhiwa', photos:'Zwifanyiso na dzividio', links:'Vhukwamani na mafhungo', tablemates:'Vho dzulaho kha ino tafula'},
+  ts:  {seat:'Kuma xitulu xa mina', program:'Nongonoko', menu:'Menyu', gifts:'Tinyiko', photos:'Swifaniso na tivhidiyo', links:'Swihlanganisi na vuxokoxoko', tablemates:'Lava tshameke etafuleni leri'},
+  ss:  {seat:'Tfola sihlalo sami', program:'Luhlelo', menu:'Imenyu', gifts:'Tipho', photos:'Titfombe nemavidiyo', links:'Tixhumanisi nelwati', tablemates:'Labahlala kulelitafula'},
+  nr:  {seat:'Fumana isihlalo sami', program:'Ihlelo', menu:'Imenyu', gifts:'Iinsipho', photos:'Iinthombe namavidiyo', links:'Iintjhumanisi nelwazi', tablemates:'Abahlezi etafuleni le'}
+};
+(function(){
+  const sel = document.getElementById('eiLabelLang');
+  if(!sel) return;
+  let prev = sel.value;
+  sel.addEventListener('focus', ()=>{ prev = sel.value; });
+  sel.addEventListener('change', ()=>{
+    const set = LABEL_LANGS[sel.value];
+    if(!set){ prev = sel.value; return; }
+    // If she has typed her own words (not just a language we filled in), check before replacing them
+    const current = LABEL_KEYS.map(([k, id])=> (document.getElementById(id).value || '').trim());
+    const hasText = current.some(v=> v);
+    const matchesALanguage = Object.values(LABEL_LANGS).some(l=> LABEL_KEYS.every(([k], i)=> (l[k] || '') === current[i]));
+    if(hasText && !matchesALanguage && !confirm('Replace the labels you typed with the ' + sel.options[sel.selectedIndex].text + ' words?')){
+      sel.value = prev; return;
+    }
+    LABEL_KEYS.forEach(([k, id])=>{ document.getElementById(id).value = set[k] || ''; });
+    prev = sel.value;
+  });
+})();
 document.getElementById('btnEventInfoSave').addEventListener('click', ()=>{
   if(eiBusy > 0){ toast('Please wait for the picture to finish uploading.'); return; }
   const info = {};
@@ -7756,12 +7809,12 @@ document.getElementById('btnEventInfoSave').addEventListener('click', ()=>{
   info.coverPos = eiImages.cover.length ? {z:eiCoverPos.z, x:eiCoverPos.x, y:eiCoverPos.y} : null;
   // Save custom section labels (only store non-empty values)
   const labels = {};
-  ['seat','program','menu','gifts','photos','links','tablemates'].forEach(k=>{
-    const capK = k.charAt(0).toUpperCase()+k.slice(1);
-    const el = document.getElementById('eiLabel'+capK);
+  LABEL_KEYS.forEach(([k, id])=>{
+    const el = document.getElementById(id);
     if(el && el.value.trim()) labels[k] = el.value.trim();
   });
   info.labels = labels;
+  info.labelLang = document.getElementById('eiLabelLang').value || '';
   state.eventInfo = info;
   state.eventName = document.getElementById('eiEventName').value.trim();
   document.getElementById('finderEventName').value = state.eventName;
