@@ -1039,26 +1039,21 @@
         <button class="dropdown-item" id="btnHubMenu">What to do next&hellip;</button>
         <button class="dropdown-item" id="btnHowTo">How-to videos&hellip;</button>
         <button class="dropdown-item" id="btnSave">Download backup</button>
-        <button class="dropdown-item" id="btnLoad">Load from file</button>
-        <button class="dropdown-item hidden" id="btnAccessMenu">Upgrade / access code&hellip;</button>
+        <button class="dropdown-item" id="btnLoad">Load from backup file</button>
+        <button class="dropdown-item" id="btnExportCSV">Download guest list (Excel)</button>
+        <button class="dropdown-item hidden" id="btnAccessMenu">View plans / Use access code&hellip;</button>
         <button class="dropdown-item" id="btnSignInMenu">Sign in to save online&hellip;</button>
+        <button class="dropdown-item" id="btnShareTableau">Share Tableau with a friend</button>
         <button class="dropdown-item" id="btnSignOut">Sign out</button>
         <button class="dropdown-item hidden" id="btnMyCharts">My projects&hellip;</button>
         <button class="dropdown-item hidden" id="btnReset">New chart</button>
+        <button class="dropdown-item hidden" id="btnTemplate">Download Excel template</button>
+        <button class="dropdown-item hidden" id="btnImportCSV">Import Excel list</button>
       </div>
     </div>
 
-    <div class="menu-wrap">
-      <button class="ghost-btn menu-trigger solid-btn" id="guestMenuBtn">Guest list <span class="menu-caret">&#9662;</span></button>
-      <div class="dropdown-menu" id="guestMenu">
-        <button class="dropdown-item" id="btnTemplate">Download Excel template</button>
-        <button class="dropdown-item" id="btnImportCSV">Import Excel list</button>
-        <button class="dropdown-item" id="btnExportCSV">Export guest list</button>
-      </div>
-    </div>
-
-    <button class="ghost-btn menu-trigger solid-btn" id="btnNavTables">Set up tables</button>
-    <button class="ghost-btn menu-trigger solid-btn" id="btnNavFloor">Create floor plan</button>
+    <button class="ghost-btn menu-trigger solid-btn" id="btnNavTables">Seating chart &amp; floor plan</button>
+    <button class="ghost-btn menu-trigger solid-btn hidden" id="btnNavFloor">Create floor plan</button>
 
     <div class="menu-wrap">
       <button class="ghost-btn menu-trigger solid-btn" id="bigDayMenuBtn">The big day <span class="menu-caret">&#9662;</span></button>
@@ -1069,16 +1064,14 @@
       </div>
     </div>
 
-    <button class="ghost-btn menu-trigger solid-btn" id="btnNavChecklist" data-plan-need="2">Wedding checklist</button>
-
-    <button class="ghost-btn menu-trigger solid-btn" id="btnNavGuestPage">Guest page</button>
-    <button class="dropdown-item hidden" id="btnEventInfo">Guest page content&hellip;</button>
+    <button class="ghost-btn menu-trigger solid-btn" id="btnNavChecklist" data-plan-need="2">Checklist &amp; calendar</button>
 
     <div class="menu-wrap">
-      <button class="ghost-btn menu-trigger solid-btn" id="guestFinderMenuBtn">Sharing <span class="menu-caret">&#9662;</span></button>
+      <button class="ghost-btn menu-trigger solid-btn" id="guestFinderMenuBtn">Guest page &amp; QR code <span class="menu-caret">&#9662;</span></button>
       <div class="dropdown-menu" id="guestFinderMenu">
+        <button class="dropdown-item" id="btnNavGuestPage">Guest mobile page info&hellip;</button>
         <button class="dropdown-item" id="btnExportGuestView">QR code &amp; publish&hellip;</button>
-        <button class="dropdown-item" id="btnShareTableau">Share Tableau with a friend</button>
+        <button class="dropdown-item hidden" id="btnEventInfo">Guest page content&hellip;</button>
       </div>
     </div>
   </div>
@@ -1100,7 +1093,7 @@
 
 <div id="hubScreen" class="hidden">
   <h2 id="hubTitle">Let&rsquo;s get started</h2>
-  <p class="hint" id="hubSub">We suggest working through these in order, starting with your guest list. You can jump to any step, and come back here any time from Project &rarr; What to do next.</p>
+  <p class="hint" id="hubSub">We suggest working through these in order, starting with your guest list. You can jump to any step, and come back here any time from How to &rarr; What to do next.</p>
   <div class="hub-grid">
     <div class="hub-card hub-first">
       <b>1. Create your guest list <small>Start here</small></b>
@@ -1544,7 +1537,7 @@
     <div id="landingOut">
       <button class="primary-btn" id="btnLandSignIn">Sign in</button>
       <button class="ghost-btn land-btn" id="btnLandSignUp">Create an account</button>
-      <p style="font-size:12.5px; color:var(--ink-soft); margin:10px 0 0; line-height:1.5;">Have an access code? Create your account first, then use Project &rarr; Plan &amp; access code to unlock more.</p>
+      <p style="font-size:12.5px; color:var(--ink-soft); margin:10px 0 0; line-height:1.5;">Have an access code? Create your account first, then use How to &rarr; View plans / Use access code to unlock more.</p>
       <div style="margin-top:16px;"><button class="auth-link" id="btnLandSkip" type="button">Try it without an account</button></div>
       <div style="margin-top:10px;"><button class="auth-link" id="btnLandHowTo" type="button">Watch the how-to videos</button></div>
       <div style="margin-top:10px;"><a class="auth-link" href="https://tableauevents.co.za/guest-view.html?event=ava-jack-oq4jk" target="_blank" rel="noopener">See a live example of Full Planner package on your phone</a><div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Bridal party code for the example: <b>6064</b></div></div>
@@ -4531,7 +4524,6 @@ document.querySelectorAll('.dropdown-menu').forEach(m=>{
 });
 wireDropdown('chartMenuBtn', 'chartMenu');
 wireDropdown('bigDayMenuBtn', 'bigDayMenu');
-wireDropdown('guestMenuBtn', 'guestMenu');
 wireDropdown('guestFinderMenuBtn', 'guestFinderMenu');
 // planMenuBtn removed — items moved to bigDayMenu
 document.addEventListener('click', ()=>{
@@ -7977,9 +7969,9 @@ async function checkAccess(){
   if(tellExpiry){
     if(accessTier > 0 && accessExpires){
       const days = Math.ceil((new Date(accessExpires) - new Date()) / 86400000);
-      if(days <= 30) toast('Your ' + PLAN_NAMES[accessTier] + ' plan ends on ' + fmtLong(accessExpires) + '. Use Project → Plan & access code to add another year.', 9000);
+      if(days <= 30) toast('Your ' + PLAN_NAMES[accessTier] + ' plan ends on ' + fmtLong(accessExpires) + '. Use How to → View plans / Use access code to add another year.', 9000);
     } else if(accessTier === 0 && accessHad){
-      toast('Your plan has ended. Your charts are safe and your seating page still works. Use Project → Plan & access code to unlock again.', 9000);
+      toast('Your plan has ended. Your charts are safe and your seating page still works. Use How to → View plans / Use access code to unlock again.', 9000);
     }
   }
 }
@@ -7990,7 +7982,7 @@ function updateAccessUI(){
   fl.classList.toggle('hidden', !(accessHad && accessTier === 0 && inMain));
   document.querySelectorAll('[data-plan-need]').forEach(el=> el.classList.toggle('plan-locked', accessTier < +el.dataset.planNeed));
   document.getElementById('finderBpNote').classList.toggle('plan-hide', accessTier < 2);
-  const m = document.getElementById('btnAccessMenu'); if(m) m.textContent = 'Plan & access code…';
+  const m = document.getElementById('btnAccessMenu'); if(m) m.textContent = 'View plans / Use access code…';
   updateLandingPlan();
 }
 function updateLandingPlan(){
