@@ -408,6 +408,10 @@
   .auth-msg.ok{background:#e8eee2; color:var(--sage-dark);}
   .charts-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:14px;}
   .charts-head .who{font-size:12.5px; color:var(--ink-soft); word-break:break-all;}
+  .bm-opt{display:block; width:100%; text-align:left; background:var(--white); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:10px 0 0; cursor:pointer; font-family:inherit; color:var(--ink);}
+  .bm-opt:hover{border-color:var(--sage-dark); background:var(--linen);}
+  .bm-opt b{display:block; font-size:15.5px; color:var(--sage-dark); margin-bottom:4px;}
+  .bm-opt span{display:block; font-size:13.5px; line-height:1.5; color:var(--ink-soft);}
   .chart-row{display:flex; align-items:center; gap:10px; padding:11px 12px; border:1px solid var(--line); border-radius:6px; margin-bottom:8px; background:var(--linen);}
   .chart-row .cr-name{flex:1; font-weight:500; word-break:break-word;}
   .chart-row .cr-date{font-size:12px; color:var(--ink-soft);}
@@ -1632,6 +1636,14 @@
   </div>
 </div>
 
+<div id="backupModeModal" class="modal-overlay hidden" style="z-index:990;">
+  <div class="modal-card" style="width:480px;">
+    <h3>What would you like to load?</h3>
+    <button type="button" class="bm-opt" id="bmSeating"><b>Only the seating</b><span id="bmSeatingSub"></span></button>
+    <button type="button" class="bm-opt" id="bmWhole"><b>The whole backup</b><span id="bmWholeSub"></span></button>
+    <div class="modal-actions"><button type="button" class="ghost-btn" id="bmCancel">Cancel</button></div>
+  </div>
+</div>
 <div id="chartsScreen" class="auth-screen hidden">
   <div class="auth-card" style="width:520px;">
     <div class="auth-logo" role="img" aria-label="Tableau"></div>
@@ -9706,7 +9718,7 @@ async function saveCloudNow(){
   setCloudStatus('saving');
   const payload = chartPayload();
   const sig = JSON.stringify(payload);
-  const name = (state.eventName || '').trim() || 'Untitled chart';
+  const name = (state.projectName || '').trim() || (state.eventName || '').trim() || 'Untitled chart';
   try{
     let res;
     if(currentChartId){
@@ -9913,9 +9925,30 @@ async function openChartsScreen(){
       try{ if(localStorage.getItem('tableauLastChart') === row.id) localStorage.removeItem('tableauLastChart'); }catch(e){}
       openChartsScreen();
     });
-    el.append(nm, dt, open, del);
+    const ren = document.createElement('button'); ren.className = 'ghost-btn'; ren.textContent = 'Rename'; ren.title = 'Change the name of this project';
+    ren.addEventListener('click', ()=> renameProject(row));
+    el.append(nm, dt, open, ren, del);
     list.appendChild(el);
   });
+}
+async function renameProject(row){
+  const v = prompt('New name for this project (only you see this name):', row.name === 'Untitled chart' ? '' : row.name);
+  if(v === null) return;
+  const nm = v.trim().slice(0, 50);
+  if(!nm){ toast('Please type a name.'); return; }
+  if(row.id === currentChartId){
+    state.projectName = nm;
+    const ok = await saveCloudNow();
+    if(!ok){ const r = await sb.from('charts').update({name: nm}).eq('id', row.id); if(r.error){ toast('Could not rename. Check your internet and try again.'); return; } }
+  } else {
+    const full = await sb.from('charts').select('data').eq('id', row.id).single();
+    if(full.error || !full.data){ toast('Could not rename. Check your internet and try again.'); return; }
+    const d = full.data.data || {}; d.projectName = nm;
+    const r = await sb.from('charts').update({name: nm, data: d}).eq('id', row.id);
+    if(r.error){ toast('Could not rename. Check your internet and try again.'); return; }
+  }
+  toast('Renamed to \u201c' + nm + '\u201d.');
+  openChartsScreen();
 }
 function askDeleteProject(name){
   return new Promise(resolve=>{
@@ -10080,7 +10113,7 @@ async function openCloudChart(id, silent){
   delete loaded.publishSlug;
   if(loaded.tables.length && (!loaded.activeTableId || !loaded.tables.find(t=>t.id===loaded.activeTableId))) loaded.activeTableId = loaded.tables[0].id;
   if(!loaded.tables.length) loaded.activeTableId = null;
-  if(!loaded.eventName) loaded.eventName = res.data.name === 'Untitled chart' ? '' : res.data.name;
+  if(loaded.projectName === undefined) loaded.projectName = res.data.name === 'Untitled chart' ? '' : res.data.name;
   undoStack = []; redoStack = []; updateUndoRedoButtons();
   state = loaded;
   currentChartId = res.data.id;
@@ -10122,7 +10155,7 @@ function startNewCloudChart(name){
   currentChartId = null; currentPublishSlug = null; lastSavedSig = ''; publishedAt = '';
   cloudEnabled = true;
   undoStack = []; redoStack = []; updateUndoRedoButtons();
-  state = {groups: JSON.parse(JSON.stringify(DEFAULT_GROUPS)), guests: [], tables: [], activeTableId: null, floorPlan: null, eventName: name};
+  state = {groups: JSON.parse(JSON.stringify(DEFAULT_GROUPS)), guests: [], tables: [], activeTableId: null, floorPlan: null, eventName: name, projectName: name};
   projectActive = true;
   document.getElementById('tableName').value = '';
   clearSearchUI();
@@ -10244,6 +10277,59 @@ document.getElementById('btnLoad').addEventListener('click', ()=>{
 document.getElementById('btnLoadSetup').addEventListener('click', ()=>{
   document.getElementById('fileInput').click();
 });
+/* ---- Loading a backup: whole project, or only the seating ---- */
+function showLoadedChart(){
+  document.getElementById('setupScreen').classList.add('hidden');
+  document.getElementById('mainLayout').classList.remove('hidden');
+  document.getElementById('topActions').style.display = 'flex';
+  if(!document.body.classList.contains('cloud-mode')) document.getElementById('floatingSaveBtn').style.display = 'block';
+  ['hubScreen','chartsScreen'].forEach(id=>{ const x = document.getElementById(id); if(x) x.classList.add('hidden'); });
+  hubOpen = false;
+  guestSearchTerm = '';
+  document.getElementById('guestSearch').value = '';
+  document.getElementById('clearSearchBtn').classList.add('hidden');
+  updateTopSub();
+  renderGroups(); renderGroupSelect(); renderGuestList(); renderTable();
+  switchMainView('seating');
+  isDirty = false;
+}
+function askBackupMode(){
+  return new Promise(resolve=>{
+    const m = document.getElementById('backupModeModal');
+    const nm = (state.projectName || state.eventName || '').trim();
+    document.getElementById('bmSeatingSub').textContent = 'Guests, groups, tables and the floor plan replace the ones in ' + (nm ? '\u201c' + nm + '\u201d' : 'this project') + '. Your guest page, bridal party, vendors, group photos and checklist stay as they are.';
+    document.getElementById('bmWholeSub').textContent = document.body.classList.contains('cloud-mode')
+      ? 'Opens everything in the backup as a new project. The project that is open now does not change.'
+      : 'Replaces everything that is open now with the backup.';
+    m.classList.remove('hidden');
+    const done = v=>{ m.classList.add('hidden'); ['bmSeating','bmWhole','bmCancel'].forEach(id=> document.getElementById(id).onclick = null); resolve(v); };
+    document.getElementById('bmSeating').onclick = ()=> done('seating');
+    document.getElementById('bmWhole').onclick = ()=> done('whole');
+    document.getElementById('bmCancel').onclick = ()=> done(null);
+  });
+}
+function loadSeatingOnly(loaded){
+  pushUndo();
+  // keep group-photo lists pointing at the same people (matched by name)
+  const oldName = {}; (state.guests || []).forEach(g=> oldName[g.id] = (g.name || '').trim().toLowerCase());
+  const newByName = {}; loaded.guests.forEach(g=>{ const k = (g.name || '').trim().toLowerCase(); if(k && !newByName[k]) newByName[k] = g.id; });
+  (state.photos || []).forEach(ph=>{
+    if(Array.isArray(ph.guestIds)) ph.guestIds = ph.guestIds.map(id=> newByName[oldName[id]]).filter(Boolean);
+  });
+  state.groups = loaded.groups;
+  state.guests = loaded.guests;
+  state.tables = loaded.tables;
+  state.activeTableId = loaded.activeTableId;
+  state.floorPlan = loaded.floorPlan || null;
+  projectActive = true;
+  showLoadedChart();
+  isDirty = true;
+  if(document.body.classList.contains('cloud-mode')){
+    saveCloudNow().then(ok=> toast(ok ? 'Seating loaded into this project and saved \u2713' : 'Seating loaded into this project.', 6000));
+  } else {
+    toast('Seating loaded. Everything else in this project stayed the same.', 6000);
+  }
+}
 document.getElementById('fileInput').addEventListener('change', e=>{
   const file = e.target.files[0];
   if(!file) return;
@@ -10268,35 +10354,29 @@ document.getElementById('fileInput').addEventListener('change', e=>{
       // Older multi-table saves (before shapes existed) default to rectangle.
       loaded.tables.forEach(t=>{ if(!t.shape) t.shape = 'rectangle'; });
 
-      // Signed in: open the backup as a NEW project, so the project that is open now is never overwritten
-      const asNew = document.body.classList.contains('cloud-mode');
-      if(asNew){
-        delete loaded.publishSlug;
-        currentChartId = null; currentPublishSlug = null; lastSavedSig = ''; publishedAt = '';
-        projectActive = true;
-        undoStack = []; redoStack = []; updateUndoRedoButtons();
-      } else {
-        pushUndo();
-      }
-      state = loaded;
-      document.getElementById('setupScreen').classList.add('hidden');
-      document.getElementById('mainLayout').classList.remove('hidden');
-      document.getElementById('topActions').style.display = 'flex';
-      document.getElementById('floatingSaveBtn').style.display = 'block';
-      guestSearchTerm = '';
-      document.getElementById('guestSearch').value = '';
-      document.getElementById('clearSearchBtn').classList.add('hidden');
-      updateTopSub();
-      renderGroups(); renderGroupSelect(); renderGuestList(); renderTable();
-      switchMainView('seating');
-      isDirty = false;
-      if(asNew){
-        ['hubScreen','chartsScreen'].forEach(id=>{ const x = document.getElementById(id); if(x) x.classList.add('hidden'); });
-        if(typeof hubOpen !== 'undefined') hubOpen = false;
-        saveCloudNow().then(ok=> toast(ok ? 'Backup opened as a new project and saved to your account \u2713' : 'Backup opened as a new project.', 6000));
-      } else {
-        toast('Chart loaded.');
-      }
+      const hasOpen = !!(projectActive || (state && state.tables && state.tables.length));
+      const go = mode=>{
+        if(!mode) return;
+        if(mode === 'seating'){ loadSeatingOnly(loaded); return; }
+        // Whole backup. Signed in: open it as a NEW project, so the open project is never overwritten
+        const asNew = document.body.classList.contains('cloud-mode');
+        if(asNew){
+          delete loaded.publishSlug;
+          currentChartId = null; currentPublishSlug = null; lastSavedSig = ''; publishedAt = '';
+          projectActive = true;
+          undoStack = []; redoStack = []; updateUndoRedoButtons();
+        } else {
+          pushUndo();
+        }
+        state = loaded;
+        showLoadedChart();
+        if(asNew){
+          saveCloudNow().then(ok=> toast(ok ? 'Backup opened as a new project and saved to your account \u2713' : 'Backup opened as a new project.', 6000));
+        } else {
+          toast('Chart loaded.');
+        }
+      };
+      if(hasOpen) askBackupMode().then(go); else go('whole');
     }catch(err){
       toast('That file could not be read as a seating chart.');
     }
