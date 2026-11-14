@@ -84,12 +84,12 @@
   .header .date-line{margin-top:6px; font-size:15px; color:var(--wood-dark); letter-spacing:.04em;}
   .header .countdown{margin-top:3px; font-size:13px; color:var(--rose); font-weight:500;}
   .cal-link{display:inline-block; margin-top:8px; font-size:12.5px; color:var(--sage-dark); text-decoration:underline; cursor:pointer;}
-  body.font-dynalight .header h1{font-family:'Corinthia',cursive; font-weight:400; font-size:50px; line-height:1.1;}
-  body.font-windsong .header h1{font-family:'Corinthia',cursive; font-weight:500; font-size:54px; line-height:1.2;}
-  body.font-bodoni .header h1{font-family:'Lora',serif; font-weight:600; font-size:34px; line-height:1.15;}
-  body.font-italiana .header h1{font-family:'Corinthia',serif; font-weight:400; font-size:40px; line-height:1.15;}
-  body.font-ephesis .header h1{font-family:'Corinthia',cursive; font-weight:400; font-size:50px; line-height:1.15;}
-  body.font-raleway .header h1{font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; font-size:32px; line-height:1.15; letter-spacing:.02em;}
+  body.font-dynalight .header h1{font-family:'Dynalight',cursive; font-weight:400; font-size:50px; line-height:1.1;}
+  body.font-windsong .header h1{font-family:'WindSong',cursive; font-weight:500; font-size:44px; line-height:1.35;}
+  body.font-bodoni .header h1{font-family:'Bodoni Moda',serif; font-weight:600; font-size:34px; line-height:1.15;}
+  body.font-italiana .header h1{font-family:'Italiana',serif; font-weight:400; font-size:40px; line-height:1.15;}
+  body.font-ephesis .header h1{font-family:'Ephesis',cursive; font-weight:400; font-size:50px; line-height:1.15;}
+  body.font-raleway .header h1{font-family:'Raleway',sans-serif; font-weight:600; font-size:32px; line-height:1.15; letter-spacing:.02em;}
   .preview-bar{position:sticky; top:0; z-index:90; background:#2f2a24; color:#fff; text-align:center; font-size:13px; padding:7px 10px;}
   /* ---- browse by letter ---- */
   .browse-label{margin:22px 0 10px; text-align:center; font-size:13px; color:var(--ink-soft);}
@@ -517,6 +517,15 @@ function applyTheme(info){
   root.setProperty('--sage-dark', shade(accent, 0.72));
   const fk = ['dynalight','windsong','bodoni','italiana','raleway','ephesis'].indexOf(info.fontStyle) >= 0 ? info.fontStyle : (info.fontStyle === 'script' ? 'dynalight' : 'bodoni');
   ['dynalight','windsong','bodoni','italiana','raleway','ephesis'].forEach(k=> document.body.classList.toggle('font-' + k, k === fk));
+  // load only the font the couple chose for their names
+  const FAMILY = {dynalight:'Dynalight', windsong:'WindSong:wght@400;500', bodoni:'Bodoni+Moda:wght@400;600', italiana:'Italiana', raleway:'Raleway:wght@400;600', ephesis:'Ephesis'};
+  if(!document.getElementById('nameFontLink')){
+    const l = document.createElement('link'); l.id = 'nameFontLink'; l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=' + FAMILY[fk] + '&display=swap';
+    document.head.appendChild(l);
+  } else {
+    document.getElementById('nameFontLink').href = 'https://fonts.googleapis.com/css2?family=' + FAMILY[fk] + '&display=swap';
+  }
 }
 function parseDate(s){
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
