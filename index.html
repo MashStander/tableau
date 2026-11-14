@@ -349,7 +349,7 @@
   .auth-card input:focus{outline:none; border-color:var(--sage);}
   .auth-card .primary-btn{width:100%; margin-top:2px;}
   /* When work is saved to an account, hide the file-based save/load options */
-  body.cloud-mode #floatingSaveBtn, body.cloud-mode #btnLoad, body.cloud-mode #btnLoadSetup, body.cloud-mode .setup-divider{display:none !important;}
+  body.cloud-mode #floatingSaveBtn{display:none !important;}
   .landing-card{width:560px; text-align:center; padding:36px 38px;}
   .landing-logo{height:96px; width:345px; max-width:100%; background-position:left center; margin:0 auto 6px;}
   @media (max-width:520px){ .landing-logo{width:100%; max-width:345px; height:auto; aspect-ratio:345/96; margin:0 auto 6px;} .auth-logo:not(.landing-logo){width:100%; max-width:240px; height:auto; aspect-ratio:240/64;} }
@@ -946,7 +946,26 @@
   #tapBanner span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
   #tapBanner button{background:rgba(255,255,255,.16); color:#fff; border:none; border-radius:16px; padding:7px 12px; font-size:12.5px; white-space:nowrap;}
   #mobileNav{display:none;}
+  #mobMenuBtn, .mob-menu-head{display:none;}
   @media (max-width:760px){
+    /* ---- phone menu: one slim bar with a menu button ---- */
+    #topbar > div:first-child{flex:1 1 0 !important; min-width:0; order:1;}
+    #topbar .hist-row{flex:1 1 100%;}
+    #mobMenuBtn{order:2; align-self:flex-start; width:46px; height:46px; border:1px solid var(--line); border-radius:10px; background:var(--white); color:var(--sage-dark); font-size:22px; line-height:1; padding:0; cursor:pointer;}
+    #topActions[style*="flex"] ~ #mobMenuBtn{display:flex; align-items:center; justify-content:center;}
+    #topbar #topActions{display:none !important;}
+    body.mob-menu-open{overflow:hidden;}
+    body.mob-menu-open #topbar #topActions[style*="flex"]{display:flex !important; position:fixed; inset:0; z-index:400; background:var(--paper); flex-direction:column; flex-wrap:nowrap; align-items:stretch; justify-content:flex-start; gap:0; overflow-y:auto; padding:0 20px calc(30px + env(safe-area-inset-bottom));}
+    body.mob-menu-open .mob-menu-head{display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:var(--paper); padding:14px 0 10px; margin-bottom:6px; border-bottom:1px solid var(--line); z-index:1;}
+    .mob-menu-head span{font-family:'Lora',serif; font-size:22px; color:var(--sage-dark);}
+    #mobMenuClose{width:44px; height:44px; border:1px solid var(--line); border-radius:10px; background:var(--white); color:var(--ink); font-size:18px; cursor:pointer;}
+    body.mob-menu-open #topActions > .menu-trigger, body.mob-menu-open #topActions .menu-wrap > .menu-trigger{width:100%; justify-content:flex-start; text-align:left; padding:14px 4px; font-size:17px; border-radius:0; border-bottom:1px solid var(--line);}
+    body.mob-menu-open #topActions .menu-wrap, body.mob-menu-open #topActions > *{flex:none;} body.mob-menu-open #topActions .menu-wrap{display:block;}
+    body.mob-menu-open #topActions .menu-wrap > .menu-trigger{pointer-events:none; border-bottom:none; padding:18px 4px 4px; font-size:12.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); background:transparent;}
+    body.mob-menu-open #topActions .menu-caret{display:none;}
+    body.mob-menu-open #topActions .dropdown-menu{display:block; position:static !important; left:auto !important; right:auto !important; top:auto !important; margin:0; border:none; border-bottom:1px solid var(--line); border-radius:0; box-shadow:none; background:transparent; padding:0 0 8px 10px; min-width:0 !important;}
+    body.mob-menu-open #topActions .dropdown-item{font-size:16px; padding:11px 8px; white-space:normal;}
+
     #topbar{flex-wrap:wrap; padding:10px 12px 8px; background-position:10px 8px; background-size:auto 46px; position:relative; align-items:center; gap:6px;}
     #topbar > div:first-child{padding-left:150px; min-height:50px; white-space:normal; flex:1 1 100%;}
     #topbar .tagline{display:none;}
@@ -1032,6 +1051,7 @@
     <div class="sub" id="topSub">Set up your table to begin</div>
   </div>
   <div class="actions" id="topActions" style="display:none;">
+    <div class="mob-menu-head"><span>Menu</span><button type="button" id="mobMenuClose" aria-label="Close menu">&#10005;</button></div>
 
     <button class="ghost-btn menu-trigger solid-btn" id="btnHome" title="Back to the start page">Home</button>
 
@@ -1081,6 +1101,7 @@
     <button class="ghost-btn" id="btnUndo" title="Undo (Ctrl+Z)" disabled>&#8630; Undo</button>
     <button class="ghost-btn" id="btnRedo" title="Redo (Ctrl+Shift+Z)" disabled>Redo &#8631;</button>
   </div>
+  <button type="button" id="mobMenuBtn" aria-label="Open menu" aria-expanded="false">&#9776;</button>
 </div>
 <div id="tapBanner" class="hidden"><span id="tapBannerText"></span><button type="button" id="tapSendBack" class="hidden">Send back to list</button><button type="button" id="tapCancel">Cancel</button></div>
 <div id="mobileNav" class="hidden"><button type="button" id="mnGuests">Guests</button><button type="button" id="mnTable" class="active">Table</button></div>
@@ -4524,6 +4545,25 @@ document.querySelectorAll('.dropdown-menu').forEach(m=>{
   new MutationObserver(()=> m.parentElement.classList.toggle('open', m.classList.contains('open')))
     .observe(m, {attributes:true, attributeFilter:['class']});
 });
+/* ---- phone menu (☰) ---- */
+(function(){
+  const btn = document.getElementById('mobMenuBtn'), actions = document.getElementById('topActions');
+  function setOpen(on){
+    document.body.classList.toggle('mob-menu-open', on);
+    btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+    if(on) actions.scrollTop = 0;
+  }
+  btn.addEventListener('click', e=>{ e.stopPropagation(); setOpen(!document.body.classList.contains('mob-menu-open')); });
+  document.getElementById('mobMenuClose').addEventListener('click', e=>{ e.stopPropagation(); setOpen(false); });
+  // choosing anything in the menu closes it (section headings don't)
+  actions.addEventListener('click', e=>{
+    const b = e.target.closest('button');
+    if(!b || b.id === 'mobMenuClose' || b.parentElement.classList.contains('menu-wrap')) return;
+    setOpen(false);
+  });
+  document.addEventListener('keydown', e=>{ if(e.key === 'Escape') setOpen(false); });
+  window.addEventListener('resize', ()=>{ if(window.innerWidth > 760) setOpen(false); });
+})();
 wireDropdown('chartMenuBtn', 'chartMenu');
 wireDropdown('bigDayMenuBtn', 'bigDayMenu');
 wireDropdown('guestFinderMenuBtn', 'guestFinderMenu');
@@ -10228,7 +10268,16 @@ document.getElementById('fileInput').addEventListener('change', e=>{
       // Older multi-table saves (before shapes existed) default to rectangle.
       loaded.tables.forEach(t=>{ if(!t.shape) t.shape = 'rectangle'; });
 
-      pushUndo();
+      // Signed in: open the backup as a NEW project, so the project that is open now is never overwritten
+      const asNew = document.body.classList.contains('cloud-mode');
+      if(asNew){
+        delete loaded.publishSlug;
+        currentChartId = null; currentPublishSlug = null; lastSavedSig = ''; publishedAt = '';
+        projectActive = true;
+        undoStack = []; redoStack = []; updateUndoRedoButtons();
+      } else {
+        pushUndo();
+      }
       state = loaded;
       document.getElementById('setupScreen').classList.add('hidden');
       document.getElementById('mainLayout').classList.remove('hidden');
@@ -10241,7 +10290,13 @@ document.getElementById('fileInput').addEventListener('change', e=>{
       renderGroups(); renderGroupSelect(); renderGuestList(); renderTable();
       switchMainView('seating');
       isDirty = false;
-      toast('Chart loaded.');
+      if(asNew){
+        ['hubScreen','chartsScreen'].forEach(id=>{ const x = document.getElementById(id); if(x) x.classList.add('hidden'); });
+        if(typeof hubOpen !== 'undefined') hubOpen = false;
+        saveCloudNow().then(ok=> toast(ok ? 'Backup opened as a new project and saved to your account \u2713' : 'Backup opened as a new project.', 6000));
+      } else {
+        toast('Chart loaded.');
+      }
     }catch(err){
       toast('That file could not be read as a seating chart.');
     }
