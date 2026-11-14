@@ -367,6 +367,7 @@
   .landing-steps .ls-t a{color:var(--sage-dark); text-decoration:underline; cursor:pointer; font-weight:600;}
   .landing-steps li.ls-paid{background:#fff; border-style:dashed;}
   .landing-steps li.ls-paid .ls-n{background:#fff; color:var(--sage-dark); border:2px solid var(--sage-dark);}
+  .landing-steps li.ls-gp .ls-n{background:#efe9dd; color:#6b5b3e; border-color:#efe9dd;}
   .landing-steps .ls-chip{display:inline-block; margin-left:6px; padding:1px 8px; border-radius:999px; background:#efe9dd; color:#6b5b3e; font-size:11px; font-weight:700; vertical-align:1px; cursor:pointer; border:0; font-family:inherit;}
   .landing-steps .ls-chip.free{background:#e3ecdc; color:var(--sage-dark); cursor:default;}
   .landing-steps-note{margin:12px 0 0; font-size:12px; color:var(--ink-soft); text-align:center; line-height:1.5;}
@@ -1160,7 +1161,7 @@
     <div id="planInfoPrice" style="font-size:16px; font-weight:600; color:var(--sage-dark); margin:-4px 0 10px;"></div>
     <ul class="steps" id="planInfoList"></ul>
     <div id="planInfoImgs" class="plan-imgs"></div>
-    <p style="font-size:13px; line-height:1.5; margin:10px 0 0;"><a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-oq4jk" target="_blank" rel="noopener" style="color:var(--sage-dark); font-weight:600;">See a live example on your phone</a> &mdash; the bridal party code is <b>6064</b>.</p>
+    <p id="planInfoLive" style="font-size:13px; line-height:1.5; margin:10px 0 0;"></p>
     <div class="modal-actions">
       <button class="ghost-btn" id="planInfoClose" style="margin-right:auto;">Close</button>
       <button class="primary-btn" id="planInfoUnlock">Unlock with a code</button>
@@ -1571,13 +1572,13 @@
       <li><span class="ls-n">2</span><div class="ls-t"><b>Guest list <span class="ls-chip free">Free</span></b>Create your guest list or import it from Excel (free template to download inside). Everything else is pulled from this list.</div></li>
       <li><span class="ls-n">3</span><div class="ls-t"><b>Seat your guests <span class="ls-chip free">Free</span></b>Drag and drop names onto round, rectangle or U-shaped tables.</div></li>
       <li><span class="ls-n">4</span><div class="ls-t"><b>Design the room <span class="ls-chip free">Free</span></b>Build a floor plan to scale. Guests get a simple map with a key on their phones.</div></li>
-      <li><span class="ls-n">5</span><div class="ls-t"><b>One QR code <span class="ls-chip free">Free</span></b>Guests scan it, find their name and see their table marked with a red star. <a href="https://tableauevents.co.za/guest-view.html?event=dee-quinn-ush3v" target="_blank" rel="noopener">Try a live example on your phone</a>.</div></li>
+      <li><span class="ls-n">5</span><div class="ls-t"><b>One QR code <span class="ls-chip free">Free</span></b>Guests scan it, find their name and see their table marked with a red star. <a href="https://tableauevents.co.za/guest-view.html?event=event-xu8id" target="_blank" rel="noopener">Try a live example of the FREE plan on your phone.</a></div></li>
       <li><span class="ls-n">6</span><div class="ls-t"><b>Make it yours <span class="ls-chip free">Free</span></b>Add your photo, date, colours and style, all saved to your account.</div></li>
-      <li class="ls-paid"><span class="ls-n">7</span><div class="ls-t"><b>Menu, programme and gifts <button type="button" class="ls-chip" data-plan="1">Guest page plan &middot; R100 a year</button></b>An add-on to your QR guest page. Upload your menu, programme and banking details so guests have them right on their phones (Canva templates available). <a href="https://tableauevents.co.za/guest-view.html?event=dee-quinn-l6q3f" target="_blank" rel="noopener">See a live example on your phone</a>.</div></li>
+      <li class="ls-paid ls-gp"><span class="ls-n">7</span><div class="ls-t"><b>Menu, programme and gifts <button type="button" class="ls-chip" data-plan="1">Guest page plan &middot; R100 a year</button></b>An add-on to your QR guest page. Upload your menu, programme and banking details so guests have them right on their phones (Canva templates available). <a href="https://tableauevents.co.za/guest-view.html?event=hannah-caleb-c4xnx" target="_blank" rel="noopener">Try a live example of the Guest page plan on your phone.</a></div></li>
       <li class="ls-paid"><span class="ls-n">8</span><div class="ls-t"><b>Wedding checklist <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>A built-in task list organised by how far out you are — from 12 months to the week before. Tick items off, assign tasks to people, and hide anything that doesn't apply to your wedding.</div></li>
       <li class="ls-paid"><span class="ls-n">9</span><div class="ls-t"><b>Bridal party page <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Jobs, packing lists and vendor contacts on a private link.</div></li>
       <li class="ls-paid"><span class="ls-n">10</span><div class="ls-t"><b>Vendors and group photos <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Keep every contact in one place, plan each group photo and WhatsApp the guests in it.</div></li>
-      <li class="ls-paid"><span class="ls-n">11</span><div class="ls-t"><b>The whole weekend <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Add a day before and a day after, each with its own programme.</div></li>
+      <li class="ls-paid"><span class="ls-n">11</span><div class="ls-t"><b>The whole weekend <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Add a day before and a day after, each with its own programme. <a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-oq4jk" target="_blank" rel="noopener">Try a live example of the Full Planner on your phone.</a> The bridal party code is <b>6064</b>.</div></li>
     </ol>
     <p class="landing-steps-note">Steps 1 to 6 are free. Steps 7 to 11 are optional paid plans: Guest page R100 a year, Full planner R200 a year. <a id="lsPlans">See what each plan includes</a></p>
     </div>
@@ -1929,7 +1930,7 @@
       <h4 class="bp-sech">The day</h4>
       <div class="bp-secbody">
       <div class="bp-grid2">
-        <div><label>Page title</label><input type="text" id="bpTitle" class="custom-num" maxlength="60" placeholder="e.g. Ava &amp; Jack"></div>
+        <div><label>Page title (e.g. Ava &amp; Jack)</label><input type="text" id="bpTitle" class="custom-num" maxlength="60" placeholder="e.g. Ava &amp; Jack"></div>
         <div><label>Wedding date</label><input type="date" id="bpDate" class="custom-num"></div>
       </div>
       <label style="margin-top:10px;">A short note for the bridal party (optional)</label>
@@ -8098,6 +8099,9 @@ function openPlanInfo(n){
   const locked = accessTier < n;
   document.getElementById('planInfoUnlock').classList.toggle('hidden', !locked);
   document.getElementById('planInfoBuy').classList.toggle('hidden', !locked);
+  document.getElementById('planInfoLive').innerHTML = n === 2
+    ? '<a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-oq4jk" target="_blank" rel="noopener" style="color:var(--sage-dark); font-weight:600;">Try a live example of the Full Planner on your phone.</a> The bridal party code is <b>6064</b>.'
+    : '<a href="https://tableauevents.co.za/guest-view.html?event=hannah-caleb-c4xnx" target="_blank" rel="noopener" style="color:var(--sage-dark); font-weight:600;">Try a live example of the Guest page plan on your phone.</a>';
   document.getElementById('planInfoModal').classList.remove('hidden');
 }
 document.getElementById('accessPlans').addEventListener('click', e=>{
@@ -9914,7 +9918,7 @@ window.addEventListener('popstate', function(){
 
 function showHub(first){
   projectActive = true; hubOpen = true;
-  document.getElementById('hubTitle').textContent = first ? 'Let\u2019s get started' : 'What would you like to work on?';
+  document.getElementById('hubTitle').textContent = first ? 'Let\u2019s get started' : 'Let\u2019s map out your day.';
   document.getElementById('setupScreen').classList.add('hidden');
   document.getElementById('mainLayout').classList.add('hidden');
   document.getElementById('hubScreen').classList.remove('hidden');
