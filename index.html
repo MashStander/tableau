@@ -6587,14 +6587,42 @@ function renderFloorPalette(){
     {kind:'label', label:'Gifts table', text:'Gifts table'},
     {kind:'label', label:'Buffet', text:'Buffet'},
   ];
+  if(!fp.shapeNames || typeof fp.shapeNames !== 'object') fp.shapeNames = {};
   shapeDefs.forEach(def=>{
     const item = document.createElement('div');
-    item.className = 'fp-palette-item';
     item.draggable = true;
-    item.textContent = def.label;
-    item.addEventListener('dragstart', e=>{
-      e.dataTransfer.setData('text/plain', JSON.stringify({fpKind:def.kind, text:def.text}));
+    const isDoor = def.kind === 'door2' || def.kind === 'door4';
+    if(isDoor){
+      item.className = 'fp-palette-item';
+      item.textContent = def.label;
+      item.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', JSON.stringify({fpKind:def.kind, text:def.text})); });
+      shapesWrap.appendChild(item);
+      return;
+    }
+    // Built-in items can be renamed here before they are dragged onto the room
+    const key = def.kind === 'label' ? 'label:' + def.text : def.kind;
+    const name = fp.shapeNames[key] || def.label;
+    item.className = 'fp-palette-item fp-ml-item';
+    const txt = document.createElement('span'); txt.className = 'fp-ml-text'; txt.textContent = name;
+    const ed = document.createElement('button'); ed.type = 'button'; ed.className = 'fp-ml-btn'; ed.textContent = '\u270e'; ed.title = 'Change the name before you drag it in';
+    item.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', JSON.stringify({fpKind:def.kind, text:name})); });
+    ed.addEventListener('click', ()=>{
+      const edit = document.createElement('input'); edit.type = 'text'; edit.value = name; edit.maxLength = 40; edit.className = 'fp-ml-edit';
+      item.draggable = false; item.replaceChild(edit, txt); edit.focus(); edit.select();
+      let done = false;
+      const save = ()=>{
+        if(done) return; done = true;
+        const t = edit.value.trim();
+        if(t !== name){
+          pushUndo();
+          if(!t || t === def.label) delete fp.shapeNames[key]; else fp.shapeNames[key] = t;   // empty box = back to the original name
+        }
+        renderFloorPalette();
+      };
+      edit.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); save(); } else if(e.key==='Escape'){ done = true; renderFloorPalette(); } });
+      edit.addEventListener('blur', save);
     });
+    item.append(txt, ed);
     shapesWrap.appendChild(item);
   });
 
