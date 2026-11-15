@@ -377,17 +377,17 @@ function buildHome(){
   if(matEl) matEl.textContent = L.tablemates;
 
   const tiles = [];
-  tiles.push({id:'seat', label:L.seat, sub:'Search your name or browse by letter', wide:true});
+  tiles.push({id:'seat', label:L.seat, sub:tr('subSeat'), wide:true});
   if((info.program && info.program.length) || (info.programDays && info.programDays.length) || imgs(info,'program').length)
-    tiles.push({id:'program', label:L.program, sub:'The order of the day'});
+    tiles.push({id:'program', label:L.program, sub:tr('subProgram')});
   if((info.menu && info.menu.length) || imgs(info,'menu').length)
-    tiles.push({id:'menu', label:L.menu, sub:'What is being served'});
+    tiles.push({id:'menu', label:L.menu, sub:tr('subMenu')});
   if((info.bank && info.bank.length) || info.bankNote || imgs(info,'bank').length)
-    tiles.push({id:'gifts', label:L.gifts, sub:'Banking details'});
+    tiles.push({id:'gifts', label:L.gifts, sub:tr('subGifts')});
   if(info.album && /^https:\/\//i.test(info.album.url || ''))
-    tiles.push({id:'photos', label:L.photos, sub:'Share your pictures from the day'});
+    tiles.push({id:'photos', label:L.photos, sub:tr('subPhotos')});
   if(info.links && info.links.some(l => /^https?:\/\//i.test(l.url)))
-    tiles.push({id:'links', label:L.links, sub:'Website and more'});
+    tiles.push({id:'links', label:L.links, sub:tr('subLinks')});
   availableSections = tiles.map(t=>t.id);
 
   const grid = document.getElementById('tileGrid');
@@ -411,11 +411,11 @@ function addImages(container, urls, alt){
     const im = document.createElement('img');
     im.className = 'doc-img'; im.src = u; im.alt = alt; im.loading = 'lazy';
     im.addEventListener('click', ()=> openLightbox(u));
-    im.addEventListener('error', ()=>{ const m = document.createElement('div'); m.className = 'img-hint'; m.textContent = 'This picture could not be loaded.'; im.replaceWith(m); });
+    im.addEventListener('error', ()=>{ const m = document.createElement('div'); m.className = 'img-hint'; m.textContent = tr('imgFail'); im.replaceWith(m); });
     wrap.appendChild(im);
   });
   container.appendChild(wrap);
-  const h = document.createElement('div'); h.className = 'img-hint'; h.textContent = 'Tap a picture to enlarge it.';
+  const h = document.createElement('div'); h.className = 'img-hint'; h.textContent = tr('tapEnlarge');
   container.appendChild(h);
 }
 let lbZoom = 1;
@@ -438,7 +438,7 @@ document.getElementById('lightboxClose').addEventListener('click', ()=>{
 });
 
 function copyText(text, btn){
-  const done = ()=>{ const o = btn.textContent; btn.textContent = 'Copied'; setTimeout(()=> btn.textContent = o, 1400); };
+  const done = ()=>{ const o = btn.textContent; btn.textContent = tr('copied'); setTimeout(()=> btn.textContent = o, 1400); };
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(text).then(done).catch(()=>{});
   } else {
@@ -451,8 +451,8 @@ function renderSections(){
   const info = SEAT_DATA.info || {};
 
   const prog = document.getElementById('programBody'); prog.innerHTML = '';
-  const MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const DN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MN = tr('months');
+  const DN = tr('days');
   const niceDate = iso => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); if(!m) return ''; const d = new Date(+m[1], +m[2]-1, +m[3]); return DN[d.getDay()] + ' ' + d.getDate() + ' ' + MN[d.getMonth()]; };
   const days = info.programDays || [];
   const addLines = lines => (lines || []).forEach(p=>{
@@ -462,7 +462,7 @@ function renderSections(){
   });
   const head = (label, iso) => { const h = document.createElement('div'); h.className = 'prog-day'; h.textContent = label + (niceDate(iso) ? ' · ' + niceDate(iso) : ''); prog.appendChild(h); };
   days.filter(d=> d.key === 'before').forEach(d=>{ head(d.label, d.date); addLines(d.lines); });
-  if(days.length && (info.program || []).length) head('Wedding day', info.date);
+  if(days.length && (info.program || []).length) head(tr('weddingDay'), info.date);
   addLines(info.program);
   days.filter(d=> d.key === 'after').forEach(d=>{ head(d.label, d.date); addLines(d.lines); });
   addImages(prog, imgs(info,'program'), 'Programme');
@@ -479,7 +479,7 @@ function renderSections(){
   (info.bank || []).forEach(b=>{
     const row = document.createElement('div'); row.className = 'bank-row';
     row.innerHTML = `<span class="bl">${escapeHtml(b.label || '')}</span><span class="bv">${escapeHtml(b.value || '')}</span>`;
-    const btn = document.createElement('button'); btn.className = 'copy-btn'; btn.textContent = 'Copy';
+    const btn = document.createElement('button'); btn.className = 'copy-btn'; btn.textContent = tr('copy');
     btn.addEventListener('click', ()=> copyText(b.value || '', btn));
     row.appendChild(btn); gifts.appendChild(row);
   });
@@ -488,11 +488,11 @@ function renderSections(){
   const photos = document.getElementById('photosBody'); photos.innerHTML = '';
   if(info.album && /^https:\/\//i.test(info.album.url || '')){
     const note = document.createElement('div'); note.className = 'bank-note';
-    note.textContent = info.album.note || 'Add your photos and videos from the day to our shared album, and see everyone else\u2019s too.';
+    note.textContent = info.album.note || tr('albumNote');
     photos.appendChild(note);
     const a = document.createElement('a'); a.className = 'link-btn album-btn'; a.href = info.album.url; a.target = '_blank'; a.rel = 'noopener';
-    a.textContent = 'Open the shared album'; photos.appendChild(a);
-    const h = document.createElement('div'); h.className = 'img-hint'; h.textContent = 'Opens in Google. Tap \u201cAdd\u201d there to upload.'; photos.appendChild(h);
+    a.textContent = tr('openAlbum'); photos.appendChild(a);
+    const h = document.createElement('div'); h.className = 'img-hint'; h.textContent = tr('albumHint'); photos.appendChild(h);
   }
 
   const links = document.getElementById('linksBody'); links.innerHTML = '';
@@ -570,12 +570,12 @@ function renderHeader(info){
   const d = parseDate(info.date);
   const dl = document.getElementById('dateLine'), cd = document.getElementById('countdownLine'), cal = document.getElementById('calLink');
   if(!d){ dl.classList.add('hidden'); cd.classList.add('hidden'); cal.classList.add('hidden'); return; }
-  dl.textContent = ordinal(d.getDate()) + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+  dl.textContent = (lang() === 'en' ? ordinal(d.getDate()) : d.getDate()) + ' ' + tr('months')[d.getMonth()] + ' ' + d.getFullYear();
   dl.classList.remove('hidden');
   const today = new Date(); today.setHours(0,0,0,0);
   const days = Math.round((d - today) / 86400000);
-  if(days > 0){ cd.textContent = days === 1 ? 'Tomorrow is the big day!' : days + ' days to go'; cd.classList.remove('hidden'); }
-  else if(days === 0){ cd.textContent = 'Today is the day!'; cd.classList.remove('hidden'); }
+  if(days > 0){ cd.textContent = days === 1 ? tr('tomorrow') : tr('daysToGo', {n: days}); cd.classList.remove('hidden'); }
+  else if(days === 0){ cd.textContent = tr('today'); cd.classList.remove('hidden'); }
   else cd.classList.add('hidden');
 
   if(days >= 0){
@@ -615,15 +615,13 @@ function renderLetterGrid(){
   wrap.classList.toggle('hidden', !guests.length);
   if(!guests.length) return;
   const info = SEAT_DATA.info || {};
-  document.getElementById('browseLabel').textContent = info.listBy === 'first'
-    ? 'or find your name by letter (listed by first name)'
-    : 'or find your name by letter (listed by surname)';
+  document.getElementById('browseLabel').textContent = info.listBy === 'first' ? tr('browseFirst') : tr('browseLast');
   const buckets = {};
   guests.forEach(g=>{ (buckets[groupIndex(g)] = buckets[groupIndex(g)] || []).push(g); });
   Object.keys(buckets).map(Number).sort((a,b)=>a-b).forEach(i=>{
     const b = document.createElement('button');
     b.className = 'letter-btn';
-    b.innerHTML = escapeHtml(LETTER_GROUPS[i]) + '<small>' + buckets[i].length + (buckets[i].length === 1 ? ' guest' : ' guests') + '</small>';
+    b.innerHTML = escapeHtml(LETTER_GROUPS[i]) + '<small>' + buckets[i].length + (buckets[i].length === 1 ? tr('guest1') : tr('guestN')) + '</small>';
     b.addEventListener('click', ()=> showGroup(i, buckets[i]));
     grid.appendChild(b);
   });
@@ -645,6 +643,79 @@ function showGroup(i, list){
   window.scrollTo(0, 0);
 }
 
+/* ---------- guest page language (fixed wording) ---------- */
+const TXT = {
+  en: {
+    subSeat:'Search your name or browse by letter', subProgram:'The order of the day', subMenu:'What is being served',
+    subGifts:'Banking details', subPhotos:'Share your pictures from the day', subLinks:'Website and more',
+    back:'← Back', searchAgain:'← Search again',
+    seatPrompt:'Type your name to see where you’re sitting.', searchPh:'Start typing your name…',
+    browse:'or find your name by letter', browseFirst:'or find your name by letter (listed by first name)', browseLast:'or find your name by letter (listed by surname)',
+    guest1:' guest', guestN:' guests',
+    seatedAt:'{name} is seated at', unassigned:'(unassigned)',
+    atTable1:'1 guest at this table', atTableN:'{n} guests at this table', noTable:'No table yet — please ask a host.',
+    segMap:'Where is my table?', segMates:'Who is at my table?', starNote:'The star marks your table.', zoomIn:'Zoom in', zoomOut:'Zoom out',
+    mapKey:'Map key', tables:'Tables',
+    noResults:'No matching name found. Check the spelling, or ask a host.',
+    emptyData:'The seating plan hasn’t been published yet — please check back closer to the event.',
+    calLink:'Add to my calendar', tomorrow:'Tomorrow is the big day!', daysToGo:'{n} days to go', today:'Today is the day!',
+    weddingDay:'Wedding day', tapEnlarge:'Tap a picture to enlarge it.', imgFail:'This picture could not be loaded.',
+    copy:'Copy', copied:'Copied',
+    albumNote:'Add your photos and videos from the day to our shared album, and see everyone else’s too.',
+    openAlbum:'Open the shared album', albumHint:'Opens in Google. Tap “Add” there to upload.',
+    bpEnter:'Bridal party? Go to your page', bpCodePh:'4-digit code', go:'Go',
+    bpDemo:'This is an example page, so the code is already filled in. Tap Go.',
+    bpOpenFull:'Please open this page using the QR code or the full link.', bpTooMany:'Too many tries. Please wait a minute and try again.',
+    bpType:'Please type your 4-digit code.', bpWrong:'That code is not right. Please check it with the bride or groom.',
+    bpNet:'Could not check the code. Please check your internet connection.', close:'Close',
+    months:['January','February','March','April','May','June','July','August','September','October','November','December'],
+    days:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+  },
+  af: {
+    subSeat:'Tik jou naam of soek onder die gepaste letter', subProgram:'Die verloop van die dag', subMenu:'Wat word bedien?',
+    subGifts:'Bankbesonderhede', subPhotos:'Deel jou foto’s van die dag', subLinks:'Webwerf en meer',
+    back:'← Terug', searchAgain:'← Soek weer',
+    seatPrompt:'Tik jou naam om te sien waar jy sit.', searchPh:'Begin om jou naam te tik…',
+    browse:'of vind die letter van jou naam', browseFirst:'of vind die letter van jou naam (volgens voornaam)', browseLast:'of vind die letter van jou naam (volgens van)',
+    guest1:' gas', guestN:' gaste',
+    seatedAt:'{name} sit by', unassigned:'(nog nie toegeken nie)',
+    atTable1:'1 gas aan hierdie tafel', atTableN:'{n} gaste aan hierdie tafel', noTable:'Nog geen tafel nie — vra asseblief een van die gashere.',
+    segMap:'Waar is my tafel?', segMates:'Wie sit aan my tafel?', starNote:'Die ster wys jou tafel.', zoomIn:'Zoem in', zoomOut:'Zoem uit',
+    mapKey:'Kaartsleutel', tables:'Tafels',
+    noResults:'Geen naam gevind nie. Kontroleer die spelling, of vra een van die gashere.',
+    emptyData:'Die sitplekplan is nog nie gepubliseer nie — kyk asseblief weer nader aan die tyd.',
+    calLink:'Voeg by my kalender', tomorrow:'Môre is die groot dag!', daysToGo:'Nog {n} dae', today:'Vandag is die dag!',
+    weddingDay:'Troudag', tapEnlarge:'Tik op ’n prent om dit te vergroot.', imgFail:'Hierdie prent kon nie gelaai word nie.',
+    copy:'Kopieer', copied:'Gekopieer',
+    albumNote:'Voeg jou foto’s en video’s van die dag by ons gedeelde album, en sien almal s’n ook.',
+    openAlbum:'Maak die gedeelde album oop', albumHint:'Maak in Google oop. Tik “Add” om op te laai.',
+    bpEnter:'Gevolg? Gaan na jou bladsy', bpCodePh:'4-syfer-kode', go:'Gaan',
+    bpDemo:'Hierdie is ’n voorbeeldbladsy, so die kode is reeds ingevul. Tik Gaan.',
+    bpOpenFull:'Maak asseblief hierdie bladsy oop met die QR-kode of die volledige skakel.', bpTooMany:'Te veel pogings. Wag asseblief ’n minuut en probeer weer.',
+    bpType:'Tik asseblief jou 4-syfer-kode.', bpWrong:'Daardie kode is nie reg nie. Kontroleer dit asseblief by die bruid of bruidegom.',
+    bpNet:'Kon nie die kode kontroleer nie. Kontroleer asseblief jou internetverbinding.', close:'Maak toe',
+    months:['Januarie','Februarie','Maart','April','Mei','Junie','Julie','Augustus','September','Oktober','November','Desember'],
+    days:['Sondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrydag','Saterdag']
+  }
+};
+function lang(){ const l = ((typeof SEAT_DATA !== 'undefined' && SEAT_DATA && SEAT_DATA.info) || {}).lang; return TXT[l] ? l : 'en'; }
+function tr(key, vars){ let v = TXT[lang()][key]; if(v === undefined) v = TXT.en[key]; if(typeof v === 'string' && vars) Object.keys(vars).forEach(k=> v = v.split('{' + k + '}').join(vars[k])); return v; }
+function applyStaticText(){
+  document.querySelectorAll('.back-btn.homeBack, #groupBack').forEach(b=> b.textContent = tr('back'));
+  document.getElementById('backBtn').textContent = tr('searchAgain');
+  document.querySelector('.seat-prompt').textContent = tr('seatPrompt');
+  document.getElementById('searchInput').placeholder = tr('searchPh');
+  document.getElementById('emptyDataNote').textContent = tr('emptyData');
+  document.getElementById('segMap').textContent = tr('segMap');
+  document.getElementById('segMates').textContent = tr('segMates');
+  const fpt = document.querySelector('.fp-tools > span'); if(fpt) fpt.textContent = tr('starNote');
+  document.getElementById('calLink').textContent = tr('calLink');
+  document.getElementById('bpEnter').textContent = tr('bpEnter');
+  document.getElementById('bpCode').placeholder = tr('bpCodePh');
+  document.getElementById('bpGo').textContent = tr('go');
+  document.getElementById('lightboxClose').textContent = tr('close');
+  document.documentElement.lang = lang();
+}
 /* ---------- loading ---------- */
 function applyData(){
   /* the public example page: fill the bridal party code in so visitors do not have to look for it */
@@ -654,7 +725,7 @@ function applyData(){
       bc.value = '6064';
       if(!document.getElementById('bpDemoHint')){
         const h = document.createElement('div'); h.id = 'bpDemoHint'; h.style.cssText = 'font-size:12px; color:var(--ink-soft); margin-top:6px; text-align:center;';
-        h.textContent = 'This is an example page, so the code is already filled in. Tap Go.';
+        h.textContent = tr('bpDemo');
         bc.closest('.bp-row').insertAdjacentElement('afterend', h);
       }
     }
@@ -665,6 +736,7 @@ function applyData(){
   document.getElementById('searchInput').classList.toggle('hidden', !hasGuests);
   document.querySelector('.seat-prompt').classList.toggle('hidden', !hasGuests);
   const info = SEAT_DATA.info || {};
+  applyStaticText();
   applyTheme(info);
   renderHeader(info);
   renderLetterGrid();
@@ -690,10 +762,10 @@ function applyData(){
   w.classList.toggle('hidden', !info.welcome);
   /* ---- verse / quote ---- */
   const DEFAULT_VERSE = '“Now all glory to God, who is able, through his mighty power at work within us, to accomplish infinitely more than we might ask or think.”';
-  const verseText = (info.verse && info.verse.trim()) ? info.verse.trim() : DEFAULT_VERSE;
+  const verseText = (info.verse && info.verse.trim()) ? info.verse.trim() : (lang() === 'en' ? DEFAULT_VERSE : '');   // no English verse on a page in another language
   ['homeVerseBlock','seatVerseBlock','programVerseBlock','menuVerseBlock'].forEach(id=>{
     const el = document.getElementById(id);
-    if(el){ el.textContent = verseText; el.classList.remove('hidden'); }
+    if(el){ el.textContent = verseText; el.classList.toggle('hidden', !verseText); }
   });
   renderSections();
   buildHome();
@@ -753,7 +825,7 @@ function init(){
   document.getElementById('segMates').addEventListener('click', ()=> setSeatPane('mates'));
   document.getElementById('fpZoomBtn').addEventListener('click', ()=>{
     fpZoom = fpZoom === 1 ? 2.2 : 1;
-    document.getElementById('fpZoomBtn').textContent = fpZoom === 1 ? 'Zoom in' : 'Zoom out';
+    document.getElementById('fpZoomBtn').textContent = fpZoom === 1 ? tr('zoomIn') : tr('zoomOut');
     if(currentGuest) renderFloorPlan(currentGuest);
   });
   document.getElementById('devFileInput').addEventListener('change', e=>{
@@ -783,7 +855,7 @@ function onSearch(){
   if(q.length < 2) return;
   const matches = (SEAT_DATA.guests || []).filter(g => g.name.toLowerCase().includes(q)).slice(0, 12);
   if(matches.length === 0){
-    list.innerHTML = '<div class="no-results">No matching name found. Check the spelling, or ask a host.</div>';
+    list.innerHTML = '<div class="no-results">' + escapeHtml(tr('noResults')) + '</div>';
     return;
   }
   matches.forEach(g=>{
@@ -811,15 +883,15 @@ function showSeat(guest, from){
   currentGuest = guest;
   document.getElementById('groupView').classList.add('hidden');
   fpZoom = 1;
-  document.getElementById('fpZoomBtn').textContent = 'Zoom in';
+  document.getElementById('fpZoomBtn').textContent = tr('zoomIn');
   document.getElementById('searchView').classList.add('hidden');
   document.getElementById('seatView').classList.remove('hidden');
-  document.getElementById('seatForName').textContent = guest.name + ' is seated at';
-  document.getElementById('seatTableName').textContent = guest.tableName || '(unassigned)';
+  document.getElementById('seatForName').textContent = tr('seatedAt', {name: guest.name});
+  document.getElementById('seatTableName').textContent = guest.tableName || tr('unassigned');
 
   const mates = (SEAT_DATA.guests || []).filter(g => g.tableId === guest.tableId);
   document.getElementById('seatTableDetail').textContent =
-    guest.tableId ? `${mates.length} guest${mates.length===1?'':'s'} at this table` : "No table yet — please ask a host.";
+    guest.tableId ? (mates.length === 1 ? tr('atTable1') : tr('atTableN', {n: mates.length})) : tr('noTable');
 
   const matesList = document.getElementById('matesList');
   matesList.innerHTML = '';
@@ -914,8 +986,8 @@ function renderFloorPlan(guest){
       d.appendChild(b); d.appendChild(t); g.appendChild(d); });
     key.appendChild(g);
   }
-  addSec('Map key', keyEls);
-  addSec('Tables', (SEAT_DATA.tables || []).filter(t=> (fp.items||[]).some(i=> i.kind==='table' && i.tableId===t.id))
+  addSec(tr('mapKey'), keyEls);
+  addSec(tr('tables'), (SEAT_DATA.tables || []).filter(t=> (fp.items||[]).some(i=> i.kind==='table' && i.tableId===t.id))
     .map(t=> [tNum[t.id], t.name, t.id === guest.tableId]));
 
   // Bring the guest's table into view when zoomed in.
@@ -932,28 +1004,28 @@ function renderFloorPlan(guest){
   const key = 'tableauBridalSlug-' + EVENT_SLUG;
   function go(slug){ location.href = 'bridal-party.html?event=' + encodeURIComponent(slug); }
   document.getElementById('bpEnter').addEventListener('click', ()=>{
-    if(!EVENT_SLUG){ const msg = document.getElementById('bpMsg'); document.getElementById('bpBox').classList.remove('hidden'); msg.textContent = 'Please open this page using the QR code or the full link (it must include ?event=... at the end).'; return; }
+    if(!EVENT_SLUG){ const msg = document.getElementById('bpMsg'); document.getElementById('bpBox').classList.remove('hidden'); msg.textContent = tr('bpOpenFull'); return; }
     document.getElementById('bpBox').classList.remove('hidden');
     document.getElementById('bpCode').focus();
   });
   async function submit(){
     const code = document.getElementById('bpCode').value.replace(/\D/g,'');
     let lockUntil = 0; try{ lockUntil = +localStorage.getItem('tableauBpLock') || 0; }catch(e){}
-    if(Date.now() < lockUntil){ document.getElementById('bpMsg').textContent = 'Too many tries. Please wait a minute and try again.'; return; }
+    if(Date.now() < lockUntil){ document.getElementById('bpMsg').textContent = tr('bpTooMany'); return; }
     const msg = document.getElementById('bpMsg'); msg.textContent = '';
-    if(code.length < 4){ msg.textContent = 'Please type your 4-digit code.'; return; }
-    if(!EVENT_SLUG){ msg.textContent = 'Please open this page using the QR code or the full link.'; return; }
+    if(code.length < 4){ msg.textContent = tr('bpType'); return; }
+    if(!EVENT_SLUG){ msg.textContent = tr('bpOpenFull'); return; }
     try{
       const r = await fetch(SB_URL + '/rest/v1/rpc/get_published', {method:'POST', headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}, body: JSON.stringify({p_slug:'bp-' + EVENT_SLUG + '-' + code})});
       const j = await r.json();
       if(!j || !j.bridalRedirect){
         try{ let n = (+localStorage.getItem('tableauBpTries') || 0) + 1; localStorage.setItem('tableauBpTries', String(n)); if(n >= 5){ localStorage.setItem('tableauBpLock', String(Date.now() + 60000)); localStorage.setItem('tableauBpTries', '0'); } }catch(e){}
-        msg.textContent = 'That code is not right. Please check it with the bride or groom.'; return;
+        msg.textContent = tr('bpWrong'); return;
       }
       try{ localStorage.setItem('tableauBpTries', '0'); }catch(e){}
       try{ localStorage.setItem(key, j.bridalRedirect); }catch(e){}
       go(j.bridalRedirect);
-    }catch(e){ msg.textContent = 'Could not check the code. Please check your internet connection.'; }
+    }catch(e){ msg.textContent = tr('bpNet'); }
   }
   document.getElementById('bpGo').addEventListener('click', submit);
   document.getElementById('bpCode').addEventListener('keydown', e=>{ if(e.key === 'Enter') submit(); });

@@ -7829,7 +7829,8 @@ function buildEventInfoForExport(){
     bank,
     coverPos: info.coverPos || null,
     images: {cover: urls('cover'), program: urls('program'), menu: urls('menu'), bank: urls('bank')},
-    labels: info.labels || {}
+    labels: info.labels || {},
+    lang: info.labelLang || ''
   };
 }
 document.querySelectorAll('.ei-add-img').forEach(btn=>{
