@@ -6957,8 +6957,14 @@ function buildFloorItemEl(item){
     let minDx = -Infinity, maxDx = Infinity, minDy = -Infinity, maxDy = Infinity;
     starts.forEach(st=>{
       const door = isDoorKind(st.it.kind);
-      minDx = Math.max(minDx, (door ? -st.it.w/2 : 0) - st.x); maxDx = Math.min(maxDx, (door ? fp.roomWidth - st.it.w/2 : Infinity) - st.x);
-      minDy = Math.max(minDy, (door ? -st.it.h/2 : 0) - st.y); maxDy = Math.min(maxDy, (door ? fp.roomDepth - st.it.h/2 : Infinity) - st.y);
+      if(door){
+        minDx = Math.max(minDx, -st.it.w/2 - st.x); maxDx = Math.min(maxDx, fp.roomWidth - st.it.w/2 - st.x);
+        minDy = Math.max(minDy, -st.it.h/2 - st.y); maxDy = Math.min(maxDy, fp.roomDepth - st.it.h/2 - st.y);
+      } else {
+        /* use the item's visible outline, so a turned item can still go right up against the wall */
+        const bx = fpBox(st.it);
+        minDx = Math.max(minDx, -bx.l); minDy = Math.max(minDy, -bx.t);
+      }
     });
     const clampD = (v, lo, hi)=> Math.min(hi, Math.max(lo, v));
     function onMove(ev){
