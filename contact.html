@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact us — Tableau Events</title>
+<meta name="description" content="Questions about Tableau, your plan or your guest page? Send us a message.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600&family=Corinthia&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#fffefb; --ink:#3a3330; --ink-soft:#7a7068; --line:#ddd9cc; --white:#fff; --bar:#aebdab; --btn:#7d9479; --btn-hover:#6b8267; --sage-dark:#6e8a70; --rose:#f98484; --danger:#c0392b; }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:'Plus Jakarta Sans',sans-serif; background:var(--paper); color:var(--ink); line-height:1.55;}
+  .band{height:64px; background:var(--bar);}
+  .tag{text-align:center; font-family:'Corinthia',cursive; color:var(--rose); font-size:32px; margin:10px 0 6px;}
+  .wrap{max-width:620px; margin:0 auto; padding:0 18px 50px;}
+  .card{background:var(--white); border:1px solid var(--line); border-radius:12px; padding:30px 32px; box-shadow:0 10px 30px rgba(0,0,0,.06);}
+  .back{display:inline-block; color:var(--sage-dark); font-size:14px; margin:4px 0 14px; text-decoration:none;}
+  .back:hover{text-decoration:underline;}
+  h1{font-family:'Lora',serif; font-weight:600; font-size:30px; margin:0 0 6px; color:var(--ink);}
+  .intro{color:var(--ink-soft); font-size:14.5px; margin:0 0 22px;}
+  label{display:block; font-size:13px; font-weight:600; margin:0 0 5px;}
+  input, select, textarea{width:100%; font:inherit; font-size:15px; padding:11px 12px; border:1px solid var(--line); border-radius:8px; background:var(--white); color:var(--ink); margin-bottom:14px;}
+  input:focus, select:focus, textarea:focus{outline:none; border-color:var(--btn);}
+  textarea{min-height:150px; resize:vertical;}
+  .hp{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;}
+  button{width:100%; background:var(--btn); color:#fff; border:none; border-radius:8px; padding:13px; font:inherit; font-size:15.5px; font-weight:600; cursor:pointer;}
+  button:hover{background:var(--btn-hover);}
+  button:disabled{opacity:.6; cursor:default;}
+  .msg{font-size:14px; margin-top:12px; min-height:20px;}
+  .msg.err{color:var(--danger);}
+  .done{display:none; text-align:center; padding:10px 0;}
+  .done h2{font-family:'Lora',serif; font-size:24px; color:var(--sage-dark); margin:6px 0 6px;}
+  .done p{color:var(--ink-soft); margin:0 0 16px;}
+  .small{font-size:12.5px; color:var(--ink-soft); margin-top:14px; text-align:center;}
+  .small a{color:var(--sage-dark);}
+  @media (max-width:520px){ .card{padding:22px 18px;} h1{font-size:26px;} .band{height:40px;} .tag{font-size:26px;} }
+</style>
+</head>
+<body>
+<div class="band"></div>
+<p class="tag">Familiar, with a spritz of magic.</p>
+<div class="wrap">
+  <a class="back" href="/">&larr; Back to Tableau</a>
+  <div class="card">
+    <div id="formBox">
+      <h1>Contact us</h1>
+      <p class="intro">Questions about Tableau, your plan, an access code or your guest page? Send us a message and we&rsquo;ll reply by email, usually within 2 business days.</p>
+      <form id="contactForm" novalidate>
+        <label for="cName">Your name</label>
+        <input type="text" id="cName" maxlength="100" autocomplete="name" required>
+        <label for="cEmail">Your email address</label>
+        <input type="email" id="cEmail" maxlength="200" autocomplete="email" required>
+        <label for="cTopic">What is it about?</label>
+        <select id="cTopic">
+          <option>A general question</option>
+          <option>My plan or access code</option>
+          <option>A payment or refund</option>
+          <option>Something isn&rsquo;t working</option>
+          <option>An idea or suggestion</option>
+        </select>
+        <label for="cMessage">Your message</label>
+        <textarea id="cMessage" maxlength="5000" required></textarea>
+        <div class="hp" aria-hidden="true"><label for="cWebsite">Leave this empty</label><input type="text" id="cWebsite" tabindex="-1" autocomplete="off"></div>
+        <button type="submit" id="cSend">Send message</button>
+        <div class="msg" id="cMsg" role="status"></div>
+      </form>
+    </div>
+    <div class="done" id="doneBox">
+      <h2>Thank you!</h2>
+      <p>Your message is on its way. We&rsquo;ll reply to the email address you gave us.</p>
+      <a class="back" href="/">&larr; Back to Tableau</a>
+    </div>
+  </div>
+  <p class="small">See also our <a href="/terms.html">Terms, refunds and privacy</a>.</p>
+</div>
+<script>
+const CONTACT_URL = 'https://tableau-contact.mash-stander.workers.dev';
+const opened = Date.now();
+const form = document.getElementById('contactForm'), msg = document.getElementById('cMsg'), btn = document.getElementById('cSend');
+form.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const name = document.getElementById('cName').value.trim();
+  const email = document.getElementById('cEmail').value.trim();
+  const message = document.getElementById('cMessage').value.trim();
+  msg.className = 'msg err';
+  if(!name){ msg.textContent = 'Please type your name.'; return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg.textContent = 'Please check your email address.'; return; }
+  if(!message){ msg.textContent = 'Please type your message.'; return; }
+  btn.disabled = true; btn.textContent = 'Sending…'; msg.className = 'msg'; msg.textContent = '';
+  try{
+    const res = await fetch(CONTACT_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({name, email, message, topic: document.getElementById('cTopic').value,
+        website: document.getElementById('cWebsite').value, elapsed: Date.now() - opened})
+    });
+    const out = await res.json().catch(()=>({}));
+    if(res.ok && out.ok){
+      document.getElementById('formBox').style.display = 'none';
+      document.getElementById('doneBox').style.display = 'block';
+      return;
+    }
+    msg.className = 'msg err'; msg.textContent = out.error || 'Your message could not be sent. Please try again later.';
+  }catch(err){
+    msg.className = 'msg err'; msg.textContent = 'Could not send. Please check your internet connection and try again.';
+  }
+  btn.disabled = false; btn.textContent = 'Send message';
+});
+</script>
+</body>
+</html>
