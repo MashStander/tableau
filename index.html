@@ -78,6 +78,30 @@
   .solid-btn:hover{background:#5a7a5c; border-color:#5a7a5c; color:#fff;}
 
   #topbar{position:relative;}
+
+  /* ===== Redesign: green menu bar, tagline underneath, logo at the bottom (computers) ===== */
+  #mainLayout{height:calc(100vh - var(--tb-h, 74px));}
+  .page-foot-logo{height:90px; width:300px; max-width:80%; margin:34px auto 10px; background:var(--logo-url) no-repeat center; background-size:contain;}
+  @media (min-width:761px){
+    #topbar{display:grid; grid-template-columns:1fr auto 1fr; grid-template-areas:"nav nav nav" "sub tag hist"; align-items:center; padding:0 0 6px;
+      background:linear-gradient(var(--sage-dark), var(--sage-dark)) 0 0 / 100% 64px no-repeat, var(--paper); border-bottom:1px solid var(--line);}
+    #topbar > div:first-child{display:contents;}
+    #topbar .tagline{grid-area:tag; text-align:center; font-size:32px; margin:8px 20px 0;}
+    #topbar .sub{grid-area:sub; justify-self:start; padding-left:28px; margin:8px 0 0; white-space:normal;}
+    #topbar #topActions{grid-area:nav; background:var(--sage-dark); justify-content:center; align-items:center; gap:4px 34px; padding:8px 24px; min-height:64px; box-sizing:border-box;}
+    #topbar .hist-row{grid-area:hist; position:static; justify-self:end; padding-right:24px; margin-top:8px;}
+    #topActions .menu-trigger.solid-btn{background:transparent; border:none; border-radius:0; color:#fff; min-width:0; padding:6px 2px 7px; font-size:15px; font-weight:500;
+      letter-spacing:.09em; text-transform:uppercase; white-space:normal; max-width:200px; text-align:center; line-height:1.25; position:relative; justify-content:center;}
+    #topActions .menu-trigger.solid-btn:hover{color:#fff; opacity:.85;}
+    #topActions .menu-trigger.solid-btn.nav-on::after{content:''; position:absolute; left:2px; right:2px; bottom:0; height:2px; background:var(--rose); border-radius:2px;}
+    #topActions .menu-caret{color:#fff; margin-left:4px;}
+    #topActions .menu-trigger.solid-btn{display:inline-block;}
+  }
+  @media (min-width:761px) and (max-width:1250px){
+    #topbar #topActions{gap:4px 18px; padding:8px 14px;}
+    #topActions .menu-trigger.solid-btn{font-size:13px; letter-spacing:.06em; max-width:150px;}
+  }
+  .hub-card.hub-first small{white-space:nowrap; display:inline-block;}
   #topbar > div:first-child{min-height:76px;}
   .hist-row{display:none; position:absolute; left:337px; bottom:10px; gap:6px;}
   #topActions[style*="flex"] ~ .hist-row{display:flex;}
@@ -152,6 +176,21 @@
   #noTablesNote .primary-btn{margin-top:10px;}
   #btnSetupBack{margin-bottom:14px;}
   @media (max-width:700px){ #hubScreen{margin:16px 10px; padding:22px 16px;} .hub-grid{grid-template-columns:1fr;} }
+
+  /* "Let's map out your day", redesign: 4 tiles */
+  #hubScreen{max-width:1240px; margin:26px auto 40px; padding:30px 32px 20px;}
+  #hubScreen h2, #hubScreen p.hint{text-align:center;}
+  #hubScreen p.hint{max-width:720px; margin-left:auto; margin-right:auto;}
+  .hub-cols{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:16px; align-items:stretch;}
+  .hub-col{display:flex; flex-direction:column; gap:14px; border:1px solid var(--line); border-radius:12px; padding:12px; background:var(--paper);}
+  .hub-col .hub-card{flex:1 1 auto; background:#fff; border-color:var(--sage); border-radius:12px;}
+  .hub-col .hub-card b{font-size:18px;}
+  .hub-card.hub-first{grid-column:auto;}
+  @media (max-width:1100px){ .hub-cols{grid-template-columns:repeat(2, minmax(0,1fr));} }
+  @media (max-width:700px){
+    .hub-cols{grid-template-columns:1fr; gap:12px;}
+    .hub-col{border:none; padding:0; background:transparent; gap:12px;}
+  }
 
   /* ---------- Setup screen ---------- */
   #setupScreen{
@@ -374,6 +413,21 @@
   .landing-steps-note{margin:12px 0 0; font-size:12px; color:var(--ink-soft); text-align:center; line-height:1.5;}
   .landing-steps-note a{color:var(--sage-dark); text-decoration:underline; cursor:pointer; font-weight:600;}
   @media (max-width:520px){ .landing-card{padding:28px 22px;} }
+
+  /* start page, redesign */
+  .landing-page{width:100%; max-width:1240px; margin:0 auto;}
+  .landing-band{display:none;}
+  .landing-page-tag{display:none;}
+  .landing-wrap{display:flex; flex-direction:column; gap:16px; align-items:center;}
+  .landing-how .landing-steps-h{border-top:none; margin-top:0; padding-top:0;}
+  @media (min-width:900px){
+    #landingScreen{padding:0 24px 30px;}
+    .landing-band{display:block; height:64px; background:var(--sage-dark); margin:0 calc(50% - 50vw); }
+    .landing-page-tag{display:block; text-align:center; font-family:'Corinthia',cursive; color:var(--rose); font-size:34px; margin:10px 0 18px;}
+    .landing-wrap{flex-direction:row; align-items:flex-start; justify-content:center; gap:28px;}
+    .landing-wrap .landing-card{margin:0; flex:1 1 0; max-width:540px; width:auto;}
+    .landing-wrap .landing-how{flex:1.15 1 0; max-width:620px;}
+  }
   body.cloud-mode #btnReset{display:none !important;}
   .ei-swatches{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
   .ei-swatch{width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0; box-shadow:0 0 0 1px var(--line);}
@@ -1131,7 +1185,8 @@
 <div id="hubScreen" class="hidden">
   <h2 id="hubTitle">Let&rsquo;s get started</h2>
   <p class="hint" id="hubSub">We suggest working through these in order, starting with your guest list. You can jump to any step, and come back here any time from How to &rarr; What to do next.</p>
-  <div class="hub-grid">
+  <div class="hub-cols">
+   <div class="hub-col">
     <div class="hub-card hub-first">
       <b>1. Create your guest list <small>Start here</small></b>
       <span>Most of Tableau is built from your guest list, so this is the best place to begin.</span>
@@ -1143,13 +1198,21 @@
       <span>Prefer to type them in? <a id="hubManual">Add guests one by one</a>.</span>
       <em id="hubStatGuests"></em>
     </div>
+   </div>
+   <div class="hub-col">
     <button type="button" class="hub-card" data-hub="tables"><b>2. Set up tables</b><span>Choose round, rectangle, U-shape or bridal tables and seat your guests.</span><em id="hubStatTables"></em></button>
     <button type="button" class="hub-card" data-hub="floorplan"><b>3. Create a floor plan</b><span>Set the size of your room and place tables, a dance floor, doors and more.</span><em id="hubStatFloor"></em></button>
+   </div>
+   <div class="hub-col">
     <button type="button" class="hub-card" data-hub="bridal" data-plan-need="2"><b>4. Bridal party page</b><span>Jobs for the day, packing lists and a private link for your bridal party.</span><em id="hubStatBridal"></em></button>
     <button type="button" class="hub-card" data-hub="vendors" data-plan-need="2"><b>5. Vendors</b><span>Hair and makeup, catering, photographer and more, with contact details your bridal party can tap.</span><em id="hubStatVendors"></em></button>
+   </div>
+   <div class="hub-col">
     <button type="button" class="hub-card" data-hub="photos" data-plan-need="2"><b>6. Group photos</b><span>Plan each group photo, who is in it, and WhatsApp the guests beforehand.</span><em id="hubStatPhotos"></em></button>
     <button type="button" class="hub-card" data-hub="checklist" data-plan-need="2"><b>7. Wedding checklist</b><span>Important dates and tasks from booking vendors to the week before. Tick them off as you go.</span><em id="hubStatChecklist"></em></button>
+   </div>
   </div>
+  <div class="page-foot-logo" role="img" aria-label="Tableau"></div>
 </div>
 
 <div id="guestScreen" class="hidden">
@@ -1565,6 +1628,10 @@
 </div>
 
 <div id="landingScreen" class="auth-screen hidden">
+ <div class="landing-page">
+  <div class="landing-band"></div>
+  <p class="landing-page-tag">Familiar, with a spritz of magic.</p>
+  <div class="landing-wrap">
   <div class="auth-card landing-card">
     <div class="auth-logo landing-logo" role="img" aria-label="Tableau"></div>
     <p class="landing-tag">Familiar, with a spritz of magic.</p>
@@ -1602,6 +1669,8 @@
       <div style="margin-top:16px;"><button class="auth-link" id="btnLandSignOut" type="button">Sign out</button></div>
     </div>
 
+  </div>
+  <div class="auth-card landing-card landing-how">
     <h2 class="landing-steps-h">How it works</h2>
     <ol class="landing-steps">
       <li><span class="ls-n">1</span><div class="ls-t"><b>Free sign-up <span class="ls-chip free">Free</span></b>Create an account for free, or <a id="lsTry">play around on the site first</a>.</div></li>
@@ -1619,6 +1688,8 @@
     <p class="landing-steps-note">Steps 1 to 6 are free. Steps 7 to 11 are optional paid plans: Guest page R100 a year, Full planner R200 a year. <a id="lsPlans">See what each plan includes</a></p>
     </div>
   </div>
+  <div class="page-foot-logo" role="img" aria-label="Tableau"></div>
+ </div>
 </div>
 
 <div id="authScreen" class="auth-screen hidden">
@@ -4586,6 +4657,24 @@ document.querySelectorAll('.dropdown-menu').forEach(m=>{
   document.addEventListener('keydown', e=>{ if(e.key === 'Escape') setOpen(false); });
   window.addEventListener('resize', ()=>{ if(window.innerWidth > 760) setOpen(false); });
 })();
+/* ---- redesign helpers: top bar height + current menu item ---- */
+(function(){
+  const tb = document.getElementById('topbar');
+  const setH = ()=> document.documentElement.style.setProperty('--tb-h', tb.offsetHeight + 'px');
+  if('ResizeObserver' in window) new ResizeObserver(setH).observe(tb);
+  window.addEventListener('resize', setH); setH();
+  const actions = document.getElementById('topActions');
+  window.setNavOn = function(id){
+    actions.querySelectorAll('.nav-on').forEach(x=> x.classList.remove('nav-on'));
+    const b = id && document.getElementById(id); if(b) b.classList.add('nav-on');
+  };
+  actions.addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b || b.id === 'mobMenuClose') return;
+    const wrap = b.closest('.menu-wrap');
+    if(wrap && b.classList.contains('menu-trigger')) return;        // just opening a dropdown
+    setNavOn(wrap ? wrap.querySelector('.menu-trigger').id : b.id);
+  });
+})();
 wireDropdown('chartMenuBtn', 'chartMenu');
 wireDropdown('bigDayMenuBtn', 'bigDayMenu');
 wireDropdown('guestFinderMenuBtn', 'guestFinderMenu');
@@ -6387,6 +6476,7 @@ function defaultFloorSize(kind, table, unit){
 }
 
 function switchMainView(view){
+  if(window.setNavOn) setNavOn('btnNavTables');
   document.getElementById('viewTabSeating').classList.toggle('active', view==='seating');
   document.getElementById('viewTabFloorPlan').classList.toggle('active', view==='floorplan');
   document.getElementById('seatingView').classList.toggle('hidden', view!=='seating');
@@ -10036,6 +10126,7 @@ window.addEventListener('popstate', function(){
 // ─────────────────────────────────────────────────────────────────────────────
 
 function showHub(first){
+  if(window.setNavOn) setNavOn('chartMenuBtn');
   projectActive = true; hubOpen = true;
   document.getElementById('hubTitle').textContent = first ? 'Let\u2019s get started' : 'Let\u2019s map out your day.';
   document.getElementById('setupScreen').classList.add('hidden');
