@@ -20,7 +20,7 @@
     --sage:#94ab96;
     --sage-dark:#6e8a70;
     --btn:#7d9479; --btn-hover:#6b8267;   /* button green, matches the menu bar */
-    --accent:#ef6f6f; --accent-hover:#e05c5c;   /* coral, only for the main action buttons */
+    --accent:#f5ac9f; --accent-hover:#f09888; --accent-ink:#5b3a33;   /* coral, only for the main action buttons */
     --rose:#f98484;
     --wood:#f4d284;
     --wood-dark:#d4a832;
@@ -1114,7 +1114,7 @@
   .plan-row.now{background:var(--sage-soft,#eef1e8); border-color:var(--sage,#7c8a70);}
   .plan-row.need{border-color:#b3402f; box-shadow:0 0 0 1px #b3402f inset;}
   /* coral for the few main actions */
-  #btnLandResume, #accessBuyBtn1, #accessBuyBtn2{background:var(--accent) !important; border-color:var(--accent) !important; color:#fff !important;}
+  #btnLandResume, #accessBuyBtn1, #accessBuyBtn2{background:var(--accent) !important; border-color:var(--accent) !important; color:var(--accent-ink) !important; font-weight:600;}
   #btnLandResume:hover, #accessBuyBtn1:hover, #accessBuyBtn2:hover{background:var(--accent-hover) !important; border-color:var(--accent-hover) !important;}
 </style>
 </head>
@@ -1142,6 +1142,7 @@
         <button class="dropdown-item hidden" id="btnAccessMenu">View plans / Use access code&hellip;</button>
         <button class="dropdown-item" id="btnSignInMenu">Sign in to save online&hellip;</button>
         <button class="dropdown-item" id="btnShareTableau">Share Tableau with a friend</button>
+        <a class="dropdown-item" id="btnContact" href="/contact.html" target="_blank" rel="noopener" style="text-decoration:none; display:block;">Contact us</a>
         <button class="dropdown-item" id="btnSignOut">Sign out</button>
         <button class="dropdown-item hidden" id="btnMyCharts">My projects&hellip;</button>
         <button class="dropdown-item hidden" id="btnReset">New chart</button>
@@ -1651,6 +1652,7 @@
       <p style="font-size:12.5px; color:var(--ink-soft); margin:10px 0 0; line-height:1.5;">Have an access code? Create your account first, then use How to &rarr; View plans / Use access code to unlock more.</p>
       <div style="margin-top:16px;"><button class="auth-link" id="btnLandSkip" type="button">Try it without an account</button></div>
       <div style="margin-top:10px;"><button class="auth-link" id="btnLandHowTo" type="button">Watch the how-to videos</button></div>
+      <div style="margin-top:10px;"><a class="auth-link" href="/contact.html" target="_blank" rel="noopener">Contact us</a></div>
       <div style="margin-top:10px;"><a class="auth-link" href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener">See a live example of Full Planner package on your phone</a><div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Bridal party code for the example: <b>6064</b></div></div>
     </div>
 
@@ -1673,7 +1675,7 @@
         <div id="landingCodeMsg" style="font-size:12.5px; min-height:18px; margin-top:6px;"></div>
         <div style="font-size:12px; margin-top:2px;"><a href="#" id="landingSeePlans" style="color:var(--sage-dark);">See what each plan includes</a> &middot; <a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener" style="color:var(--sage-dark);">Live example</a> of Full Planner package (bridal party code: <b>6064</b>)</div>
       </div>
-      <div style="margin-top:16px;"><button class="auth-link" id="btnLandSignOut" type="button">Sign out</button></div>
+      <div style="margin-top:16px;"><button class="auth-link" id="btnLandSignOut" type="button">Sign out</button> &middot; <a class="auth-link" href="/contact.html" target="_blank" rel="noopener">Contact us</a></div>
     </div>
 
   </div>
