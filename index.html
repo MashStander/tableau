@@ -81,25 +81,28 @@
 
   /* ===== Redesign: green menu bar, tagline underneath, logo at the bottom (computers) ===== */
   #mainLayout{height:calc(100vh - var(--tb-h, 74px));}
-  .page-foot-logo{height:90px; width:300px; max-width:80%; margin:34px auto 10px; background:var(--logo-url) no-repeat center; background-size:contain;}
+  :root{--bar:#9ab898;}
   @media (min-width:761px){
     #topbar{display:grid; grid-template-columns:1fr auto 1fr; grid-template-areas:"nav nav nav" "sub tag hist"; align-items:center; padding:0 0 6px;
-      background:linear-gradient(var(--sage-dark), var(--sage-dark)) 0 0 / 100% 64px no-repeat, var(--paper); border-bottom:1px solid var(--line);}
+      background:linear-gradient(var(--bar), var(--bar)) 0 0 / 100% 64px no-repeat, var(--paper); border-bottom:1px solid var(--line);}
     #topbar > div:first-child{display:contents;}
     #topbar .tagline{grid-area:tag; text-align:center; font-size:32px; margin:8px 20px 0;}
-    #topbar .sub{grid-area:sub; justify-self:start; padding-left:28px; margin:8px 0 0; white-space:normal;}
-    #topbar #topActions{grid-area:nav; background:var(--sage-dark); justify-content:center; align-items:center; gap:4px 34px; padding:8px 24px; min-height:64px; box-sizing:border-box;}
+    #topbar .sub{grid-area:sub; justify-self:start; align-self:center; margin:6px 0 0 20px; padding-left:206px; min-height:58px; display:flex; align-items:center; white-space:normal;
+      background:var(--logo-url) no-repeat left center; background-size:auto 54px; font-size:13.5px; color:var(--ink-soft);}
+    #topbar #topActions{grid-area:nav; background:var(--bar); justify-content:center; align-items:center; gap:4px 34px; padding:8px 24px; min-height:64px; box-sizing:border-box;}
     #topbar .hist-row{grid-area:hist; position:static; justify-self:end; padding-right:24px; margin-top:8px;}
     #topActions .menu-trigger.solid-btn{background:transparent; border:none; border-radius:0; color:#fff; min-width:0; padding:6px 2px 7px; font-size:15px; font-weight:500;
-      letter-spacing:.09em; text-transform:uppercase; white-space:normal; max-width:200px; text-align:center; line-height:1.25; position:relative; justify-content:center;}
+      letter-spacing:.09em; text-transform:uppercase; white-space:normal; max-width:200px; font-weight:600; text-shadow:0 1px 2px rgba(60,80,60,.35); text-align:center; line-height:1.25; position:relative; justify-content:center;}
     #topActions .menu-trigger.solid-btn:hover{color:#fff; opacity:.85;}
-    #topActions .menu-trigger.solid-btn.nav-on::after{content:''; position:absolute; left:2px; right:2px; bottom:0; height:2px; background:var(--rose); border-radius:2px;}
+    #topActions .menu-trigger.solid-btn.nav-on::after{content:''; position:absolute; left:2px; right:2px; bottom:0; height:3px; background:var(--rose); border-radius:2px;}
     #topActions .menu-caret{color:#fff; margin-left:4px;}
     #topActions .menu-trigger.solid-btn{display:inline-block;}
   }
   @media (min-width:761px) and (max-width:1250px){
     #topbar #topActions{gap:4px 18px; padding:8px 14px;}
     #topActions .menu-trigger.solid-btn{font-size:13px; letter-spacing:.06em; max-width:150px;}
+    #topbar .tagline{font-size:25px;}
+    #topbar .sub{min-width:300px;}
   }
   .hub-card.hub-first small{white-space:nowrap; display:inline-block;}
   #topbar > div:first-child{min-height:76px;}
@@ -422,7 +425,7 @@
   .landing-how .landing-steps-h{border-top:none; margin-top:0; padding-top:0;}
   @media (min-width:900px){
     #landingScreen{padding:0 24px 30px;}
-    .landing-band{display:block; height:64px; background:var(--sage-dark); margin:0 calc(50% - 50vw); }
+    .landing-band{display:block; height:64px; background:var(--bar); margin:0 calc(50% - 50vw); }
     .landing-page-tag{display:block; text-align:center; font-family:'Corinthia',cursive; color:var(--rose); font-size:34px; margin:10px 0 18px;}
     .landing-wrap{flex-direction:row; align-items:flex-start; justify-content:center; gap:28px;}
     .landing-wrap .landing-card{margin:0; flex:1 1 0; max-width:540px; width:auto;}
@@ -1212,7 +1215,6 @@
     <button type="button" class="hub-card" data-hub="checklist" data-plan-need="2"><b>7. Wedding checklist</b><span>Important dates and tasks from booking vendors to the week before. Tick them off as you go.</span><em id="hubStatChecklist"></em></button>
    </div>
   </div>
-  <div class="page-foot-logo" role="img" aria-label="Tableau"></div>
 </div>
 
 <div id="guestScreen" class="hidden">
@@ -1679,7 +1681,7 @@
       <li><span class="ls-n">4</span><div class="ls-t"><b>Design the room <span class="ls-chip free">Free</span></b>Build a floor plan to scale. Guests get a simple map with a key on their phones.</div></li>
       <li><span class="ls-n">5</span><div class="ls-t"><b>One QR code <span class="ls-chip free">Free</span></b>Guests scan it, find their name and see their table marked with a red star. <a href="https://tableauevents.co.za/guest-view.html?event=event-xu8id" target="_blank" rel="noopener">Try a live example of the FREE plan on your phone.</a></div></li>
       <li><span class="ls-n">6</span><div class="ls-t"><b>Make it yours <span class="ls-chip free">Free</span></b>Add your photo, date, colours and style, all saved to your account.</div></li>
-      <li class="ls-paid ls-gp"><span class="ls-n">7</span><div class="ls-t"><b>Menu, programme and gifts <button type="button" class="ls-chip" data-plan="1">Guest page plan &middot; R100 a year</button></b>An add-on to your QR guest page. Upload your menu, programme and banking details so guests have them right on their phones (Canva templates available). <a href="https://tableauevents.co.za/guest-view.html?event=hannah-caleb-c4xnx" target="_blank" rel="noopener">Try a live example of the Guest page plan on your phone.</a></div></li>
+      <li class="ls-paid ls-gp"><span class="ls-n">7</span><div class="ls-t"><b>Menu, programme and gifts <button type="button" class="ls-chip" data-plan="1">Guest page plan &middot; R100 a year</button></b>An add-on to your QR guest page. Upload your menu, programme and banking details so guests have them right on their phones (Canva templates available). <a href="https://tableauevents.co.za/guest-view.html?event=hannah-caleb-c4xnx" target="_blank" rel="noopener">Try a live example of the Guest page plan on your phone.</a> <a href="https://tableauevents.co.za/guest-view.html?event=mia-henco-vxwzv" target="_blank" rel="noopener" lang="af">Toets ons AFRIKAANSE voorbeeld op jou foon.</a></div></li>
       <li class="ls-paid"><span class="ls-n">8</span><div class="ls-t"><b>Wedding checklist <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>A built-in task list organised by how far out you are — from 12 months to the week before. Tick items off, assign tasks to people, and hide anything that doesn't apply to your wedding.</div></li>
       <li class="ls-paid"><span class="ls-n">9</span><div class="ls-t"><b>Bridal party page <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Jobs, packing lists and vendor contacts on a private link.</div></li>
       <li class="ls-paid"><span class="ls-n">10</span><div class="ls-t"><b>Vendors and group photos <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Keep every contact in one place, plan each group photo and WhatsApp the guests in it.</div></li>
@@ -1688,7 +1690,6 @@
     <p class="landing-steps-note">Steps 1 to 6 are free. Steps 7 to 11 are optional paid plans: Guest page R100 a year, Full planner R200 a year. <a id="lsPlans">See what each plan includes</a></p>
     </div>
   </div>
-  <div class="page-foot-logo" role="img" aria-label="Tableau"></div>
  </div>
 </div>
 
