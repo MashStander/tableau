@@ -81,7 +81,7 @@
 
   /* ===== Redesign: green menu bar, tagline underneath, logo at the bottom (computers) ===== */
   #mainLayout{height:calc(100vh - var(--tb-h, 74px));}
-  :root{--bar:#9ab898;}
+  :root{--bar:#aebdab; --bar-line:#4f6b4f;}
   @media (min-width:761px){
     #topbar{display:grid; grid-template-columns:1fr auto 1fr; grid-template-areas:"nav nav nav" "sub tag hist"; align-items:center; padding:0 0 6px;
       background:linear-gradient(var(--bar), var(--bar)) 0 0 / 100% 64px no-repeat, var(--paper); border-bottom:1px solid var(--line);}
@@ -94,7 +94,7 @@
     #topActions .menu-trigger.solid-btn{background:transparent; border:none; border-radius:0; color:#fff; min-width:0; padding:6px 2px 7px; font-size:15px; font-weight:500;
       letter-spacing:.09em; text-transform:uppercase; white-space:normal; max-width:200px; font-weight:600; text-shadow:0 1px 2px rgba(60,80,60,.35); text-align:center; line-height:1.25; position:relative; justify-content:center;}
     #topActions .menu-trigger.solid-btn:hover{color:#fff; opacity:.85;}
-    #topActions .menu-trigger.solid-btn.nav-on::after{content:''; position:absolute; left:2px; right:2px; bottom:0; height:3px; background:var(--rose); border-radius:2px;}
+    #topActions .menu-trigger.solid-btn.nav-on::after{content:''; position:absolute; left:2px; right:2px; bottom:0; height:3px; background:var(--bar-line); border-radius:2px;}
     #topActions .menu-caret{color:#fff; margin-left:4px;}
     #topActions .menu-trigger.solid-btn{display:inline-block;}
   }
@@ -1681,7 +1681,7 @@
       <li><span class="ls-n">4</span><div class="ls-t"><b>Design the room <span class="ls-chip free">Free</span></b>Build a floor plan to scale. Guests get a simple map with a key on their phones.</div></li>
       <li><span class="ls-n">5</span><div class="ls-t"><b>One QR code <span class="ls-chip free">Free</span></b>Guests scan it, find their name and see their table marked with a red star. <a href="https://tableauevents.co.za/guest-view.html?event=event-xu8id" target="_blank" rel="noopener">Try a live example of the FREE plan on your phone.</a></div></li>
       <li><span class="ls-n">6</span><div class="ls-t"><b>Make it yours <span class="ls-chip free">Free</span></b>Add your photo, date, colours and style, all saved to your account.</div></li>
-      <li class="ls-paid ls-gp"><span class="ls-n">7</span><div class="ls-t"><b>Menu, programme and gifts <button type="button" class="ls-chip" data-plan="1">Guest page plan &middot; R100 a year</button></b>An add-on to your QR guest page. Upload your menu, programme and banking details so guests have them right on their phones (Canva templates available). <a href="https://tableauevents.co.za/guest-view.html?event=hannah-caleb-c4xnx" target="_blank" rel="noopener">Try a live example of the Guest page plan on your phone.</a> <a href="https://tableauevents.co.za/guest-view.html?event=mia-henco-vxwzv" target="_blank" rel="noopener" lang="af">Toets ons AFRIKAANSE voorbeeld op jou foon.</a></div></li>
+      <li class="ls-paid ls-gp"><span class="ls-n">7</span><div class="ls-t"><b>Menu, programme and gifts <button type="button" class="ls-chip" data-plan="1">Guest page plan &middot; R100 a year</button></b>An add-on to your QR guest page. Upload your menu, programme and banking details so guests have them right on their phones (Canva templates available). <a href="https://tableauevents.co.za/guest-view.html?event=hannah-caleb-c4xnx" target="_blank" rel="noopener">Try a live example of the Guest page plan on your phone.</a><br><a href="https://tableauevents.co.za/guest-view.html?event=mia-henco-vxwzv" target="_blank" rel="noopener" lang="af">Toets ons AFRIKAANSE voorbeeld op jou foon.</a></div></li>
       <li class="ls-paid"><span class="ls-n">8</span><div class="ls-t"><b>Wedding checklist <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>A built-in task list organised by how far out you are — from 12 months to the week before. Tick items off, assign tasks to people, and hide anything that doesn't apply to your wedding.</div></li>
       <li class="ls-paid"><span class="ls-n">9</span><div class="ls-t"><b>Bridal party page <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Jobs, packing lists and vendor contacts on a private link.</div></li>
       <li class="ls-paid"><span class="ls-n">10</span><div class="ls-t"><b>Vendors and group photos <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Keep every contact in one place, plan each group photo and WhatsApp the guests in it.</div></li>
