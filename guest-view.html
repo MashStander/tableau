@@ -225,7 +225,7 @@
 
   <!-- FIND MY SEAT -->
   <div id="seatSection" class="hidden">
-    <button class="back-btn homeBack" data-home="1">&larr; Back</button>
+    <button class="back-btn homeBack" data-home="1">&larr; Home</button>
     <div id="searchView" class="card">
       <p class="seat-prompt">Type your name to see where you're sitting.</p>
       <input type="text" id="searchInput" placeholder="Start typing your name&hellip;" autocomplete="off" autocapitalize="words">
@@ -240,13 +240,13 @@
     <div id="seatVerseBlock" class="verse-block hidden"></div>
 
     <div id="groupView" class="card hidden">
-      <button class="back-btn" id="groupBack">&larr; Back</button>
+      <button class="back-btn" id="groupBack">&larr; Home</button>
       <h2 class="view-title" id="groupTitle"></h2>
       <div id="groupList"></div>
     </div>
 
     <div id="seatView" class="card hidden">
-      <button class="back-btn" id="backBtn">&larr; Search again</button>
+      <button class="back-btn" id="backBtn">&larr; Home</button>
       <div class="seat-headline">
         <div class="for-name" id="seatForName"></div>
         <h2 id="seatTableName"></h2>
@@ -270,25 +270,25 @@
 
   <!-- INFO SECTIONS -->
   <div id="programSection" class="hidden">
-    <button class="back-btn homeBack" data-home="1">&larr; Back</button>
+    <button class="back-btn homeBack" data-home="1">&larr; Home</button>
     <div class="card"><h2 class="view-title" id="programTitle">Programme</h2><div id="programBody"></div></div>
     <div id="programVerseBlock" class="verse-block hidden"></div>
   </div>
   <div id="menuSection" class="hidden">
-    <button class="back-btn homeBack" data-home="1">&larr; Back</button>
+    <button class="back-btn homeBack" data-home="1">&larr; Home</button>
     <div class="card"><h2 class="view-title" id="menuTitle">Menu</h2><div id="menuBody"></div></div>
     <div id="menuVerseBlock" class="verse-block hidden"></div>
   </div>
   <div id="giftsSection" class="hidden">
-    <button class="back-btn homeBack" data-home="1">&larr; Back</button>
+    <button class="back-btn homeBack" data-home="1">&larr; Home</button>
     <div class="card"><h2 class="view-title" id="giftsTitle">Gifts</h2><div id="giftsBody"></div></div>
   </div>
   <div id="photosSection" class="hidden">
-    <button class="back-btn homeBack" data-home="1">&larr; Back</button>
+    <button class="back-btn homeBack" data-home="1">&larr; Home</button>
     <div class="card"><h2 class="view-title" id="photosTitle">Photos &amp; videos</h2><div id="photosBody"></div></div>
   </div>
   <div id="linksSection" class="hidden">
-    <button class="back-btn homeBack" data-home="1">&larr; Back</button>
+    <button class="back-btn homeBack" data-home="1">&larr; Home</button>
     <div class="card"><h2 class="view-title" id="linksTitle">Links &amp; info</h2><div id="linksBody"></div></div>
   </div>
 
@@ -353,7 +353,9 @@ function updateSeatBack(){
   const sub = !document.getElementById('groupView').classList.contains('hidden') || !document.getElementById('seatView').classList.contains('hidden');
   document.querySelector('#seatSection > .homeBack').classList.toggle('hidden', sub || availableSections.length <= 1);
 }
-document.querySelectorAll('.homeBack').forEach(b=> b.addEventListener('click', ()=> showSection('home')));
+/* "Home": back to the start screen (or, if there is only Find my seat, back to the name search) */
+function goHome(){ showSection(availableSections.length > 1 ? 'home' : 'seat'); }
+document.querySelectorAll('.homeBack').forEach(b=> b.addEventListener('click', goHome));
 
 /* ---------- home tiles ---------- */
 function buildHome(){
@@ -648,7 +650,7 @@ const TXT = {
   en: {
     subSeat:'Search your name or browse by letter', subProgram:'The order of the day', subMenu:'What is being served',
     subGifts:'Banking details', subPhotos:'Share your pictures from the day', subLinks:'Website and more',
-    back:'← Back', searchAgain:'← Search again',
+    back:'← Home', searchAgain:'← Home',
     seatPrompt:'Type your name to see where you’re sitting.', searchPh:'Start typing your name…',
     browse:'or find your name by letter', browseFirst:'or find your name by letter (listed by first name)', browseLast:'or find your name by letter (listed by surname)',
     guest1:' guest', guestN:' guests',
@@ -674,7 +676,7 @@ const TXT = {
   af: {
     subSeat:'Tik jou naam of soek onder die gepaste letter', subProgram:'Die verloop van die dag', subMenu:'Wat word bedien?',
     subGifts:'Bankbesonderhede', subPhotos:'Deel jou foto’s van die dag', subLinks:'Webwerf en meer',
-    back:'← Terug', searchAgain:'← Soek weer',
+    back:'← Tuis', searchAgain:'← Tuis',
     seatPrompt:'Tik jou naam om te sien waar jy sit.', searchPh:'Begin om jou naam te tik…',
     browse:'of vind die letter van jou naam', browseFirst:'of vind die letter van jou naam (volgens voornaam)', browseLast:'of vind die letter van jou naam (volgens van)',
     guest1:' gas', guestN:' gaste',
@@ -803,24 +805,8 @@ function init(){
   applyData();
   loadData();
   document.getElementById('searchInput').addEventListener('input', onSearch);
-  document.getElementById('backBtn').addEventListener('click', ()=>{
-    document.getElementById('seatView').classList.add('hidden');
-    if(returnTo === 'group'){
-      document.getElementById('groupView').classList.remove('hidden');
-    } else {
-      document.getElementById('searchView').classList.remove('hidden');
-      document.getElementById('searchInput').value = '';
-      document.getElementById('resultsList').innerHTML = '';
-    }
-    updateSeatBack();
-    window.scrollTo(0, 0);
-  });
-  document.getElementById('groupBack').addEventListener('click', ()=>{
-    document.getElementById('groupView').classList.add('hidden');
-    document.getElementById('searchView').classList.remove('hidden');
-    updateSeatBack();
-    window.scrollTo(0, 0);
-  });
+  document.getElementById('backBtn').addEventListener('click', goHome);
+  document.getElementById('groupBack').addEventListener('click', goHome);
   document.getElementById('segMap').addEventListener('click', ()=> setSeatPane('map'));
   document.getElementById('segMates').addEventListener('click', ()=> setSeatPane('mates'));
   document.getElementById('fpZoomBtn').addEventListener('click', ()=>{
