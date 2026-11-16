@@ -416,6 +416,16 @@
   .chart-row .cr-name{flex:1; font-weight:500; word-break:break-word;}
   .chart-row .cr-date{font-size:12px; color:var(--ink-soft);}
   .chart-row button{font-size:13px; padding:6px 12px;}
+  @media (max-width:600px){
+    /* phone: name and date on top, the three buttons share the line below */
+    .charts-head{flex-direction:column; align-items:flex-start; gap:2px;}
+    .chart-row{flex-wrap:wrap; gap:8px; padding:12px;}
+    .chart-row .cr-name{flex:1 1 60%; font-size:16px;}
+    .chart-row .cr-date{flex:0 0 auto; align-self:center;}
+    .chart-row button{flex:1 1 0; padding:9px 6px; font-size:14px;}
+    .new-chart-row{flex-direction:column; align-items:stretch;}
+    .new-chart-row input, .new-chart-row button{width:100%; box-sizing:border-box; margin-left:0 !important; margin-right:0 !important;}
+  }
   .chart-del{color:var(--danger) !important;}
   .charts-empty{color:var(--ink-soft); font-size:14px; padding:14px 0 18px; text-align:center;}
   .new-chart-row{display:flex; gap:8px; margin-top:16px;}
