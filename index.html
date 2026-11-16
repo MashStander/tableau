@@ -7857,6 +7857,11 @@ function collectEiInfo(){
   Object.keys(EI_FIELDS).forEach(k=>{ info[k] = document.getElementById(EI_FIELDS[k]).value; });
   info.images = {cover: eiImages.cover, program: eiImages.program, menu: eiImages.menu, bank: eiImages.bank};
   info.coverPos = eiImages.cover.length ? {z:eiCoverPos.z, x:eiCoverPos.x, y:eiCoverPos.y} : null;
+  // section labels and the guest page language (only store non-empty labels)
+  const labels = {};
+  LABEL_KEYS.forEach(([k, id])=>{ const el = document.getElementById(id); if(el && el.value.trim()) labels[k] = el.value.trim(); });
+  info.labels = labels;
+  info.labelLang = document.getElementById('eiLabelLang').value || '';
   return info;
 }
 document.getElementById('btnEventInfoPreview').addEventListener('click', ()=>{
@@ -8032,18 +8037,7 @@ const LABEL_LANGS = {
 })();
 document.getElementById('btnEventInfoSave').addEventListener('click', ()=>{
   if(eiBusy > 0){ toast('Please wait for the picture to finish uploading.'); return; }
-  const info = {};
-  Object.keys(EI_FIELDS).forEach(k=>{ info[k] = document.getElementById(EI_FIELDS[k]).value; });
-  info.images = {cover: eiImages.cover, program: eiImages.program, menu: eiImages.menu, bank: eiImages.bank};
-  info.coverPos = eiImages.cover.length ? {z:eiCoverPos.z, x:eiCoverPos.x, y:eiCoverPos.y} : null;
-  // Save custom section labels (only store non-empty values)
-  const labels = {};
-  LABEL_KEYS.forEach(([k, id])=>{
-    const el = document.getElementById(id);
-    if(el && el.value.trim()) labels[k] = el.value.trim();
-  });
-  info.labels = labels;
-  info.labelLang = document.getElementById('eiLabelLang').value || '';
+  const info = collectEiInfo();
   state.eventInfo = info;
   state.eventName = document.getElementById('eiEventName').value.trim();
   document.getElementById('finderEventName').value = state.eventName;
