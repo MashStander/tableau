@@ -6451,7 +6451,20 @@ function fpUpdateScale(){
   let ppu = 70;
   if(fpFitToScreen && fp && fp.roomWidth > 0 && wrap && wrap.offsetWidth > 100){
     const avail = wrap.offsetWidth - 48 - 4;
-    ppu = Math.max(12, Math.min(70, avail / fp.roomWidth));
+    let fitW = avail / fp.roomWidth;
+    /* also fit the room's depth into the space left on the screen, so the whole room shows without scrolling */
+    let fitH = Infinity;
+    if(fp.roomDepth > 0){
+      let sc = wrap.parentElement;
+      while(sc && sc !== document.body){ const o = getComputedStyle(sc).overflowY; if(o === 'auto' || o === 'scroll') break; sc = sc.parentElement; }
+      const wr = wrap.getBoundingClientRect();
+      let top, viewH;
+      if(sc && sc !== document.body){ const sr = sc.getBoundingClientRect(); top = wr.top - sr.top + sc.scrollTop; viewH = sc.clientHeight; }
+      else { top = wr.top + window.scrollY; viewH = window.innerHeight; }
+      const availH = viewH - top - 48 - 24;
+      if(availH > 120) fitH = availH / fp.roomDepth;
+    }
+    ppu = Math.max(12, Math.min(70, fitW, fitH));
   }
   ppu = Math.round(ppu*100)/100;
   const changed = Math.abs(ppu - FP_PX_PER_UNIT) > 0.01;
