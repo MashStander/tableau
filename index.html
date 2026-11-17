@@ -755,12 +755,14 @@
   }
   .floor-item .fp-rot-btn:hover{background:var(--btn);}
   .floor-item:not(.fp-door) .fp-rot-btn{display:none;}
-  .fp-rot-top{position:absolute; left:0; top:-50px; width:44px; height:50px; margin-left:-40px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; cursor:grab; touch-action:none; z-index:30; opacity:.6; transition:opacity .12s;}
-  .fp-rot-top::after{content:''; width:2px; flex:1; background:rgba(92,106,82,.55);}
-  .fp-rot-top.below{top:auto; bottom:-50px; flex-direction:column-reverse;}
-  .fp-rot-dot{width:32px; height:32px; border-radius:50%; background:var(--sage-dark,#5c6a52); color:#fff; font-size:19px; line-height:32px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,.3); flex:0 0 auto;}
-  .floor-item:hover .fp-rot-top, .floor-item.show-ctrl .fp-rot-top, .floor-item.fp-selected .fp-rot-top, .fp-rot-top:hover{opacity:1;}
-  .fp-rot-top:hover .fp-rot-dot{transform:scale(1.12);}
+  /* turn handle: small and quiet, only shown when you point at or select an item */
+  .fp-rot-top{position:absolute; left:0; top:-34px; width:30px; height:34px; margin-left:-26px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; cursor:grab; touch-action:none; z-index:30;
+    opacity:0; pointer-events:none; transition:opacity .12s;}
+  .fp-rot-top::after{content:''; width:1px; flex:1; background:rgba(92,106,82,.45);}
+  .fp-rot-top.below{top:auto; bottom:-34px; flex-direction:column-reverse;}
+  .fp-rot-dot{width:20px; height:20px; border-radius:50%; background:#fff; border:1px solid var(--sage); color:var(--sage-dark); font-size:12px; line-height:18px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,.15); flex:0 0 auto;}
+  .floor-item:hover .fp-rot-top, .floor-item.show-ctrl .fp-rot-top, .floor-item.fp-selected .fp-rot-top, .fp-rot-top:hover, .fp-rot-top.dragging{opacity:1; pointer-events:auto;}
+  .fp-rot-top:hover .fp-rot-dot{background:var(--btn); border-color:var(--btn); color:#fff;}
   .floor-item .fp-rot-tag{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,.7); color:#fff; font-size:11px; padding:2px 6px; border-radius:3px; pointer-events:none;}
   .floor-item.fp-table{background:var(--white); border-color:var(--wood-dark); color:var(--ink);}
   .floor-item.fp-dancefloor{
@@ -7037,7 +7039,7 @@ function buildFloorItemEl(item){
   if(!isDoorKind(item.kind)){
     /* A big turn handle above the item (below it when the item is near the top edge) */
     const rt = document.createElement('div');
-    rt.className = 'fp-rot-top' + (item.y * FP_PX_PER_UNIT < 56 ? ' below' : '');
+    rt.className = 'fp-rot-top' + (item.y * FP_PX_PER_UNIT < 38 ? ' below' : '');
     rt.title = 'Click to turn a quarter turn, or hold and drag to turn it any way you like';
     rt.innerHTML = '<span class="fp-rot-dot">\u21bb</span>';
     rt.addEventListener('pointerdown', beginRotate);
