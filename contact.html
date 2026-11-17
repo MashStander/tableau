@@ -8,16 +8,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Corinthia&display=swap" rel="stylesheet">
 <style>
-  :root{ --paper:#fffefb; --ink:#3a3330; --ink-soft:#7a7068; --line:#ddd9cc; --white:#fff; --bar:#aebdab; --btn:#7d9479; --btn-hover:#6b8267; --sage-dark:#6e8a70; --rose:#f98484; --danger:#c0392b; }
+  :root{ --paper:#fffdfa; --ink:#343834; --ink-soft:#7a7068; --line:#ddd9cc; --white:#fff; --bar:#aebdab; --btn:#7d9479; --btn-hover:#6b8267; --sage-dark:#6e8a70; --rose:#f98484; --danger:#c0392b; }
+  @font-face{font-family:'Glacial Indifference'; src:url('fonts/GlacialIndifference-Regular.woff2') format('woff2'); font-weight:400; font-display:swap;}
+  @font-face{font-family:'Glacial Indifference'; src:url('fonts/GlacialIndifference-Bold.woff2') format('woff2'); font-weight:700; font-display:swap;}
   *{box-sizing:border-box;}
-  body{margin:0; font-family:'Plus Jakarta Sans',sans-serif; font-weight:500; background:var(--paper); color:var(--ink); line-height:1.55;}
-  .band{height:64px; background:var(--bar);}
-  .tag{text-align:center; font-family:'Corinthia',cursive; color:var(--rose); font-size:32px; margin:10px 0 6px;}
-  .wrap{max-width:620px; margin:0 auto; padding:0 18px 50px;}
+  body{margin:0; font-family:'Plus Jakarta Sans',sans-serif; font-weight:500; background:#fff; color:var(--ink); line-height:1.55;}
+  .strip{background:var(--paper); border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:34px 0 40px; margin-top:24px;}
+  .tag{text-align:center; font-family:'Corinthia',cursive; color:var(--rose); font-size:40px; margin:22px 0 20px;}
+  .wrap{max-width:620px; margin:0 auto; padding:0 18px;}
   .card{background:var(--white); border:1px solid var(--line); border-radius:12px; padding:30px 32px; box-shadow:0 10px 30px rgba(0,0,0,.06);}
   .back{display:inline-block; color:var(--sage-dark); font-size:14px; margin:4px 0 14px; text-decoration:none;}
   .back:hover{text-decoration:underline;}
-  h1{font-family:'Lora',serif; font-weight:600; font-size:30px; margin:0 0 6px; color:var(--ink);}
+  h1{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-weight:400; letter-spacing:.04em; font-size:34px; margin:0 0 6px; color:var(--ink);}
   .intro{color:var(--ink-soft); font-size:14.5px; margin:0 0 22px;}
   label{display:block; font-size:13px; font-weight:600; margin:0 0 5px;}
   input, select, textarea{width:100%; font:inherit; font-size:15px; padding:11px 12px; border:1px solid var(--line); border-radius:8px; background:var(--white); color:var(--ink); margin-bottom:14px;}
@@ -30,16 +32,15 @@
   .msg{font-size:14px; margin-top:12px; min-height:20px;}
   .msg.err{color:var(--danger);}
   .done{display:none; text-align:center; padding:10px 0;}
-  .done h2{font-family:'Lora',serif; font-size:24px; color:var(--sage-dark); margin:6px 0 6px;}
+  .done h2{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; letter-spacing:.04em; font-size:24px; color:var(--sage-dark); margin:6px 0 6px;}
   .done p{color:var(--ink-soft); margin:0 0 16px;}
   .small{font-size:12.5px; color:var(--ink-soft); margin-top:14px; text-align:center;}
   .small a{color:var(--sage-dark);}
-  @media (max-width:520px){ .card{padding:22px 18px;} h1{font-size:26px;} .band{height:40px;} .tag{font-size:26px;} }
+  @media (max-width:520px){ .card{padding:22px 18px;} h1{font-size:28px;} .tag{font-size:30px;} .strip{padding:18px 0 26px; margin-top:10px;} }
 </style>
 </head>
 <body>
-<div class="band"></div>
-<p class="tag">Familiar, with a spritz of magic.</p>
+<div class="strip">
 <div class="wrap">
   <a class="back" href="/">&larr; Back to Tableau</a>
   <div class="card">
@@ -74,6 +75,8 @@
   </div>
   <p class="small">See also our <a href="/terms.html">Terms, refunds and privacy</a>.</p>
 </div>
+</div>
+<p class="tag">Familiar, with a spritz of magic.</p>
 <script>
 const CONTACT_URL = 'https://tableau-contact.mash-stander.workers.dev';
 const opened = Date.now();
