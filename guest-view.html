@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Event guide</title>
+<link rel="manifest" href="guest-manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" id="appTitle" content="Our wedding">
+<meta name="theme-color" content="#94ab96">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Corinthia:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -204,6 +210,18 @@
   #devTools{margin-top:34px; text-align:center;}
   #devTools summary{color:var(--ink-soft); font-size:12px; cursor:pointer;}
   #devTools input{margin-top:10px;}
+  .a2hs-wrap{text-align:center; margin:26px 0 6px;}
+  .a2hs-btn{display:inline-flex; align-items:center; gap:12px; text-align:left; background:var(--white,#fff); border:1px solid var(--line); border-radius:14px; padding:12px 18px; font:inherit; color:var(--ink); cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.05);}
+  .a2hs-btn b{display:block; font-size:15px; font-weight:600;}
+  .a2hs-btn small{display:block; font-size:12.5px; color:var(--ink-soft); margin-top:1px;}
+  .a2hs-ic{font-size:26px;}
+  .a2hs-sheet{position:fixed; inset:0; z-index:300; background:rgba(0,0,0,.45); display:flex; align-items:flex-end; justify-content:center;}
+  .a2hs-card{background:var(--paper); border-radius:20px 20px 0 0; width:100%; max-width:520px; padding:22px 22px 30px;}
+  .a2hs-card h3{margin:0 0 12px; font-size:20px; color:var(--ink);}
+  .a2hs-card ol{margin:0 0 18px; padding-left:22px; font-size:15.5px; line-height:1.6;}
+  .a2hs-card li{margin:6px 0;}
+  .a2hs-card .key{display:inline-block; border:1px solid var(--line); border-radius:6px; padding:0 7px; background:#fff; font-weight:600;}
+  .a2hs-close{width:100%; background:var(--sage-dark); color:#fff; border:none; border-radius:12px; padding:13px; font:inherit; font-size:15px; font-weight:600; cursor:pointer;}
 </style>
 </head>
 <body>
@@ -292,6 +310,17 @@
     <div class="card"><h2 class="view-title" id="linksTitle">Links &amp; info</h2><div id="linksBody"></div></div>
   </div>
 
+  <div class="a2hs-wrap hidden" id="a2hsWrap">
+    <button type="button" class="a2hs-btn" id="a2hsBtn"><span class="a2hs-ic">📲</span><span><b id="a2hsTitle">Save this page to my phone</b><small id="a2hsSub">Open it with one tap on the day</small></span></button>
+  </div>
+  <div class="a2hs-sheet hidden" id="a2hsSheet" role="dialog" aria-modal="true">
+    <div class="a2hs-card">
+      <h3 id="a2hsHow">Add it to your home screen</h3>
+      <ol id="a2hsSteps"></ol>
+      <button type="button" class="a2hs-close" id="a2hsClose">OK</button>
+    </div>
+  </div>
+
   <div class="bp-foot" id="bpFoot">
     <button type="button" id="bpEnter">Bridal party? Go to your page</button>
     <div id="bpBox" class="hidden">
@@ -315,7 +344,13 @@
             info:{welcome, program:[{time,title}], menu:[{type,text}], links:[{label,url}],
                   bankNote, bank:[{label,value}], images:{program:[url], menu:[url], bank:[url]}} }
 */
-const EVENT_SLUG = ((new URLSearchParams(location.search)).get('event') || '').toLowerCase().replace(/[^a-z0-9-]/g,'');
+const EVENT_SLUG = (function(){
+  const q = ((new URLSearchParams(location.search)).get('event') || '').toLowerCase().replace(/[^a-z0-9-]/g,'');
+  try{
+    if(q){ localStorage.setItem('tableauGuestEvent', q); return q; }
+    return (localStorage.getItem('tableauGuestEvent') || '').replace(/[^a-z0-9-]/g,'');   // opened from the home-screen icon
+  }catch(e){ return q; }
+})();
 const DATA_FILE = EVENT_SLUG ? ('tableau-' + EVENT_SLUG + '.json') : 'tableau-guest-view-data.json';
 let SEAT_DATA = {"eventName":"","floorPlan":null,"tables":[],"guests":[],"info":{}};
 const SB_URL = 'https://aalpoaixingjehgnbfop.supabase.co';
@@ -705,6 +740,9 @@ const TXT = {
     bpOpenFull:'Please open this page using the QR code or the full link.', bpTooMany:'Too many tries. Please wait a minute and try again.',
     bpType:'Please type your 4-digit code.', bpWrong:'That code is not right. Please check it with the bride or groom.',
     bpNet:'Could not check the code. Please check your internet connection.', close:'Close',
+    a2Title:'Save this page to my phone', a2Sub:'Open it with one tap on the day', a2How:'Add it to your home screen', ok:'OK',
+    a2Ios:['Tap the <span class="key">Share</span> button <span class="key">⬆︎</span> (at the bottom in Safari, or the top right in Chrome).', 'Scroll down and tap <span class="key">Add to Home Screen</span>.', 'Tap <span class="key">Add</span>. The page now has its own icon on your phone.'],
+    a2Android:['Tap the <span class="key">⋮</span> menu at the top right of your browser.', 'Tap <span class="key">Add to Home screen</span> or <span class="key">Install app</span>.', 'Tap <span class="key">Add</span> or <span class="key">Install</span>. The page now has its own icon on your phone.'],
     months:['January','February','March','April','May','June','July','August','September','October','November','December'],
     days:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
   },
@@ -731,6 +769,9 @@ const TXT = {
     bpOpenFull:'Maak asseblief hierdie bladsy oop met die QR-kode of die volledige skakel.', bpTooMany:'Te veel pogings. Wag asseblief ’n minuut en probeer weer.',
     bpType:'Tik asseblief jou 4-syfer-kode.', bpWrong:'Daardie kode is nie reg nie. Kontroleer dit asseblief by die bruid of bruidegom.',
     bpNet:'Kon nie die kode kontroleer nie. Kontroleer asseblief jou internetverbinding.', close:'Maak toe',
+    a2Title:'Stoor hierdie bladsy op my foon', a2Sub:'Maak dit op die dag met een tik oop', a2How:'Voeg dit by jou tuisskerm', ok:'Reg so',
+    a2Ios:['Tik die <span class="key">Deel</span>-knoppie <span class="key">⬆︎</span> (onderaan in Safari, of regs bo in Chrome).', 'Rol af en tik <span class="key">Add to Home Screen</span> (Voeg by tuisskerm).', 'Tik <span class="key">Add</span>. Die bladsy het nou sy eie ikoon op jou foon.'],
+    a2Android:['Tik die <span class="key">⋮</span>-kieslys regs bo in jou blaaier.', 'Tik <span class="key">Add to Home screen</span> of <span class="key">Install app</span>.', 'Tik <span class="key">Add</span> of <span class="key">Install</span>. Die bladsy het nou sy eie ikoon op jou foon.'],
     months:['Januarie','Februarie','Maart','April','Mei','Junie','Julie','Augustus','September','Oktober','November','Desember'],
     days:['Sondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrydag','Saterdag']
   }
@@ -751,6 +792,10 @@ function applyStaticText(){
   document.getElementById('bpCode').placeholder = tr('bpCodePh');
   document.getElementById('bpGo').textContent = tr('go');
   document.getElementById('lightboxClose').textContent = tr('close');
+  document.getElementById('a2hsTitle').textContent = tr('a2Title');
+  document.getElementById('a2hsSub').textContent = tr('a2Sub');
+  document.getElementById('a2hsHow').textContent = tr('a2How');
+  document.getElementById('a2hsClose').textContent = tr('ok');
   document.documentElement.lang = lang();
 }
 /* ---------- loading ---------- */
@@ -780,6 +825,7 @@ function applyData(){
   { const t = document.getElementById('pageTitle'), nm = (SEAT_DATA.eventName || '').trim();
     t.textContent = nm; t.classList.toggle('hidden', !nm); }   // left blank = names are on the cover photo
   document.title = SEAT_DATA.eventName || 'Event guide';
+  try{ document.getElementById('appTitle').setAttribute('content', SEAT_DATA.eventName || 'Our wedding'); }catch(e){}
   try{
     const acc = /^#[0-9a-f]{6}$/i.test((SEAT_DATA.info||{}).accent || '') ? SEAT_DATA.info.accent : '#7c8a70';
     const setHead = (tag, attrs)=>{ let el = document.head.querySelector(tag + '[data-h="' + attrs.key + '"]'); if(!el){ el = document.createElement(tag); el.dataset.h = attrs.key; document.head.appendChild(el); } Object.keys(attrs).forEach(k=>{ if(k !== 'key') el.setAttribute(k, attrs[k]); }); };
@@ -1055,5 +1101,37 @@ function renderFloorPlan(guest){
 init();
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "be579bcee3e94e09a386e86132979b21"}'></script><!-- End Cloudflare Web Analytics -->
+<script>
+/* ---- "Save this page to my phone" ---- */
+(function(){
+  const wrap = document.getElementById('a2hsWrap'), sheet = document.getElementById('a2hsSheet');
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const phone = window.matchMedia('(pointer: coarse)').matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const ios = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isPreview = new URLSearchParams(location.search).get('preview') === '1';
+  let installEvent = null;
+  if('serviceWorker' in navigator && !isPreview){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+  window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); installEvent = e; });
+  window.addEventListener('appinstalled', ()=> wrap.classList.add('hidden'));
+  if(standalone || !phone) return;          // already on the home screen, or on a computer
+  wrap.classList.remove('hidden');
+  function showSteps(list){
+    const ol = document.getElementById('a2hsSteps'); ol.innerHTML = '';
+    list.forEach(t=>{ const li = document.createElement('li'); li.innerHTML = t; ol.appendChild(li); });
+    sheet.classList.remove('hidden');
+  }
+  document.getElementById('a2hsBtn').addEventListener('click', async ()=>{
+    if(installEvent){                        // Android: the phone's own "Install" box
+      installEvent.prompt();
+      try{ const r = await installEvent.userChoice; if(r && r.outcome === 'accepted') wrap.classList.add('hidden'); }catch(e){}
+      installEvent = null;
+      return;
+    }
+    showSteps(ios ? tr('a2Ios') : tr('a2Android'));
+  });
+  document.getElementById('a2hsClose').addEventListener('click', ()=> sheet.classList.add('hidden'));
+  sheet.addEventListener('click', e=>{ if(e.target === sheet) sheet.classList.add('hidden'); });
+})();
+</script>
 </body>
 </html>
