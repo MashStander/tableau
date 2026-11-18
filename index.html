@@ -1279,22 +1279,23 @@
     <button class="ghost-btn menu-trigger solid-btn" id="btnNavTables">Seating chart &amp; floor plan</button>
     <button class="ghost-btn menu-trigger solid-btn hidden" id="btnNavFloor">Create floor plan</button>
 
+    <button class="ghost-btn menu-trigger solid-btn" id="btnNavChecklist" data-plan-need="2">Checklist &amp; calendar</button>
+
     <div class="menu-wrap">
       <button class="ghost-btn menu-trigger solid-btn" id="bigDayMenuBtn">Big day <span class="menu-caret">&#9662;</span></button>
       <div class="dropdown-menu" id="bigDayMenu">
+        <button class="dropdown-item" id="btnNavGuestPage">Guest mobile page</button>
         <button class="dropdown-item" id="btnBridal" data-plan-need="2">Bridal party</button>
         <button class="dropdown-item" id="btnVendors" data-plan-need="2">Vendors</button>
         <button class="dropdown-item" id="btnPhotos" data-plan-need="2">Group photos</button>
       </div>
     </div>
 
-    <button class="ghost-btn menu-trigger solid-btn" id="btnNavChecklist" data-plan-need="2">Checklist &amp; calendar</button>
-
     <div class="menu-wrap">
-      <button class="ghost-btn menu-trigger solid-btn" id="guestFinderMenuBtn">QR page <span class="menu-caret">&#9662;</span></button>
+      <button class="ghost-btn menu-trigger solid-btn" id="guestFinderMenuBtn">Publish <span class="menu-caret">&#9662;</span></button>
       <div class="dropdown-menu" id="guestFinderMenu">
-        <button class="dropdown-item" id="btnNavGuestPage">Guest mobile page info</button>
-        <button class="dropdown-item" id="btnExportGuestView">QR code &amp; publish&hellip;</button>
+        <button class="dropdown-item" id="btnExportGuestView">Guest page &amp; QR code&hellip;</button>
+        <button class="dropdown-item" id="btnPublishBridal" data-plan-need="2">Bridal party page</button>
         <button class="dropdown-item hidden" id="btnEventInfo">Guest page content&hellip;</button>
       </div>
     </div>
@@ -8346,7 +8347,7 @@ function showEiPage(){
   document.getElementById('topActions').style.display = 'flex';
   document.getElementById('floatingSaveBtn').style.display = 'none';
   document.getElementById('topSub').textContent = (state.eventName || 'Your project') + ' — guest page';
-  if(window.setNavOn) setNavOn('guestFinderMenuBtn');
+  if(window.setNavOn) setNavOn('bigDayMenuBtn');
   eiSetSaveState('');
   eiShowTiles();
   window.scrollTo(0,0);
@@ -9489,6 +9490,7 @@ function bdRefreshPhone(now){
   });
 })();
 document.getElementById('btnBridal').addEventListener('click', openBp);
+document.getElementById('btnPublishBridal').addEventListener('click', ()=>{ if(needPlan(2, 'The bridal party page')) showBdPage('share'); });
 document.getElementById('btnNavTables').addEventListener('click', ()=>{ if((state.tables||[]).length) enterMain('seating'); else showSetupScreen(); });
 document.getElementById('btnNavFloor').addEventListener('click', ()=> enterMain('floorplan'));
 document.getElementById('btnNavChecklist').addEventListener('click', openChecklist);
