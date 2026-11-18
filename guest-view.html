@@ -352,6 +352,7 @@
             info:{welcome, program:[{time,title}], menu:[{type,text}], links:[{label,url}],
                   bankNote, bank:[{label,value}], images:{program:[url], menu:[url], bank:[url]}} }
 */
+const IN_FRAME = new URLSearchParams(location.search).get('frame') === '1';   /* shown inside the app's phone preview */
 const EVENT_SLUG = (function(){
   const q = ((new URLSearchParams(location.search)).get('event') || '').toLowerCase().replace(/[^a-z0-9-]/g,'');
   try{
@@ -401,7 +402,7 @@ function showSection(name, how){
       const base = name === 'home' || availableSections.length <= 1;   // the start screen
       const st = {sec:name, d:(base ? 0 : 1)};
       const url = location.pathname + location.search + (base ? '' : '#' + name);
-      if(how.replace || base || (history.state && history.state.d === 1)) history.replaceState(st, '', url);
+      if(how.replace || base || IN_FRAME || (history.state && history.state.d === 1)) history.replaceState(st, '', url);
       else history.pushState(st, '', url);
     }
   }catch(e){}
@@ -885,9 +886,11 @@ function loadData(){
     let pj = null;
     try{ pj = JSON.parse(localStorage.getItem('tableauPreview') || 'null'); }catch(e){}
     if(pj){
-      const bar = document.createElement('div'); bar.className = 'preview-bar';
-      bar.textContent = 'Preview \u2013 this is how guests will see it. Close this tab to go back.';
-      document.body.insertBefore(bar, document.body.firstChild);
+      if(new URLSearchParams(location.search).get('frame') !== '1'){   /* not inside the app's phone preview */
+        const bar = document.createElement('div'); bar.className = 'preview-bar';
+        bar.textContent = 'Preview \u2013 this is how guests will see it. Close this tab to go back.';
+        document.body.insertBefore(bar, document.body.firstChild);
+      }
       SEAT_DATA = pj; applyData(); return;
     }
   }

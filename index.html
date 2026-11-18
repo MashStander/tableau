@@ -483,6 +483,63 @@
   .ei-ideas li{margin-bottom:5px;}
   .ei-ideas b{color:var(--ink);}
   .ei-ideas-small{display:block; font-size:11.5px; opacity:.85;}
+
+  /* ---------- Guest page info: a page with tiles (Nov 2026) ---------- */
+  #eiScreen{background:#fff; padding:0 0 30px;}
+  .ei-band{background:var(--paper); border-bottom:1px solid var(--line); padding:30px max(24px, calc((100% - 1300px) / 2)) 34px;}
+  .ei-head{display:flex; align-items:flex-end; justify-content:space-between; gap:18px; flex-wrap:wrap; margin-bottom:16px;}
+  .ei-head-text{flex:1 1 420px; min-width:0;}
+  .ei-head h2{font-weight:400; font-size:32px; letter-spacing:.04em; color:var(--ink); margin:0 0 6px;}
+  .ei-head .hint{color:var(--ink-soft); font-size:14px; line-height:1.55; margin:0; max-width:720px;}
+  .ei-head .hint b{color:var(--ink);}
+  .ei-head-actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .ei-save-state{font-size:13px; color:var(--sage-dark); font-weight:600; min-height:1em;}
+  .ei-layout{display:grid; grid-template-columns:minmax(0,1fr) 390px; gap:24px; align-items:start;}
+  .ei-main{min-width:0;}
+  .ei-tiles{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px;}
+  .ei-tile{background:#fff; border-color:var(--sage); border-radius:12px; min-height:150px;}
+  .ei-tile b{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-weight:400; letter-spacing:.05em; font-size:18px; color:var(--sage-dark);}
+  .ei-tile span{flex:1 1 auto;}
+  .hub-card em.locked{background:#fff6e0; color:#7a6224;}
+  #eventInfoModal .ei-block[data-sec]{display:none;}
+  #eventInfoModal.ei-one .ei-block.ei-on{display:block; background:#fff; border:1px solid var(--line); border-radius:12px; padding:22px 24px; margin:0;}
+  #eventInfoModal .ei-block h4{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-weight:400; letter-spacing:.05em; font-size:24px; color:var(--sage-dark); margin:0 0 12px;}
+  #eventInfoModal .custom-num{margin-left:0; box-sizing:border-box;}
+  #eventInfoModal .ei-block > input[type=text].custom-num, #eventInfoModal .ei-block > textarea.custom-num, #eventInfoModal select.custom-num, #eventInfoModal input[type=date].custom-num{width:100%;}
+  #eventInfoModal textarea.custom-num{font-size:14.5px; line-height:1.55; min-height:170px; resize:vertical; padding:10px 12px;}
+  #eventInfoModal #eiNotes{min-height:300px;}
+  #eventInfoModal #eiVerse{min-height:80px;}
+  #eventInfoModal:not(.ei-one) #eiSignInNote{display:none;}
+  #eiSecHead{scroll-margin-top:calc(var(--tb-h, 60px) + 8px);}
+  #eiLabelsSection > summary{display:none;}
+  #eiLabelsSection::before{content:'Language & labels'; display:block; font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; letter-spacing:.05em; font-size:24px; color:var(--sage-dark); margin:0 0 4px;}
+  #eiLabelsSection > div{margin-top:4px !important;}
+  .ei-sec-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;}
+  .ei-sec-head span{font-size:12.5px; color:var(--ink-soft); letter-spacing:.05em;}
+  .ei-sec-foot{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px; flex-wrap:wrap;}
+  .ei-phone-wrap{position:sticky; top:calc(var(--tb-h, 70px) + 14px);}
+  .ei-phone-label span{text-transform:none; letter-spacing:0; display:block; margin-top:3px; color:#b0281c; font-family:'Plus Jakarta Sans',sans-serif; font-size:12px;}
+  .ei-phone-label{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; text-transform:uppercase; letter-spacing:.09em; font-size:12.5px; color:var(--ink-soft); text-align:center; margin-bottom:8px;}
+  .ei-phone{width:376px; height:min(720px, calc(100vh - var(--tb-h, 70px) - 70px)); margin:0 auto; border:9px solid #343834; border-radius:34px; overflow:hidden; background:#fffefb; box-shadow:0 10px 30px rgba(52,56,52,.18);}
+  .ei-phone iframe{width:100%; height:100%; border:0; display:block;}
+  @media (max-width:1250px){ .ei-tiles{grid-template-columns:repeat(2, minmax(0,1fr));} }
+  @media (max-width:1100px){
+    .ei-layout{grid-template-columns:1fr;}
+    .ei-phone-wrap{display:none;}
+    .ei-tiles{grid-template-columns:repeat(3, minmax(0,1fr));}
+  }
+  @media (max-width:860px){ .ei-tiles{grid-template-columns:repeat(2, minmax(0,1fr));} }
+  @media (max-width:560px){
+    .ei-band{padding:18px 12px 24px;}
+    .ei-head h2{font-size:26px;}
+    .ei-head-actions{width:100%;}
+    .ei-head-actions .ghost-btn, .ei-head-actions .primary-btn{flex:1 1 auto;}
+    .ei-save-state{width:100%;}
+    .ei-tiles{grid-template-columns:1fr; gap:10px;}
+    .ei-tile{min-height:0; padding:14px 16px;}
+    #eventInfoModal.ei-one .ei-block.ei-on{padding:16px 14px;}
+    .ei-sec-foot .primary-btn{flex:1 1 100%; order:-1;}
+  }
   body.cloud-mode #btnReset{display:none !important;}
   .ei-swatches{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
   .ei-swatch{width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0; box-shadow:0 0 0 1px var(--line);}
@@ -1127,7 +1184,7 @@
     .dropdown-menu{position:fixed !important; left:12px !important; right:12px !important; top:auto !important; min-width:0 !important; margin-top:6px;}
     .modal-overlay{z-index:120;}
     .modal-card .custom-num{margin-left:0;}
-    #eventInfoModal .custom-num:not([type=range]), #addTableModal .custom-num[type=text], .modal-card input[type=date]{width:100%; box-sizing:border-box;}
+    #eventInfoModal .custom-num:not([type=range]), #addTableModal .custom-num[type=text], .modal-card input[type=date], #eventInfoModal input[type=date]{width:100%; box-sizing:border-box;}
     #eventInfoModal select.custom-num{width:100%;}
     .field-row input, .field-row select{font-size:16px;}
     #guestSearch, #guestName, input[type=text], input[type=number], input[type=email], input[type=password], select{font-size:16px;}
@@ -1223,7 +1280,7 @@
     <div class="menu-wrap">
       <button class="ghost-btn menu-trigger solid-btn" id="guestFinderMenuBtn">QR page <span class="menu-caret">&#9662;</span></button>
       <div class="dropdown-menu" id="guestFinderMenu">
-        <button class="dropdown-item" id="btnNavGuestPage">Guest mobile page info&hellip;</button>
+        <button class="dropdown-item" id="btnNavGuestPage">Guest mobile page info</button>
         <button class="dropdown-item" id="btnExportGuestView">QR code &amp; publish&hellip;</button>
         <button class="dropdown-item hidden" id="btnEventInfo">Guest page content&hellip;</button>
       </div>
@@ -1902,12 +1959,32 @@
   </div>
 </div>
 
-<div id="eventInfoModal" class="modal-overlay hidden">
-  <div class="modal-card" style="width:640px; max-height:92vh; overflow:auto;">
-    <h3>What guests see when they scan</h3>
-    <ul class="steps "><li>Guests tap <b>Find my seat</b>, <b>Programme</b>, <b>Menu</b> or <b>Gifts</b>.</li><li>For each one, type it in, add a picture (e.g. a photo of your menu), or both.</li><li>Empty sections stay hidden.</li><li><b>Anyone with your link sees this page</b>, including banking details. Only add what you are happy to share.</li></ul>
+<div id="eiScreen" class="hidden">
+ <div class="ei-band">
+  <div class="ei-head">
+   <div class="ei-head-text">
+    <h2>Your guest page</h2>
+    <p class="hint">Everything your guests see when they scan your QR code. Tap a section to fill it in. Empty sections stay hidden from guests. <b>Anyone with your link sees this page,</b> including banking details, so only add what you are happy to share.</p>
+   </div>
+   <div class="ei-head-actions">
+    <span id="eiSaveState" class="ei-save-state"></span>
+    <button type="button" class="ghost-btn" id="eiPreviewTab">Open preview in a new tab</button>
+    <button type="button" class="primary-btn" id="eiPublishBtn">Publish &amp; QR code</button>
+   </div>
+  </div>
+  <div class="ei-note-publish" style="margin:0 0 14px; background:#fdeceb; border:1px solid #f1b9b3; border-left:5px solid #c0392b; border-radius:10px; padding:11px 14px; font-size:13.5px; line-height:1.55; color:#7a231b; margin-bottom:14px;">
+      <b style="color:#b0281c;">&#9888;&#65039; Remember:</b> guests only see what you have published. Once your page has been published, saving here updates it automatically. If you change the seating chart or floor plan, click <b>Publish guest page</b> again.
+    </div>
+  <div id="eiLockNote" class="hidden" style="background:#fff6e0; border:1px solid #e8cf8a; border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.5; color:#5a4a1c; margin-bottom:12px;">
+      <b>&#128274; Programme, menu, a note from you, gifts, photos link and links are part of the Guest page plan (R100 a year).</b> Your seating pages work without them.
+      <div style="margin-top:8px;"><button type="button" class="ghost-btn" id="eiMoreBtn">More info</button> <button type="button" class="ghost-btn" id="eiUnlockBtn">See plans &amp; unlock</button></div>
+    </div>
+  <div class="ei-layout">
+   <div id="eventInfoModal" class="ei-main">
+    <div id="eiTiles" class="ei-tiles"></div>
+    <div id="eiSecHead" class="ei-sec-head hidden"><button type="button" class="ghost-btn" id="eiBackTiles">&larr; All sections</button><span id="eiSecCount"></span></div>
     <!-- Section labels (language customisation) -->
-    <details id="eiLabelsSection" class="ei-block" style="margin:0 0 14px;">
+    <details id="eiLabelsSection" class="ei-block" data-sec="language" open>
       <summary style="cursor:pointer; font-size:13px; font-weight:600; color:var(--ink); user-select:none;">🌍 Guest page language <span style="font-weight:400; color:var(--ink-soft);">(English, Afrikaans, isiZulu&hellip;)</span></summary>
       <div style="margin-top:12px; font-size:13px; color:var(--ink-soft); line-height:1.5; margin-bottom:10px;">
         Pick a language to fill in all the labels at once. You can then change any word you like. Blank boxes show the English label.
@@ -1965,8 +2042,8 @@
         </div>
       </div>
     </details>
-    <div class="ei-block">
-      <h4>Your event</h4>
+    <div class="ei-block" data-sec="look">
+      <h4>Names, date &amp; look</h4>
       <label>Names or event title (shown big at the top). Leave blank if your names are already on your cover photo.</label>
       <input type="text" id="eiEventName" class="custom-num" maxlength="50" placeholder="e.g. Olivia &amp; Daniel" style="width:100%; margin-bottom:10px;">
       <label>Small line above it (optional)</label>
@@ -1998,16 +2075,9 @@
       <select id="eiListBy" class="custom-num" style="width:100%;"><option value="last">Surname (A&ndash;B, C&ndash;D&hellip;)</option><option value="first" selected>First name</option></select>
     </div>
 
-    <div class="ei-note-publish" style="background:var(--sage-soft,#eef1e8); border-radius:10px; padding:10px 12px; font-size:12.5px; line-height:1.5; color:var(--ink-soft); margin-bottom:12px;">
-      <b>Remember:</b> guests only see what you have published. Once your page has been published, saving here updates it automatically. If you change the seating chart or floor plan, click <b>Publish guest page</b> again.
-    </div>
 
-    <div id="eiLockNote" class="hidden" style="background:#fff6e0; border:1px solid #e8cf8a; border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.5; color:#5a4a1c; margin-bottom:12px;">
-      <b>&#128274; Programme, menu, a note from you, gifts, photos link and links are part of the Guest page plan (R100 a year).</b> Your seating pages work without them.
-      <div style="margin-top:8px;"><button type="button" class="ghost-btn" id="eiMoreBtn">More info</button> <button type="button" class="ghost-btn" id="eiUnlockBtn">See plans &amp; unlock</button></div>
-    </div>
 
-    <div class="ei-block">
+    <div class="ei-block" data-sec="program">
       <h4>Programme</h4>
       <label>Type it in &mdash; one item per line, like <code>14:00 | Ceremony</code></label>
       <textarea id="eiProgram" class="custom-num" rows="4" style="width:100%;" placeholder="14:00 | Ceremony&#10;15:30 | Drinks and photos&#10;18:00 | Dinner"></textarea>
@@ -2016,7 +2086,7 @@
       <div class="ei-tpl" data-sec="program"></div>
     </div>
 
-    <div class="ei-block">
+    <div class="ei-block" data-sec="menu">
       <h4>Menu</h4>
       <label>Type it in &mdash; one dish per line; start a line with <code>#</code> for a heading</label>
       <textarea id="eiMenu" class="custom-num" rows="5" style="width:100%;" placeholder="# Starters&#10;Butternut soup&#10;# Mains&#10;Slow-roast lamb&#10;Mushroom wellington (V)"></textarea>
@@ -2025,7 +2095,7 @@
       <div class="ei-tpl" data-sec="menu"></div>
     </div>
 
-    <div class="ei-block">
+    <div class="ei-block" data-sec="notes">
       <h4>A note from us, songs &amp; readings</h4>
       <label>Type it in. Start a line with <code>#</code> for a heading. Leave an empty line between verses or paragraphs.</label>
       <textarea id="eiNotes" class="custom-num" rows="7" style="width:100%;" placeholder="# A note from the two of us&#10;Thank you for travelling so far to celebrate with us...&#10;&#10;# Worship song: (song name)&#10;First line of verse one&#10;Second line of verse one&#10;&#10;First line of the chorus"></textarea>
@@ -2050,7 +2120,7 @@
       <div class="ei-tpl-note" style="margin-top:4px;">For example a handwritten letter, a song sheet or a design you made in Canva.</div>
     </div>
 
-    <div class="ei-block">
+    <div class="ei-block" data-sec="gifts">
       <h4>Gifts &amp; banking details</h4>
       <label>A short note for guests (optional)</label>
       <input type="text" id="eiBankNote" class="custom-num" maxlength="160" placeholder="e.g. Your presence is the best gift, but if you wish to contribute:" style="width:100%; margin-bottom:10px;">
@@ -2061,13 +2131,13 @@
       <div class="ei-tpl" data-sec="bank"></div>
     </div>
 
-    <div class="ei-block">
+    <div class="ei-block" data-sec="signs">
       <h4>Welcome sign (A2 printable)</h4>
       <div class="ei-tpl-note">A large sign to greet your guests at the entrance. Each design matches the programme and menu template with the same number. Tap one to open it in Canva, add your names and date, then download it as a PDF to print at A2 size.</div>
       <div class="ei-tpl-row" id="eiWelcomeSigns"></div>
     </div>
 
-    <div class="ei-block">
+    <div class="ei-block" data-sec="photos">
       <h4>Photos &amp; videos from guests</h4>
       <label>Link to your shared album (optional). Guests tap a button on their phone and add their photos and videos there.</label>
       <input type="text" id="eiAlbumUrl" class="custom-num" style="width:100%; margin-bottom:8px;" placeholder="https://photos.app.goo.gl/...">
@@ -2104,7 +2174,7 @@
       </details>
     </div>
 
-    <div class="ei-block">
+    <div class="ei-block" data-sec="links">
       <h4>Links</h4>
       <label>Your wedding website, gift registry, directions&hellip; Each one has the words guests will tap, and the web address it opens.</label>
       <div id="eiLinkRows"></div>
@@ -2116,12 +2186,14 @@
     <input type="file" id="eiFile" accept="image/*" multiple class="hidden">
 
 
-    <div class="modal-actions sticky-actions">
-      <button class="ghost-btn" id="btnEventInfoPreview" style="margin-right:auto;">Preview guest page</button>
-      <button class="ghost-btn" id="btnEventInfoCancel">Cancel</button>
-      <button class="primary-btn" id="btnEventInfoSave">Save</button>
-    </div>
+    <div id="eiSecFoot" class="ei-sec-foot hidden"><button type="button" class="ghost-btn" id="eiBackTiles2">&larr; All sections</button><button type="button" class="primary-btn" id="eiNextSec">Next</button></div>
+   </div>
+   <aside class="ei-phone-wrap" id="eiPhoneWrap">
+    <div class="ei-phone-label">What guests see <span id="eiPhoneNote"></span></div>
+    <div class="ei-phone"><iframe id="eiPhoneFrame" title="Preview of your guest page"></iframe></div>
+   </aside>
   </div>
+ </div>
 </div>
 
 <div id="delProjModal" class="modal-overlay hidden" style="z-index:950;">
@@ -7935,14 +8007,19 @@ function openEventInfoModal(){
   eiNewPaths = []; eiRemoved = []; eiBusy = 0;
   eiCoverPos = info.coverPos ? {z:info.coverPos.z||1, x:info.coverPos.x||0, y:info.coverPos.y||0} : {z:1, x:0, y:0};
   renderEiImages();
-  document.getElementById('eventInfoModal').classList.remove('hidden');
+  eiLastSig = eiSig();
+  showEiPage();
   applyEiLocks();
 }
+const EI_FREE_SECS = ['look','language'];
 function applyEiLocks(){
   const locked = accessTier < 1;
-  const blocks = document.querySelectorAll('#eventInfoModal .ei-block');
-  blocks.forEach((b,i)=>{ if(i === 0) return; b.classList.toggle('ei-locked', locked); b.inert = locked; });
+  document.querySelectorAll('#eventInfoModal .ei-block[data-sec]').forEach(b=>{
+    const lk = locked && !EI_FREE_SECS.includes(b.dataset.sec);
+    b.classList.toggle('ei-locked', lk); b.inert = lk;
+  });
   document.getElementById('eiLockNote').classList.toggle('hidden', !locked);
+  if(eiPageOpen()) eiRenderTiles();
 }
 const EI_FONTS = {dynalight:"'Dynalight',cursive", windsong:"'WindSong',cursive", bodoni:"'Bodoni Moda',serif", italiana:"'Italiana',serif", raleway:"'Raleway',sans-serif", ephesis:"'Ephesis',cursive"};
 function eiFontKey(v){ return EI_FONTS[v] ? v : (v === 'script' ? 'dynalight' : 'bodoni'); }
@@ -7972,8 +8049,8 @@ function collectEiInfo(){
   info.labelLang = document.getElementById('eiLabelLang').value || '';
   return info;
 }
-document.getElementById('btnEventInfoPreview').addEventListener('click', ()=>{
-  if(eiBusy > 0){ toast('Please wait for the picture to finish uploading.'); return; }
+/* what guests will see, built from the boxes on the page (for the preview) */
+function eiPreviewData(){
   const savedInfo = state.eventInfo, savedName = state.eventName;
   let data;
   try{
@@ -7989,7 +8066,11 @@ document.getElementById('btnEventInfoPreview').addEventListener('click', ()=>{
     }
     data.plan = accessTier;
   }
-  try{ localStorage.setItem('tableauPreview', JSON.stringify(data)); }catch(e){ toast('Your browser would not allow a preview.'); return; }
+  return data;
+}
+document.getElementById('eiPreviewTab').addEventListener('click', ()=>{
+  if(eiBusy > 0){ toast('Please wait for the picture to finish uploading.'); return; }
+  try{ localStorage.setItem('tableauPreview', JSON.stringify(eiPreviewData())); }catch(e){ toast('Your browser would not allow a preview.'); return; }
   let base = '';
   try{ base = fixOldBase(localStorage.getItem('tableauFinderBase') || ''); }catch(e){}
   base = base.split('?')[0];
@@ -8111,16 +8192,6 @@ document.getElementById('eiFile').addEventListener('change', e=>{
   e.target.value = '';
 });
 document.getElementById('btnEventInfo').addEventListener('click', openEventInfoModal);
-document.getElementById('btnEventInfoCancel').addEventListener('click', ()=>{
-  removeFromStorage(eiNewPaths);
-  document.getElementById('eventInfoModal').classList.add('hidden');
-});
-document.getElementById('eventInfoModal').addEventListener('click', e=>{
-  if(e.target === document.getElementById('eventInfoModal')){
-    removeFromStorage(eiNewPaths);
-    document.getElementById('eventInfoModal').classList.add('hidden');
-  }
-});
 /* ---- Guest page language: fill all section labels at once ---- */
 const LABEL_KEYS = [['seat','eiLabelSeat'],['program','eiLabelProgram'],['menu','eiLabelMenu'],['notes','eiLabelNotes'],['gifts','eiLabelGifts'],['photos','eiLabelPhotos'],['links','eiLabelLinks'],['tablemates','eiLabelTableMates']];
 const LABEL_LANGS = {
@@ -8155,29 +8226,184 @@ const LABEL_LANGS = {
     prev = sel.value;
   });
 })();
-document.getElementById('btnEventInfoSave').addEventListener('click', ()=>{
-  if(eiBusy > 0){ toast('Please wait for the picture to finish uploading.'); return; }
-  const info = collectEiInfo();
-  state.eventInfo = info;
+/* ===================== Guest page info: a page with tiles, saved automatically ===================== */
+const EI_SECS = [
+  {k:'look',     t:'Names, date & look',     d:'Your names, date, cover photo, colour and font.', g:''},
+  {k:'program',  t:'Programme',               d:'The order of the day, with times.', g:'program'},
+  {k:'menu',     t:'Menu',                    d:'Your dishes, or a photo of your printed menu.', g:'menu'},
+  {k:'notes',    t:'A note from us',          d:'A thank-you note, the words of a song, a reading or your love story.', g:'notes'},
+  {k:'gifts',    t:'Gifts & banking details', d:'Guests get a Copy button for each line.', g:'gifts'},
+  {k:'photos',   t:'Photos & videos',         d:'A button that opens your shared album.', g:'photos'},
+  {k:'links',    t:'Links',                   d:'Your wedding website, registry or directions.', g:'links'},
+  {k:'signs',    t:'Welcome sign to print',   d:'A2 Canva designs that match your menu and programme.', g:''},
+  {k:'language', t:'Language & labels',       d:'Afrikaans, isiZulu and more, or your own words.', g:''}
+];
+let eiCurrent = '', eiLastSig = '', eiSaveTimer = null, eiPubTimer = null, eiPvTimer = null;
+function eiPageOpen(){ return !document.getElementById('eiScreen').classList.contains('hidden'); }
+function eiSig(){ try{ return JSON.stringify(collectEiInfo()) + '|' + document.getElementById('eiEventName').value.trim(); }catch(e){ return ''; } }
+function eiVal(id){ return (document.getElementById(id).value || '').trim(); }
+function eiLines(id){ return eiVal(id).split('\n').map(l=> l.trim()).filter(l=> l && l.charAt(0) !== '#').length; }
+function eiStatus(k){
+  const n = (x, one, many)=> x + ' ' + (x === 1 ? one : many);
+  const pics = sec=> (eiImages[sec] || []).length;
+  const withPics = (txt, sec)=> pics(sec) ? (txt ? txt + ' + ' : '') + n(pics(sec), 'picture', 'pictures') : txt;
+  let t = '';
+  if(k === 'look'){
+    const bits = [];
+    if(eiVal('eiEventName')) bits.push('names');
+    if(eiVal('eiDate')) bits.push('date');
+    if(pics('cover')) bits.push('cover photo');
+    t = bits.length ? bits.join(', ').replace(/^./, c=> c.toUpperCase()) + ' added' : '';
+  }
+  else if(k === 'program'){ const x = eiLines('eiProgram'); t = withPics(x ? n(x, 'item', 'items') : '', 'program'); }
+  else if(k === 'menu'){ const x = eiLines('eiMenu'); t = withPics(x ? n(x, 'dish', 'dishes') : '', 'menu'); }
+  else if(k === 'notes'){ t = withPics(eiVal('eiNotes') ? 'Added' : '', 'notes'); }
+  else if(k === 'gifts'){ const x = eiLines('eiBank'); t = withPics(x ? n(x, 'line', 'lines') : (eiVal('eiBankNote') ? 'Note added' : ''), 'bank'); }
+  else if(k === 'photos'){ t = eiVal('eiAlbumUrl') ? 'Album linked' : ''; }
+  else if(k === 'links'){ const x = eiVal('eiLinks').split('\n').filter(l=> l.trim()).length; t = x ? n(x, 'link', 'links') : ''; }
+  else if(k === 'signs'){ return {t:'Canva templates', done:false}; }
+  else if(k === 'language'){
+    const sel = document.getElementById('eiLabelLang');
+    const own = LABEL_KEYS.some(([key, id])=> eiVal(id));
+    t = sel.value ? sel.options[sel.selectedIndex].text : (own ? 'Your own words' : '');
+    return {t: t || 'English', done: !!t};
+  }
+  return {t: t || 'Empty – hidden from guests', done: !!t};
+}
+function eiRenderTiles(){
+  const box = document.getElementById('eiTiles'); box.innerHTML = '';
+  const locked = accessTier < 1;
+  EI_SECS.forEach((sec, i)=>{
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'hub-card ei-tile';
+    const lk = locked && !EI_FREE_SECS.includes(sec.k);
+    const st = lk ? {t:'🔒 Guest page plan', done:false} : eiStatus(sec.k);
+    const h = document.createElement('b'); h.textContent = sec.t;
+    const d = document.createElement('span'); d.textContent = sec.d;
+    const e = document.createElement('em'); e.textContent = (st.done ? '✓ ' : '') + st.t; if(st.done) e.className = 'done'; if(lk) e.className = 'locked';
+    b.append(h, d, e);
+    b.addEventListener('click', ()=>{ if(lk){ needPlan(1, sec.t); return; } eiOpenSec(sec.k); });
+    box.appendChild(b);
+  });
+}
+function eiShowTiles(){
+  eiCurrent = '';
+  document.getElementById('eventInfoModal').classList.remove('ei-one');
+  document.querySelectorAll('#eventInfoModal .ei-block[data-sec]').forEach(b=> b.classList.remove('ei-on'));
+  document.getElementById('eiTiles').classList.remove('hidden');
+  document.getElementById('eiSecHead').classList.add('hidden');
+  document.getElementById('eiSecFoot').classList.add('hidden');
+  eiRenderTiles(); eiRefreshPhone(true);
+}
+function eiOpenSec(k){
+  eiCurrent = k;
+  document.getElementById('eventInfoModal').classList.add('ei-one');
+  document.querySelectorAll('#eventInfoModal .ei-block[data-sec]').forEach(b=> b.classList.toggle('ei-on', b.dataset.sec === k));
+  document.getElementById('eiTiles').classList.add('hidden');
+  document.getElementById('eiSecHead').classList.remove('hidden');
+  document.getElementById('eiSecFoot').classList.remove('hidden');
+  const i = EI_SECS.findIndex(x=> x.k === k);
+  document.getElementById('eiSecCount').textContent = (i + 1) + ' of ' + EI_SECS.length;
+  const nx = EI_SECS[i + 1], nb = document.getElementById('eiNextSec');
+  nb.classList.toggle('hidden', !nx);
+  if(nx) nb.textContent = 'Next: ' + nx.t + ' →';
+  if(k === 'look') updateEiFontSample();
+  eiRefreshPhone(true);
+  if(window.innerWidth < 760) document.getElementById('eiSecHead').scrollIntoView({block:'start'});
+  else window.scrollTo(0,0);
+}
+function showEiPage(){
+  pushNav('eventinfo');
+  hideHub(); projectActive = true;
+  ['mainLayout','setupScreen','hubBackBar','checklistScreen'].forEach(id=> document.getElementById(id).classList.add('hidden'));
+  document.getElementById('eiScreen').classList.remove('hidden');
+  document.getElementById('topActions').style.display = 'flex';
+  document.getElementById('floatingSaveBtn').style.display = 'none';
+  document.getElementById('topSub').textContent = (state.eventName || 'Your project') + ' — guest page';
+  if(window.setNavOn) setNavOn('guestFinderMenuBtn');
+  eiSetSaveState('');
+  eiShowTiles();
+  window.scrollTo(0,0);
+}
+function hideEiPage(){
+  const el = document.getElementById('eiScreen');
+  if(!el || el.classList.contains('hidden')) return;
+  eiCommit(true);
+  el.classList.add('hidden');
+}
+function eiSetSaveState(t){ document.getElementById('eiSaveState').textContent = t; }
+/* any change on the page: save it to the project shortly after she stops typing */
+function eiChanged(){
+  clearTimeout(eiSaveTimer); eiSaveTimer = setTimeout(()=> eiCommit(false), 700);
+}
+function eiCommit(leaving){
+  clearTimeout(eiSaveTimer);
+  if(eiBusy > 0){ if(!leaving) eiSaveTimer = setTimeout(()=> eiCommit(false), 1000); return; }
+  const sig = eiSig();
+  if(!sig || sig === eiLastSig) return;
+  eiLastSig = sig;
+  state.eventInfo = collectEiInfo();
   state.eventName = document.getElementById('eiEventName').value.trim();
   document.getElementById('finderEventName').value = state.eventName;
-  removeFromStorage(eiRemoved);
+  removeFromStorage(eiRemoved); eiRemoved = []; eiNewPaths = [];
   isDirty = true;
-  document.getElementById('eventInfoModal').classList.add('hidden');
-  /* If the page has been published before, update it automatically so guests always see the latest. */
-  (async ()=>{
-    let live = false;
-    try{ live = !!(sb && cloudUser && cloudEnabled && currentPublishSlug && await isPagePublished()); }catch(e){}
-    if(live){
-      toast('Saved. Updating the guest page\u2026');
-      await publishGuestPage();
-      const ok = /Published/.test(document.getElementById('finderStatus').textContent);
-      toast(ok ? 'Saved, and the guest page is updated.' : 'Saved, but the guest page could not update. Click Publish guest page to try again.');
-    } else {
-      toast('Saved. Click "Publish guest page" so guests can see the changes.');
+  if(eiPageOpen()){
+    document.getElementById('topSub').textContent = (state.eventName || 'Your project') + ' — guest page';
+    eiSetSaveState(cloudUser ? 'Saved ✓' : 'Saved on this computer ✓');
+    if(!eiCurrent) eiRenderTiles();
+    eiRefreshPhone(false);
+  }
+  /* if the page is already live, update it for guests too (once she pauses) */
+  clearTimeout(eiPubTimer);
+  eiPubTimer = setTimeout(eiAutoPublish, leaving ? 300 : 4000);
+}
+async function eiAutoPublish(){
+  let live = false;
+  try{ live = !!(sb && cloudUser && cloudEnabled && currentPublishSlug && await isPagePublished()); }catch(e){}
+  if(!live){ if(eiPageOpen() && cloudUser) eiSetSaveState('Saved ✓ · not published yet'); return; }
+  if(eiPageOpen()) eiSetSaveState('Saved ✓ · updating guest page…');
+  await publishGuestPage();
+  const ok = /Published/.test(document.getElementById('finderStatus').textContent);
+  if(eiPageOpen()) eiSetSaveState(ok ? 'Saved ✓ · guests see it now' : 'Saved ✓ · guest page not updated, click Publish');
+}
+/* the phone preview on the right (computers) */
+function eiRefreshPhone(now){
+  clearTimeout(eiPvTimer);
+  eiPvTimer = setTimeout(()=>{
+    const wrap = document.getElementById('eiPhoneWrap');
+    if(!eiPageOpen() || getComputedStyle(wrap).display === 'none') return;
+    if(eiBusy > 0) return;
+    try{ localStorage.setItem('tableauPreview', JSON.stringify(eiPreviewData())); }catch(e){ return; }
+    const sec = EI_SECS.find(x=> x.k === eiCurrent);
+    const hash = sec && sec.g ? '#' + sec.g : '';
+    const f = document.getElementById('eiPhoneFrame');
+    const url = 'guest-view.html?preview=1&frame=1&v=' + Date.now() + hash;
+    /* replace, so the preview never adds steps to the Back button */
+    const note = document.getElementById('eiPhoneNote');
+    note.textContent = (sec && sec.g && !eiStatus(sec.k).done) ? '\u00B7 ' + sec.t.toLowerCase() + ' is empty, so guests don\u2019t see it yet' : '';
+    try{ if(f.contentWindow && f.getAttribute('src')){ f.contentWindow.location.replace(url); return; } }catch(e){}
+    f.src = url;
+  }, now ? 50 : 900);
+}
+(function(){
+  const pg = document.getElementById('eventInfoModal');
+  ['input','change'].forEach(ev=> pg.addEventListener(ev, eiChanged));
+  pg.addEventListener('click', ()=> setTimeout(eiChanged, 50));
+  pg.addEventListener('pointerup', ()=> setTimeout(eiChanged, 50));
+  document.getElementById('eiBackTiles').addEventListener('click', ()=>{ eiCommit(false); eiShowTiles(); window.scrollTo(0,0); });
+  document.getElementById('eiBackTiles2').addEventListener('click', ()=>{ eiCommit(false); eiShowTiles(); window.scrollTo(0,0); });
+  document.getElementById('eiNextSec').addEventListener('click', ()=>{
+    eiCommit(false);
+    const i = EI_SECS.findIndex(x=> x.k === eiCurrent);
+    for(let j = i + 1; j < EI_SECS.length; j++){
+      const nx = EI_SECS[j];
+      if(accessTier < 1 && !EI_FREE_SECS.includes(nx.k)) continue;
+      eiOpenSec(nx.k); return;
     }
-  })();
-});
+    eiShowTiles();
+  });
+  document.getElementById('eiPublishBtn').addEventListener('click', ()=>{ eiCommit(false); openFinderModal(); });
+  window.addEventListener('beforeunload', ()=>{ if(eiPageOpen()) eiCommit(true); });
+})();
 
 function buildGuestViewData(){
   const groupById = {}; state.groups.forEach(g=> groupById[g.id] = g);
@@ -10033,6 +10259,7 @@ function authCooldownStart(label, againLabel){
   }, 1000);
 }
 function showAuthScreen(mode){
+  hideEiPage();
   authMode = mode || 'signin';
   authCooldownStop();
   authMessage('');
@@ -10241,12 +10468,15 @@ window.addEventListener('popstate', function(){
   const onSetup  = !document.getElementById('setupScreen').classList.contains('hidden');
   const onMain   = !document.getElementById('mainLayout').classList.contains('hidden');
   const onChecklist = !document.getElementById('checklistScreen').classList.contains('hidden');
-  if(onGuest || onSetup || onMain || onChecklist){ showHub(false); return; }
+  const onEi = !document.getElementById('eiScreen').classList.contains('hidden');
+  if(onEi && eiCurrent){ eiCommit(false); eiShowTiles(); pushNav('eventinfo'); return; }
+  if(onGuest || onSetup || onMain || onChecklist || onEi){ showHub(false); return; }
   // 3. On hub — let the browser navigate away normally
 });
 // ─────────────────────────────────────────────────────────────────────────────
 
 function showHub(first){
+  hideEiPage();
   if(window.setNavOn) setNavOn('chartMenuBtn');
   projectActive = true; hubOpen = true;
   document.getElementById('hubTitle').textContent = first ? 'Let\u2019s get started' : 'Let\u2019s map out your day.';
@@ -10271,7 +10501,7 @@ function showHub(first){
   document.getElementById('topSub').textContent = state.eventName || 'Your project';
   window.scrollTo(0,0);
 }
-function hideHub(){ hubOpen = false; document.getElementById('hubScreen').classList.add('hidden'); document.getElementById('guestScreen').classList.add('hidden'); }
+function hideHub(){ hideEiPage(); hubOpen = false; document.getElementById('hubScreen').classList.add('hidden'); document.getElementById('guestScreen').classList.add('hidden'); }
 function enterMain(view){
   pushNav(view || 'seating');
   hideHub(); showMainUI();
@@ -10349,6 +10579,7 @@ document.getElementById('btnSetupBack').addEventListener('click', ()=> showHub(f
 document.getElementById('btnNoTableSetup').addEventListener('click', showSetupScreen);
 document.getElementById('btnHubMenu').addEventListener('click', ()=>{ showHub(false); });
 function showMainUI(){
+  hideEiPage();
   hubOpen = false; document.getElementById('hubScreen').classList.add('hidden'); document.getElementById('guestScreen').classList.add('hidden'); document.getElementById('hubBackBar').classList.add('hidden');
   document.getElementById('setupScreen').classList.add('hidden');
   document.getElementById('mainLayout').classList.remove('hidden');
@@ -10439,6 +10670,7 @@ document.getElementById('btnNewCloudChart').addEventListener('click', ()=>{
 /* ---- landing page ---- */
 function hideLanding(){ document.getElementById('landingScreen').classList.add('hidden'); }
 async function showLanding(){
+  hideEiPage();
   document.getElementById('authScreen').classList.add('hidden');
   document.getElementById('chartsScreen').classList.add('hidden');
   document.getElementById('landingNewRow').classList.add('hidden');
