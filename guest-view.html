@@ -185,6 +185,10 @@
   .prog-day:first-child{margin-top:0;}
   .menu-h{font-family:'Lora',serif; font-size:21px; font-weight:600; color:var(--wood-dark); margin:16px 0 4px; text-align:center;}
   .menu-h:first-child{margin-top:0;}
+  .note-h{font-family:'Lora',serif; font-size:20px; font-weight:600; color:var(--wood-dark); margin:18px 0 6px; text-align:center;}
+  .note-h:first-child{margin-top:0;}
+  .note-p{text-align:center; font-size:15px; line-height:1.6;}
+  .note-gap{height:14px;}
   .menu-p{text-align:center; padding:3px 0; font-size:15px;}
   .link-btn{display:block; text-align:center; padding:13px 14px; border:1px solid var(--sage); border-radius:10px; color:var(--sage-dark); text-decoration:none; font-weight:500; margin-bottom:10px;}
   .album-btn{background:var(--sage); color:#fff; border-color:var(--sage-dark);}
@@ -297,6 +301,10 @@
     <div class="card"><h2 class="view-title" id="menuTitle">Menu</h2><div id="menuBody"></div></div>
     <div id="menuVerseBlock" class="verse-block hidden"></div>
   </div>
+  <div id="notesSection" class="hidden">
+    <button class="back-btn homeBack" data-home="1">&larr; Home</button>
+    <div class="card"><h2 class="view-title" id="notesTitle">A note from us</h2><div id="notesBody"></div></div>
+  </div>
   <div id="giftsSection" class="hidden">
     <button class="back-btn homeBack" data-home="1">&larr; Home</button>
     <div class="card"><h2 class="view-title" id="giftsTitle">Gifts</h2><div id="giftsBody"></div></div>
@@ -357,7 +365,7 @@ const SB_URL = 'https://aalpoaixingjehgnbfop.supabase.co';
 const SB_KEY = 'sb_publishable_ubTdSPCyUwus8voOcwY3kA_SGWO8edE';
 const FP_MAX_PX_WIDTH = 440;
 
-const SECTION_IDS = {seat:'seatSection', program:'programSection', menu:'menuSection', gifts:'giftsSection', photos:'photosSection', links:'linksSection'};
+const SECTION_IDS = {seat:'seatSection', program:'programSection', menu:'menuSection', notes:'notesSection', gifts:'giftsSection', photos:'photosSection', links:'linksSection'};
 let availableSections = [];
 let START_HASH = (location.hash || '').slice(1);
 let CURRENT_SEC = '';   // the screen to reopen when a guest comes back from an outside link
@@ -422,13 +430,14 @@ function buildHome(){
     seat:       lbl.seat       || 'Find my seat',
     program:    lbl.program    || 'Programme',
     menu:       lbl.menu       || 'Menu',
+    notes:      lbl.notes      || tr('notesTitle'),
     gifts:      lbl.gifts      || 'Gifts',
     photos:     lbl.photos     || 'Photos & videos',
     links:      lbl.links      || 'Links & info',
     tablemates: lbl.tablemates || 'Sitting at this table'
   };
   // Push labels into section headings
-  ['program','menu','gifts','photos','links'].forEach(id=>{
+  ['program','menu','notes','gifts','photos','links'].forEach(id=>{
     const el = document.getElementById(id+'Title');
     if(el) el.textContent = L[id];
   });
@@ -441,6 +450,9 @@ function buildHome(){
     tiles.push({id:'program', label:L.program, sub:tr('subProgram')});
   if((info.menu && info.menu.length) || imgs(info,'menu').length)
     tiles.push({id:'menu', label:L.menu, sub:tr('subMenu')});
+  const paidPlan = !(typeof SEAT_DATA.plan === 'number' && SEAT_DATA.plan < 1);   // part of the Guest page plan
+  if(paidPlan && ((info.notes && info.notes.some(n=> n.type !== 'gap')) || imgs(info,'notes').length))
+    tiles.push({id:'notes', label:L.notes, sub:tr('subNotes')});
   if((info.bank && info.bank.length) || info.bankNote || imgs(info,'bank').length)
     tiles.push({id:'gifts', label:L.gifts, sub:tr('subGifts')});
   if(info.album && /^https:\/\//i.test(info.album.url || ''))
@@ -545,6 +557,15 @@ function renderSections(){
     d.textContent = m.text; menu.appendChild(d);
   });
   addImages(menu, imgs(info,'menu'), 'Menu');
+
+  const notes = document.getElementById('notesBody'); notes.innerHTML = '';
+  (info.notes || []).forEach(n=>{
+    const d = document.createElement('div');
+    d.className = n.type === 'h' ? 'note-h' : (n.type === 'gap' ? 'note-gap' : 'note-p');
+    if(n.type !== 'gap') d.textContent = n.text || '';
+    notes.appendChild(d);
+  });
+  addImages(notes, imgs(info,'notes'), 'A note from us');
 
   const gifts = document.getElementById('giftsBody'); gifts.innerHTML = '';
   if(info.bankNote){ const n = document.createElement('div'); n.className = 'bank-note'; n.textContent = info.bankNote; gifts.appendChild(n); }
@@ -718,7 +739,7 @@ function showGroup(i, list){
 /* ---------- guest page language (fixed wording) ---------- */
 const TXT = {
   en: {
-    subSeat:'Search your name or browse by letter', subProgram:'The order of the day', subMenu:'What is being served',
+    subSeat:'Search your name or browse by letter', subProgram:'The order of the day', subMenu:'What is being served', subNotes:'Words, songs and readings', notesTitle:'A note from us',
     subGifts:'Banking details', subPhotos:'Share your pictures from the day', subLinks:'Website and more',
     back:'← Home', searchAgain:'← Home',
     seatPrompt:'Type your name to see where you’re sitting.', searchPh:'Start typing your name…',
@@ -747,7 +768,7 @@ const TXT = {
     days:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
   },
   af: {
-    subSeat:'Tik jou naam of soek onder die gepaste letter', subProgram:'Die verloop van die dag', subMenu:'Wat word bedien?',
+    subSeat:'Tik jou naam of soek onder die gepaste letter', subProgram:'Die verloop van die dag', subMenu:'Wat word bedien?', subNotes:'Woorde, liedere en voorlesings', notesTitle:"'n Boodskap van ons",
     subGifts:'Bankbesonderhede', subPhotos:'Deel jou foto’s van die dag', subLinks:'Webwerf en meer',
     back:'← Tuis', searchAgain:'← Tuis',
     seatPrompt:'Tik jou naam om te sien waar jy sit.', searchPh:'Begin om jou naam te tik…',

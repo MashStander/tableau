@@ -477,6 +477,12 @@
   }
   @media (max-width:899px){ #landingScreen .landing-wrap{padding:16px 14px; margin-top:0;} #landingScreen .landing-card{width:100%; max-width:560px;} }
   #landingScreen .page-tagline{margin:16px 0 10px; font-size:50px;}
+  .ei-ideas{font-size:12.5px; color:var(--ink-soft); line-height:1.5; margin:6px 0 10px; background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:8px 12px;}
+  .ei-ideas summary{cursor:pointer; color:var(--sage-dark); font-weight:600;}
+  .ei-ideas ul{margin:8px 0 2px 18px; padding:0;}
+  .ei-ideas li{margin-bottom:5px;}
+  .ei-ideas b{color:var(--ink);}
+  .ei-ideas-small{display:block; font-size:11.5px; opacity:.85;}
   body.cloud-mode #btnReset{display:none !important;}
   .ei-swatches{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
   .ei-swatch{width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0; box-shadow:0 0 0 1px var(--line);}
@@ -1744,7 +1750,7 @@
     </ol></div>
     <div class="ls-col"><h3 class="ls-col-h">Optional paid plans</h3>
     <ol class="landing-steps" start="7">
-      <li class="ls-paid ls-gp"><span class="ls-n">7</span><div class="ls-t"><b>Menu, programme and gifts <button type="button" class="ls-chip" data-plan="1">Guest page plan &middot; R100 a year</button></b>An add-on to your QR guest page. Upload your menu, programme and banking details so guests have them right on their phones (Canva templates available). <a href="https://tableauevents.co.za/guest-view.html?event=hannah-caleb-c4xnx" target="_blank" rel="noopener">Try a live example of the Guest page plan on your phone.</a><br><a href="https://tableauevents.co.za/guest-view.html?event=mia-henco-vxwzv" target="_blank" rel="noopener" lang="af">Toets ons AFRIKAANSE voorbeeld op jou foon.</a></div></li>
+      <li class="ls-paid ls-gp"><span class="ls-n">7</span><div class="ls-t"><b>Menu, programme, notes and gifts <button type="button" class="ls-chip" data-plan="1">Guest page plan &middot; R100 a year</button></b>An add-on to your QR guest page. Upload your menu, programme, banking details and a note or song words, so guests have them right on their phones (Canva templates available). <a href="https://tableauevents.co.za/guest-view.html?event=hannah-caleb-c4xnx" target="_blank" rel="noopener">Try a live example of the Guest page plan on your phone.</a><br><a href="https://tableauevents.co.za/guest-view.html?event=mia-henco-vxwzv" target="_blank" rel="noopener" lang="af">Toets ons AFRIKAANSE voorbeeld op jou foon.</a></div></li>
       <li class="ls-paid"><span class="ls-n">8</span><div class="ls-t"><b>Wedding checklist <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>A built-in task list organised by how far out you are — from 12 months to the week before. Tick items off, assign tasks to people, and hide anything that doesn't apply to your wedding.</div></li>
       <li class="ls-paid"><span class="ls-n">9</span><div class="ls-t"><b>Bridal party page <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Jobs, packing lists and vendor contacts on a private link.</div></li>
       <li class="ls-paid"><span class="ls-n">10</span><div class="ls-t"><b>Vendors and group photos <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Keep every contact in one place, plan each group photo and WhatsApp the guests in it.</div></li>
@@ -1938,6 +1944,10 @@
           <input type="text" id="eiLabelMenu" class="custom-num" style="width:100%; box-sizing:border-box;" placeholder="Menu">
         </div>
         <div>
+          <label style="font-size:12px; color:var(--ink-soft);">A note from us</label>
+          <input type="text" id="eiLabelNotes" class="custom-num" style="width:100%; box-sizing:border-box;" placeholder="A note from us">
+        </div>
+        <div>
           <label style="font-size:12px; color:var(--ink-soft);">Gifts</label>
           <input type="text" id="eiLabelGifts" class="custom-num" style="width:100%; box-sizing:border-box;" placeholder="Gifts">
         </div>
@@ -1993,7 +2003,7 @@
     </div>
 
     <div id="eiLockNote" class="hidden" style="background:#fff6e0; border:1px solid #e8cf8a; border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.5; color:#5a4a1c; margin-bottom:12px;">
-      <b>&#128274; Programme, menu, gifts, photos link and links are part of the Guest page plan (R100 a year).</b> Your seating pages work without them.
+      <b>&#128274; Programme, menu, a note from you, gifts, photos link and links are part of the Guest page plan (R100 a year).</b> Your seating pages work without them.
       <div style="margin-top:8px;"><button type="button" class="ghost-btn" id="eiMoreBtn">More info</button> <button type="button" class="ghost-btn" id="eiUnlockBtn">See plans &amp; unlock</button></div>
     </div>
 
@@ -2013,6 +2023,31 @@
       <div class="ei-imgs" id="eiImgs-menu"></div>
       <button type="button" class="ghost-btn ei-add-img" data-sec="menu">+ Add a picture</button>
       <div class="ei-tpl" data-sec="menu"></div>
+    </div>
+
+    <div class="ei-block">
+      <h4>A note from us, songs &amp; readings</h4>
+      <label>Type it in. Start a line with <code>#</code> for a heading. Leave an empty line between verses or paragraphs.</label>
+      <textarea id="eiNotes" class="custom-num" rows="7" style="width:100%;" placeholder="# A note from the two of us&#10;Thank you for travelling so far to celebrate with us...&#10;&#10;# Worship song: (song name)&#10;First line of verse one&#10;Second line of verse one&#10;&#10;First line of the chorus"></textarea>
+      <details class="ei-ideas">
+        <summary>Need ideas? What couples put here</summary>
+        <ul>
+          <li><b>A thank-you note</b> from the two of you, or a short letter to your guests.</li>
+          <li><b>Words to the worship song or hymn</b> sung during the ceremony, so everyone can sing along. <span class="ei-ideas-small">Old hymns are fine to share. For modern worship songs, ask your church whether their song licence (CCLI) covers sharing the words, or just give the song name.</span></li>
+          <li><b>The Bible reading or poem</b> read in the ceremony, and who is reading it.</li>
+          <li><b>Your vows</b>, if you are happy to share them.</li>
+          <li><b>Your love story:</b> how you met, and how the proposal happened.</li>
+          <li><b>In loving memory:</b> a few words about family who can&rsquo;t be with you.</li>
+          <li><b>Meet the wedding party:</b> who&rsquo;s who, with a line about each person.</li>
+          <li><b>An unplugged ceremony request:</b> please keep phones away during the ceremony, our photographer has it covered.</li>
+          <li><b>Good to know:</b> dress code, flat shoes for the lawn, a jacket for the evening, children or not.</li>
+          <li><b>Fun extras:</b> your wedding hashtag, a song request for the dance floor, or a question for an advice card.</li>
+          <li><b>Getting home:</b> shuttle times or taxi numbers.</li>
+        </ul>
+      </details>
+      <div class="ei-imgs" id="eiImgs-notes"></div>
+      <button type="button" class="ghost-btn ei-add-img" data-sec="notes">+ Add a picture</button>
+      <div class="ei-tpl-note" style="margin-top:4px;">For example a handwritten letter, a song sheet or a design you made in Canva.</div>
     </div>
 
     <div class="ei-block">
@@ -7750,13 +7785,13 @@ function renderEiTemplates(){
   });
 }
 renderEiTemplates();
-const EI_FIELDS = {welcome:'eiWelcome', verse:'eiVerse', program:'eiProgram', menu:'eiMenu', links:'eiLinks', bankNote:'eiBankNote', bank:'eiBank', date:'eiDate', accent:'eiAccent', fontStyle:'eiFont', listBy:'eiListBy', albumUrl:'eiAlbumUrl', albumNote:'eiAlbumNote'};
-const EI_SECTIONS = ['cover','program','menu','bank'];
+const EI_FIELDS = {welcome:'eiWelcome', verse:'eiVerse', program:'eiProgram', menu:'eiMenu', notes:'eiNotes', links:'eiLinks', bankNote:'eiBankNote', bank:'eiBank', date:'eiDate', accent:'eiAccent', fontStyle:'eiFont', listBy:'eiListBy', albumUrl:'eiAlbumUrl', albumNote:'eiAlbumNote'};
+const EI_SECTIONS = ['cover','program','menu','notes','bank'];
 const EI_IMG_MAX = 4;
 function eiMax(sec){ return sec === 'cover' ? 1 : EI_IMG_MAX; }
 const EI_COLOURS = ['#dbc2bd','#b0706a','#ec9cb5','#747474','#667b93','#2f4a6b','#7c8a70','#888077','#e6d07e'];
 const EI_BUCKET = 'event-files';
-let eiImages = {cover:[], program:[], menu:[], bank:[]}, eiNewPaths = [], eiRemoved = [], eiTarget = null, eiBusy = 0;
+let eiImages = {cover:[], program:[], menu:[], notes:[], bank:[]}, eiNewPaths = [], eiRemoved = [], eiTarget = null, eiBusy = 0;
 
 function eiCanUpload(){ return !!(sb && cloudUser); }
 
@@ -7890,13 +7925,13 @@ function openEventInfoModal(){
   renderEiSwatches(); updateEiFontSample();
   // Load custom section labels
   const lbl = info.labels || {};
-  ['Seat','Program','Menu','Gifts','Photos','Links','TableMates'].forEach(k=>{
+  ['Seat','Program','Menu','Notes','Gifts','Photos','Links','TableMates'].forEach(k=>{
     const el = document.getElementById('eiLabel'+k);
     if(el) el.value = lbl[k.toLowerCase()] || '';
   });
   document.getElementById('eiLabelLang').value = LABEL_LANGS[info.labelLang] ? info.labelLang : '';
   const im = info.images || {};
-  eiImages = {cover:(im.cover||[]).slice(), program:(im.program||[]).slice(), menu:(im.menu||[]).slice(), bank:(im.bank||[]).slice()};
+  eiImages = {cover:(im.cover||[]).slice(), program:(im.program||[]).slice(), menu:(im.menu||[]).slice(), notes:(im.notes||[]).slice(), bank:(im.bank||[]).slice()};
   eiNewPaths = []; eiRemoved = []; eiBusy = 0;
   eiCoverPos = info.coverPos ? {z:info.coverPos.z||1, x:info.coverPos.x||0, y:info.coverPos.y||0} : {z:1, x:0, y:0};
   renderEiImages();
@@ -7928,7 +7963,7 @@ document.getElementById('eiEventName').addEventListener('input', updateEiFontSam
 function collectEiInfo(){
   const info = {};
   Object.keys(EI_FIELDS).forEach(k=>{ info[k] = document.getElementById(EI_FIELDS[k]).value; });
-  info.images = {cover: eiImages.cover, program: eiImages.program, menu: eiImages.menu, bank: eiImages.bank};
+  info.images = {cover: eiImages.cover, program: eiImages.program, menu: eiImages.menu, notes: eiImages.notes, bank: eiImages.bank};
   info.coverPos = eiImages.cover.length ? {z:eiCoverPos.z, x:eiCoverPos.x, y:eiCoverPos.y} : null;
   // section labels and the guest page language (only store non-empty labels)
   const labels = {};
@@ -7949,7 +7984,7 @@ document.getElementById('btnEventInfoPreview').addEventListener('click', ()=>{
   /* show exactly what the published page will show for this plan (the live page removes the locked sections on the server) */
   if(data && data.info){
     if(accessTier < 1){
-      ['program','programDays','menu','links','bankNote','bank','album'].forEach(k=>{ delete data.info[k]; });
+      ['program','programDays','menu','notes','links','bankNote','bank','album'].forEach(k=>{ delete data.info[k]; });
       const im = data.info.images || {}; data.info.images = {cover: im.cover || []};
     }
     data.plan = accessTier;
@@ -8014,6 +8049,17 @@ function splitPair(line){
   if(i < 0) return ['', line];
   return [line.slice(0,i).trim(), line.slice(i+1).trim()];
 }
+/* "A note from us": # starts a heading, an empty line becomes a gap (between verses or paragraphs) */
+function notesLines(text){
+  const out = [];
+  String(text||'').replace(/\r/g,'').split('\n').forEach(raw=>{
+    const l = raw.trim();
+    if(!l){ if(out.length && out[out.length-1].type !== 'gap') out.push({type:'gap'}); return; }
+    out.push(l.charAt(0) === '#' ? {type:'h', text:l.replace(/^#+\s*/,'')} : {type:'p', text:l});
+  });
+  while(out.length && out[out.length-1].type === 'gap') out.pop();
+  return out;
+}
 function buildEventInfoForExport(){
   const info = state.eventInfo || {};
   let program = bpParseLines(info.program);
@@ -8042,11 +8088,12 @@ function buildEventInfoForExport(){
     fontStyle: eiFontKey(info.fontStyle),
     listBy: info.listBy || 'last',
     program, programDays, menu, links,
+    notes: notesLines(info.notes),
     bankNote: (info.bankNote||'').trim(),
     album: (function(){ let u = (info.albumUrl||'').trim(); if(u && !/^https?:\/\//i.test(u)) u = 'https://' + u; return u ? {url: u, note: (info.albumNote||'').trim()} : null; })(),
     bank,
     coverPos: info.coverPos || null,
-    images: {cover: urls('cover'), program: urls('program'), menu: urls('menu'), bank: urls('bank')},
+    images: {cover: urls('cover'), program: urls('program'), menu: urls('menu'), notes: urls('notes'), bank: urls('bank')},
     labels: info.labels || {},
     lang: info.labelLang || ''
   };
@@ -8075,19 +8122,19 @@ document.getElementById('eventInfoModal').addEventListener('click', e=>{
   }
 });
 /* ---- Guest page language: fill all section labels at once ---- */
-const LABEL_KEYS = [['seat','eiLabelSeat'],['program','eiLabelProgram'],['menu','eiLabelMenu'],['gifts','eiLabelGifts'],['photos','eiLabelPhotos'],['links','eiLabelLinks'],['tablemates','eiLabelTableMates']];
+const LABEL_KEYS = [['seat','eiLabelSeat'],['program','eiLabelProgram'],['menu','eiLabelMenu'],['notes','eiLabelNotes'],['gifts','eiLabelGifts'],['photos','eiLabelPhotos'],['links','eiLabelLinks'],['tablemates','eiLabelTableMates']];
 const LABEL_LANGS = {
-  en:  {seat:'', program:'', menu:'', gifts:'', photos:'', links:'', tablemates:''},
-  af:  {seat:'Vind my sitplek', program:'Program', menu:'Spyskaart', gifts:'Geskenke', photos:"Foto's en video's", links:'Skakels en inligting', tablemates:'Gaste aan hierdie tafel'},
-  zu:  {seat:'Thola isihlalo sami', program:'Uhlelo', menu:'Imenyu', gifts:'Izipho', photos:'Izithombe namavidiyo', links:'Izixhumanisi nolwazi', tablemates:'Abahlezi kuleli tafula'},
-  xh:  {seat:'Fumana isihlalo sam', program:'Inkqubo', menu:'Imenyu', gifts:'Izipho', photos:'Iifoto neevidiyo', links:'Amakhonkco nolwazi', tablemates:'Abahlala kule tafile'},
-  st:  {seat:'Fumana setulo sa ka', program:'Lenaneo', menu:'Menyu', gifts:'Dimpho', photos:'Ditshwantsho le divideo', links:'Dihokelo le tlhahisoleseding', tablemates:'Ba dutseng tafoleng ena'},
-  tn:  {seat:'Bona setulo sa me', program:'Lenaneo', menu:'Menyu', gifts:'Dimpho', photos:'Ditshwantsho le dibidio', links:'Dikgolagano le tshedimosetso', tablemates:'Ba ba dutseng mo tafoleng e'},
-  nso: {seat:'Hwetša setulo sa ka', program:'Lenaneo', menu:'Menyu', gifts:'Dimpho', photos:'Diswantšho le dibidio', links:'Dikgokagano le tshedimošo', tablemates:'Ba dutšego tafoleng ye'},
-  ve:  {seat:'Wanani tshidulo tshanga', program:'Mbekanyamushumo', menu:'Menyu', gifts:'Zwifhiwa', photos:'Zwifanyiso na dzividio', links:'Vhukwamani na mafhungo', tablemates:'Vho dzulaho kha ino tafula'},
-  ts:  {seat:'Kuma xitulu xa mina', program:'Nongonoko', menu:'Menyu', gifts:'Tinyiko', photos:'Swifaniso na tivhidiyo', links:'Swihlanganisi na vuxokoxoko', tablemates:'Lava tshameke etafuleni leri'},
-  ss:  {seat:'Tfola sihlalo sami', program:'Luhlelo', menu:'Imenyu', gifts:'Tipho', photos:'Titfombe nemavidiyo', links:'Tixhumanisi nelwati', tablemates:'Labahlala kulelitafula'},
-  nr:  {seat:'Fumana isihlalo sami', program:'Ihlelo', menu:'Imenyu', gifts:'Iinsipho', photos:'Iinthombe namavidiyo', links:'Iintjhumanisi nelwazi', tablemates:'Abahlezi etafuleni le'}
+  en:  {seat:'', program:'', menu:'', notes:"", gifts:'', photos:'', links:'', tablemates:''},
+  af:  {seat:'Vind my sitplek', program:'Program', menu:'Spyskaart', notes:"'n Boodskap van ons", gifts:'Geskenke', photos:"Foto's en video's", links:'Skakels en inligting', tablemates:'Gaste aan hierdie tafel'},
+  zu:  {seat:'Thola isihlalo sami', program:'Uhlelo', menu:'Imenyu', notes:"", gifts:'Izipho', photos:'Izithombe namavidiyo', links:'Izixhumanisi nolwazi', tablemates:'Abahlezi kuleli tafula'},
+  xh:  {seat:'Fumana isihlalo sam', program:'Inkqubo', menu:'Imenyu', notes:"", gifts:'Izipho', photos:'Iifoto neevidiyo', links:'Amakhonkco nolwazi', tablemates:'Abahlala kule tafile'},
+  st:  {seat:'Fumana setulo sa ka', program:'Lenaneo', menu:'Menyu', notes:"", gifts:'Dimpho', photos:'Ditshwantsho le divideo', links:'Dihokelo le tlhahisoleseding', tablemates:'Ba dutseng tafoleng ena'},
+  tn:  {seat:'Bona setulo sa me', program:'Lenaneo', menu:'Menyu', notes:"", gifts:'Dimpho', photos:'Ditshwantsho le dibidio', links:'Dikgolagano le tshedimosetso', tablemates:'Ba ba dutseng mo tafoleng e'},
+  nso: {seat:'Hwetša setulo sa ka', program:'Lenaneo', menu:'Menyu', notes:"", gifts:'Dimpho', photos:'Diswantšho le dibidio', links:'Dikgokagano le tshedimošo', tablemates:'Ba dutšego tafoleng ye'},
+  ve:  {seat:'Wanani tshidulo tshanga', program:'Mbekanyamushumo', menu:'Menyu', notes:"", gifts:'Zwifhiwa', photos:'Zwifanyiso na dzividio', links:'Vhukwamani na mafhungo', tablemates:'Vho dzulaho kha ino tafula'},
+  ts:  {seat:'Kuma xitulu xa mina', program:'Nongonoko', menu:'Menyu', notes:"", gifts:'Tinyiko', photos:'Swifaniso na tivhidiyo', links:'Swihlanganisi na vuxokoxoko', tablemates:'Lava tshameke etafuleni leri'},
+  ss:  {seat:'Tfola sihlalo sami', program:'Luhlelo', menu:'Imenyu', notes:"", gifts:'Tipho', photos:'Titfombe nemavidiyo', links:'Tixhumanisi nelwati', tablemates:'Labahlala kulelitafula'},
+  nr:  {seat:'Fumana isihlalo sami', program:'Ihlelo', menu:'Imenyu', notes:"", gifts:'Iinsipho', photos:'Iinthombe namavidiyo', links:'Iintjhumanisi nelwazi', tablemates:'Abahlezi etafuleni le'}
 };
 (function(){
   const sel = document.getElementById('eiLabelLang');
@@ -8200,7 +8247,7 @@ const PLAN_NAMES = ['Free', 'Guest page', 'Full planner'];
 const PLAN_PRICE = ['Free', 'R100 a year', 'R200 a year'];
 const PLAN_LINES = [
   'Seating chart, floor plan and guest QR page',
-  'Adds programme, menu, gifts and photos link to your guest page',
+  'Adds programme, menu, a note from you, gifts and photos link to your guest page',
   'Adds bridal party, vendors and group photos'
 ];
 let hasAccess = true, accessUser = null;     // everyone can save and publish; the plan decides which sections are open
@@ -8334,6 +8381,7 @@ const PLAN_INFO = {
   1: {title: 'Guest page plan', img: 'guest', bullets: [
     '<b>Programme:</b> the order of the day, with times. Type it in or add a picture.',
     '<b>Menu:</b> your dishes, or a photo of your printed menu.',
+    '<b>A note from us:</b> a thank-you note, the words of the worship song, a reading, your vows or your love story.',
     '<b>Gifts &amp; banking details:</b> guests get a Copy button for each line.',
     '<b>Photos &amp; videos:</b> a button that opens your shared album, so guests can add their photos.',
     '<b>Links:</b> your wedding website, registry or directions.',
@@ -8387,7 +8435,7 @@ document.getElementById('planInfoBuy').addEventListener('click', ()=>{
 function tierView(d){
   if(accessTier >= 1 || !d || !d.info) return d;
   const i = d.info, cov = (i.images && i.images.cover) || [];
-  ['program','programDays','menu','links','bankNote','bank','album'].forEach(k=> delete i[k]);
+  ['program','programDays','menu','notes','links','bankNote','bank','album'].forEach(k=> delete i[k]);
   i.images = {cover: cov};
   return d;
 }
