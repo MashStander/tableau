@@ -324,6 +324,8 @@ const FP_MAX_PX_WIDTH = 440;
 
 const SECTION_IDS = {seat:'seatSection', program:'programSection', menu:'menuSection', gifts:'giftsSection', photos:'photosSection', links:'linksSection'};
 let availableSections = [];
+let START_HASH = (location.hash || '').slice(1);
+let CURRENT_SEC = '';   // the screen to reopen when a guest comes back from an outside link
 
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -333,7 +335,9 @@ function imgs(info, key){
 }
 
 /* ---------- navigation ---------- */
-function showSection(name){
+function showSection(name, how){
+  how = how || {};
+  CURRENT_SEC = name;
   if(name === 'seat'){
     document.getElementById('searchView').classList.remove('hidden');
     document.getElementById('groupView').classList.add('hidden');
@@ -348,13 +352,31 @@ function showSection(name){
   document.querySelectorAll('.homeBack').forEach(b=> b.classList.toggle('hidden', availableSections.length <= 1));
   updateSeatBack();
   window.scrollTo(0, 0);
+  /* remember the screen in the browser history, so the phone's Back button moves between screens */
+  try{
+    if(!how.fromHistory){
+      const base = name === 'home' || availableSections.length <= 1;   // the start screen
+      const st = {sec:name, d:(base ? 0 : 1)};
+      const url = location.pathname + location.search + (base ? '' : '#' + name);
+      if(how.replace || base || (history.state && history.state.d === 1)) history.replaceState(st, '', url);
+      else history.pushState(st, '', url);
+    }
+  }catch(e){}
 }
+window.addEventListener('popstate', e=>{
+  const sec = e.state && e.state.sec;
+  if(sec && (sec === 'home' || availableSections.indexOf(sec) > -1)) showSection(sec, {fromHistory:true});
+  else showSection(availableSections.length > 1 ? 'home' : 'seat', {fromHistory:true});
+});
 function updateSeatBack(){
   const sub = !document.getElementById('groupView').classList.contains('hidden') || !document.getElementById('seatView').classList.contains('hidden');
   document.querySelector('#seatSection > .homeBack').classList.toggle('hidden', sub || availableSections.length <= 1);
 }
 /* "Home": back to the start screen (or, if there is only Find my seat, back to the name search) */
-function goHome(){ showSection(availableSections.length > 1 ? 'home' : 'seat'); }
+function goHome(){
+  if(availableSections.length > 1 && history.state && history.state.d === 1){ history.back(); return; }   // same as the phone's Back button
+  showSection(availableSections.length > 1 ? 'home' : 'seat', {replace:true});
+}
 document.querySelectorAll('.homeBack').forEach(b=> b.addEventListener('click', goHome));
 
 /* ---------- home tiles ---------- */
@@ -402,7 +424,20 @@ function buildHome(){
     grid.appendChild(b);
   });
   // A single choice: skip the home screen.
-  showSection(tiles.length === 1 ? 'seat' : 'home');
+  // coming back from an outside link (e.g. the photo album): reopen the screen the guest was on
+  const startSec = START_HASH || (history.state && history.state.d === 1 ? history.state.sec : '');
+  if(tiles.length > 1 && startSec && availableSections.indexOf(startSec) > -1){
+    START_HASH = '';
+    if(!(history.state && history.state.d === 1 && history.state.sec === startSec)){
+      history.replaceState({sec:'home', d:0}, '', location.pathname + location.search);
+      showSection(startSec);
+    } else showSection(startSec, {replace:true});
+  } else if(tiles.length > 1){
+    START_HASH = '';
+    showSection('home', {replace:true});
+  } else {
+    showSection('seat', {fromHistory:true});   // only "Find my seat": leave the browser history alone
+  }
 }
 
 /* ---------- section content ---------- */
@@ -492,7 +527,7 @@ function renderSections(){
     const note = document.createElement('div'); note.className = 'bank-note';
     note.textContent = info.album.note || tr('albumNote');
     photos.appendChild(note);
-    const a = document.createElement('a'); a.className = 'link-btn album-btn'; a.href = info.album.url; a.target = '_blank'; a.rel = 'noopener';
+    const a = document.createElement('a'); a.className = 'link-btn album-btn'; a.href = info.album.url; a.rel = 'noopener';
     a.textContent = tr('openAlbum'); photos.appendChild(a);
     const h = document.createElement('div'); h.className = 'img-hint'; h.textContent = tr('albumHint'); photos.appendChild(h);
   }
@@ -500,7 +535,7 @@ function renderSections(){
   const links = document.getElementById('linksBody'); links.innerHTML = '';
   (info.links || []).forEach(l=>{
     if(!/^https?:\/\//i.test(l.url)) return;
-    const a = document.createElement('a'); a.className = 'link-btn'; a.href = l.url; a.target = '_blank'; a.rel = 'noopener';
+    const a = document.createElement('a'); a.className = 'link-btn'; a.href = l.url; a.rel = 'noopener';
     a.textContent = l.label; links.appendChild(a);
   });
 }
