@@ -40,6 +40,7 @@
   }
   @font-face{font-family:'Glacial Indifference'; src:url('fonts/GlacialIndifference-Regular.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap;}
   @font-face{font-family:'Glacial Indifference'; src:url('fonts/GlacialIndifference-Bold.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:swap;}
+  @font-face{font-family:'Corinthia'; src:url('fonts/Corinthia-Regular.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap;}
   h1,h2,h3{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; margin:0; font-weight:700; letter-spacing:.03em; color:var(--heading);}
   /* Admin/functional screens use Plus Jakarta Sans for headings */
   #hubScreen h2, #hubScreen h3,
@@ -426,7 +427,7 @@
   .landing-steps li{display:flex; align-items:flex-start; gap:12px; background:#fbf9f5; border:1px solid var(--line); border-radius:14px; padding:10px 14px 10px 10px;}
   .landing-steps .ls-n{flex:none; width:32px; height:32px; border-radius:50%; background:var(--btn); color:#fff; font-weight:700; font-size:15px; display:flex; align-items:center; justify-content:center; margin-top:1px;}
   .landing-steps .ls-t{flex:1; min-width:0; font-size:12.5px; color:var(--ink-soft); line-height:1.5;}
-  .landing-steps .ls-t b{display:block; font-size:14px; color:var(--sage-dark); margin-bottom:2px;}
+  .landing-steps .ls-t > b{display:block; font-size:14px; color:var(--sage-dark); margin-bottom:2px;}
   .landing-steps .ls-t a{color:var(--sage-dark); text-decoration:underline; cursor:pointer; font-weight:600;}
   .landing-steps li.ls-paid{background:#fff; border-style:dashed;}
   .landing-steps li.ls-paid .ls-n{background:#fff; color:var(--sage-dark); border:2px solid var(--sage-dark);}
@@ -451,6 +452,31 @@
     .landing-wrap .landing-card{margin:0; flex:1 1 0; max-width:540px; width:auto;}
     .landing-wrap .landing-how{flex:1.15 1 0; max-width:620px;}
   }
+
+  /* start page, new look (Nov 2026): matches the hub page */
+  #landingScreen{background:#fff; padding:0 0 10px;}
+  #landingScreen .landing-page{max-width:none;}
+  #landingScreen .landing-wrap{background:var(--paper); border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:28px max(20px, calc((100% - 1240px) / 2)) 28px; margin-top:0; border-top:none;}
+  #landingScreen .landing-card{box-shadow:none; border:1px solid var(--line); border-radius:12px; background:#fff;}
+  .ls-col-h{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-weight:400; font-size:13px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 8px; text-align:left;}
+  .ls-cols{display:flex; flex-direction:column; gap:16px;}
+  @media (min-width:900px){
+    #landingScreen .landing-wrap{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,2fr); gap:20px; align-items:stretch;}
+    #landingScreen .landing-wrap .landing-card{max-width:none; width:auto; margin:0; padding:26px 26px;}
+    #landingScreen .landing-wrap .landing-how{max-width:none; padding:22px 24px 18px;}
+    .landing-how .landing-steps-h{margin-bottom:14px;}
+    .ls-cols{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px;}
+    .landing-how .landing-steps{gap:7px;}
+    .landing-how .landing-steps li{padding:8px 12px 8px 9px;}
+    .landing-how .landing-steps .ls-n{width:28px; height:28px; font-size:14px;}
+    .landing-how .landing-steps .ls-t{font-size:12.5px; line-height:1.45;}
+    .landing-how .landing-steps .ls-t b{font-size:13.5px;}
+    #landingScreen .landing-logo{height:80px; width:288px;}
+    #landingScreen .landing-tag{font-size:36px; margin-bottom:6px;}
+    #landingScreen .landing-sub{margin-bottom:18px;}
+  }
+  @media (max-width:899px){ #landingScreen .landing-wrap{padding:16px 14px; margin-top:0;} #landingScreen .landing-card{width:100%; max-width:560px;} }
+  #landingScreen .page-tagline{margin:16px 0 10px; font-size:50px;}
   body.cloud-mode #btnReset{display:none !important;}
   .ei-swatches{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
   .ei-swatch{width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0; box-shadow:0 0 0 1px var(--line);}
@@ -1706,6 +1732,8 @@
   </div>
   <div class="auth-card landing-card landing-how">
     <h2 class="landing-steps-h">How it works</h2>
+    <div class="ls-cols">
+    <div class="ls-col"><h3 class="ls-col-h">Free</h3>
     <ol class="landing-steps">
       <li><span class="ls-n">1</span><div class="ls-t"><b>Free sign-up <span class="ls-chip free">Free</span></b>Create an account for free, or <a id="lsTry">play around on the site first</a>.</div></li>
       <li><span class="ls-n">2</span><div class="ls-t"><b>Guest list <span class="ls-chip free">Free</span></b>Create your guest list or import it from Excel (free template to download inside). Everything else is pulled from this list.</div></li>
@@ -1713,12 +1741,16 @@
       <li><span class="ls-n">4</span><div class="ls-t"><b>Design the room <span class="ls-chip free">Free</span></b>Build a floor plan to scale. Guests get a simple map with a key on their phones.</div></li>
       <li><span class="ls-n">5</span><div class="ls-t"><b>One QR code <span class="ls-chip free">Free</span></b>Guests scan it, find their name and see their table marked with a red star. <a href="https://tableauevents.co.za/guest-view.html?event=event-xu8id" target="_blank" rel="noopener">Try a live example of the FREE plan on your phone.</a></div></li>
       <li><span class="ls-n">6</span><div class="ls-t"><b>Make it yours <span class="ls-chip free">Free</span></b>Add your photo, date, colours and style, all saved to your account.</div></li>
+    </ol></div>
+    <div class="ls-col"><h3 class="ls-col-h">Optional paid plans</h3>
+    <ol class="landing-steps" start="7">
       <li class="ls-paid ls-gp"><span class="ls-n">7</span><div class="ls-t"><b>Menu, programme and gifts <button type="button" class="ls-chip" data-plan="1">Guest page plan &middot; R100 a year</button></b>An add-on to your QR guest page. Upload your menu, programme and banking details so guests have them right on their phones (Canva templates available). <a href="https://tableauevents.co.za/guest-view.html?event=hannah-caleb-c4xnx" target="_blank" rel="noopener">Try a live example of the Guest page plan on your phone.</a><br><a href="https://tableauevents.co.za/guest-view.html?event=mia-henco-vxwzv" target="_blank" rel="noopener" lang="af">Toets ons AFRIKAANSE voorbeeld op jou foon.</a></div></li>
       <li class="ls-paid"><span class="ls-n">8</span><div class="ls-t"><b>Wedding checklist <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>A built-in task list organised by how far out you are — from 12 months to the week before. Tick items off, assign tasks to people, and hide anything that doesn't apply to your wedding.</div></li>
       <li class="ls-paid"><span class="ls-n">9</span><div class="ls-t"><b>Bridal party page <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Jobs, packing lists and vendor contacts on a private link.</div></li>
       <li class="ls-paid"><span class="ls-n">10</span><div class="ls-t"><b>Vendors and group photos <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Keep every contact in one place, plan each group photo and WhatsApp the guests in it.</div></li>
-      <li class="ls-paid"><span class="ls-n">11</span><div class="ls-t"><b>The whole weekend <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Add a day before and a day after, each with its own programme. <a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener">Try a live example of the Full Planner on your phone.</a> The bridal party code is <b>6064</b>.</div></li>
-    </ol>
+      <li class="ls-paid"><span class="ls-n">11</span><div class="ls-t"><b>The whole weekend <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Add a day before and a day after, each with its own programme. <a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener">Try a live example of the Full Planner on your phone.</a> The bridal party code is <strong>6064</strong>.</div></li>
+    </ol></div>
+    </div>
     <p class="landing-steps-note">Steps 1 to 6 are free. Steps 7 to 11 are optional paid plans: Guest page R100 a year, Full planner R200 a year. <a id="lsPlans">See what each plan includes</a></p>
     </div>
   </div>
@@ -8340,7 +8372,7 @@ document.getElementById('accessPlans').addEventListener('click', e=>{
 /* landing page steps: shortcuts and plan info */
 // lsTry handled by tryNoAccountPopup script below
 document.getElementById('lsPlans').addEventListener('click', ()=> openPlanInfo(2));
-document.querySelector('.landing-steps').addEventListener('click', e=>{ const b = e.target.closest('.ls-chip[data-plan]'); if(b) openPlanInfo(+b.dataset.plan); });
+document.querySelectorAll('.landing-steps').forEach(ol=> ol.addEventListener('click', e=>{ const b = e.target.closest('.ls-chip[data-plan]'); if(b) openPlanInfo(+b.dataset.plan); }));
 document.getElementById('eiMoreBtn').addEventListener('click', ()=> openPlanInfo(1));
 document.getElementById('planInfoClose').addEventListener('click', ()=> document.getElementById('planInfoModal').classList.add('hidden'));
 document.getElementById('planInfoUnlock').addEventListener('click', ()=>{
