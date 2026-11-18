@@ -487,14 +487,16 @@
   /* ---------- Guest page info: a page with tiles (Nov 2026) ---------- */
   #eiScreen{background:#fff; padding:0 0 30px;}
   .ei-band{background:var(--paper); border-bottom:1px solid var(--line); padding:30px max(24px, calc((100% - 1300px) / 2)) 34px;}
-  .ei-head{display:flex; align-items:flex-end; justify-content:space-between; gap:18px; flex-wrap:wrap; margin-bottom:16px;}
-  .ei-head-text{flex:1 1 420px; min-width:0;}
+  .ei-head{display:flex; flex-direction:column; align-items:flex-start; gap:14px; margin-bottom:16px;}
+  .ei-head-text{min-width:0;}
   .ei-head h2{font-weight:400; font-size:32px; letter-spacing:.04em; color:var(--ink); margin:0 0 6px;}
   .ei-head .hint{color:var(--ink-soft); font-size:14px; line-height:1.55; margin:0; max-width:720px;}
   .ei-head .hint b{color:var(--ink);}
   .ei-head-actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .ei-head-actions .ei-save-state{order:3;}
   .ei-save-state{font-size:13px; color:var(--sage-dark); font-weight:600; min-height:1em;}
-  .ei-layout{display:grid; grid-template-columns:minmax(0,1fr) 390px; gap:24px; align-items:start;}
+  .ei-layout{display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:28px; align-items:start;}
+  .ei-left{min-width:0;}
   .ei-main{min-width:0;}
   .ei-tiles{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px;}
   .ei-tile{background:#fff; border-color:var(--sage); border-radius:12px; min-height:150px;}
@@ -520,9 +522,9 @@
   .ei-phone-wrap{position:sticky; top:calc(var(--tb-h, 70px) + 14px);}
   .ei-phone-label span{text-transform:none; letter-spacing:0; display:block; margin-top:3px; color:#b0281c; font-family:'Plus Jakarta Sans',sans-serif; font-size:12px;}
   .ei-phone-label{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; text-transform:uppercase; letter-spacing:.09em; font-size:12.5px; color:var(--ink-soft); text-align:center; margin-bottom:8px;}
-  .ei-phone{width:376px; height:min(720px, calc(100vh - var(--tb-h, 70px) - 70px)); margin:0 auto; border:9px solid #343834; border-radius:34px; overflow:hidden; background:#fffefb; box-shadow:0 10px 30px rgba(52,56,52,.18);}
+  .ei-phone{width:100%; max-width:376px; height:min(720px, calc(100vh - var(--tb-h, 70px) - 70px)); margin:0 auto; border:9px solid #343834; border-radius:34px; overflow:hidden; background:#fffefb; box-shadow:0 10px 30px rgba(52,56,52,.18);}
   .ei-phone iframe{width:100%; height:100%; border:0; display:block;}
-  @media (max-width:1250px){ .ei-tiles{grid-template-columns:repeat(2, minmax(0,1fr));} }
+  @media (max-width:1180px){ .ei-tiles{grid-template-columns:repeat(2, minmax(0,1fr));} }
   @media (max-width:1100px){
     .ei-layout{grid-template-columns:1fr;}
     .ei-phone-wrap{display:none;}
@@ -1961,6 +1963,8 @@
 
 <div id="eiScreen" class="hidden">
  <div class="ei-band">
+  <div class="ei-layout">
+  <div class="ei-left">
   <div class="ei-head">
    <div class="ei-head-text">
     <h2>Your guest page</h2>
@@ -1979,7 +1983,6 @@
       <b>&#128274; Programme, menu, a note from you, gifts, photos link and links are part of the Guest page plan (R100 a year).</b> Your seating pages work without them.
       <div style="margin-top:8px;"><button type="button" class="ghost-btn" id="eiMoreBtn">More info</button> <button type="button" class="ghost-btn" id="eiUnlockBtn">See plans &amp; unlock</button></div>
     </div>
-  <div class="ei-layout">
    <div id="eventInfoModal" class="ei-main">
     <div id="eiTiles" class="ei-tiles"></div>
     <div id="eiSecHead" class="ei-sec-head hidden"><button type="button" class="ghost-btn" id="eiBackTiles">&larr; All sections</button><span id="eiSecCount"></span></div>
@@ -2188,6 +2191,7 @@
 
     <div id="eiSecFoot" class="ei-sec-foot hidden"><button type="button" class="ghost-btn" id="eiBackTiles2">&larr; All sections</button><button type="button" class="primary-btn" id="eiNextSec">Next</button></div>
    </div>
+  </div>
    <aside class="ei-phone-wrap" id="eiPhoneWrap">
     <div class="ei-phone-label">What guests see <span id="eiPhoneNote"></span></div>
     <div class="ei-phone"><iframe id="eiPhoneFrame" title="Preview of your guest page"></iframe></div>
