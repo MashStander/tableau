@@ -553,6 +553,21 @@
   #bpModal .bd-sec .bp-sech::after{display:none;}
   #bdScreen .ei-head-actions .bp-try{font-size:13px; color:var(--ink-soft); display:flex; align-items:center; gap:6px;}
   @media (max-width:560px){ #bpModal.ei-one .bd-sec.ei-on{padding:16px 12px;} #bdScreen .ei-head-actions .bp-try{width:100%;} }
+
+  /* ---------- welcome screen with the photo collage (Nov 2026) ---------- */
+  #splash{position:fixed; inset:0; z-index:500; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:clamp(14px, 3vh, 34px) clamp(10px, 2vw, 32px); box-sizing:border-box; cursor:pointer; opacity:1; transition:opacity .8s ease;}
+  #splash.splash-out{opacity:0; pointer-events:none;}
+  .splash-logo{flex:0 0 auto; height:clamp(48px, 9vh, 84px); aspect-ratio:651 / 180; background:var(--logo-url) no-repeat left center; background-size:auto 100%;}
+  .splash-pic{flex:1 1 auto; min-height:0; width:100%; display:flex; align-items:center; justify-content:center; margin:clamp(10px, 2.5vh, 26px) 0;}
+  .splash-pic img{display:block; max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; border-radius:6px; animation:splashIn 1.1s ease both;}
+  .splash-tag{flex:0 0 auto; margin:0; font-family:'Corinthia',cursive; color:var(--rose, #e07a6f); font-size:clamp(34px, 6vh, 60px); line-height:1; text-align:center;}
+  @media (max-aspect-ratio: 1/1){   /* phones and tablets held upright: keep it together in the middle */
+    #splash{justify-content:center; gap:clamp(18px, 4vh, 40px);}
+    .splash-pic{flex:0 1 auto; margin:0;}
+    .splash-tag{font-size:min(9.5vw, 56px); white-space:nowrap;}
+  }
+  @keyframes splashIn{from{opacity:0; transform:scale(.985);} to{opacity:1; transform:none;}}
+  @media (prefers-reduced-motion: reduce){ .splash-pic img{animation:none;} #splash{transition:none;} }
   body.cloud-mode #btnReset{display:none !important;}
   .ei-swatches{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
   .ei-swatch{width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0; box-shadow:0 0 0 1px var(--line);}
@@ -1244,6 +1259,35 @@
 </style>
 </head>
 <body>
+<!-- Welcome screen: the photo collage shows for a few seconds, then the sign-in page appears (once per visit) -->
+<div id="splash" role="img" aria-label="Tableau: wedding seating and planning">
+  <div class="splash-logo"></div>
+  <picture class="splash-pic">
+    <source media="(max-width:760px)" srcset="landing-collage-960.jpg">
+    <img id="splashImg" src="landing-collage.jpg" width="1920" height="830" alt="">
+  </picture>
+  <p class="splash-tag">Familiar, with a spritz of magic.</p>
+</div>
+<script>
+(function(){
+  var sp = document.getElementById('splash');
+  var seen = false;
+  try{ seen = sessionStorage.getItem('tableauSplashSeen') === '1'; sessionStorage.setItem('tableauSplashSeen', '1'); }catch(e){}
+  if(seen){ sp.parentNode.removeChild(sp); return; }
+  var done = false, started = false;
+  function close(){
+    if(done) return; done = true;
+    sp.classList.add('splash-out');
+    setTimeout(function(){ if(sp.parentNode) sp.parentNode.removeChild(sp); }, 900);
+  }
+  function start(){ if(started) return; started = true; setTimeout(close, 3500); }   /* 3.5 seconds once the photos are showing */
+  var img = document.getElementById('splashImg');
+  if(img.complete) start(); else { img.addEventListener('load', start); img.addEventListener('error', close); }
+  setTimeout(close, 7000);                       /* never longer than 7 seconds, even on a slow connection */
+  sp.addEventListener('click', close);           /* a tap skips it */
+  document.addEventListener('keydown', close, {once:true});
+})();
+</script>
 
 <div id="topbar">
   <div>
