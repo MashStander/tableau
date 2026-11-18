@@ -81,7 +81,7 @@
   }
   .solid-btn:hover{background:var(--btn-hover); border-color:var(--btn-hover); color:#fff;}
 
-  #topbar{position:relative;}
+  #topbar{position:sticky; top:0; z-index:40;}   /* menu strip stays at the top while scrolling */
 
   /* ===== New look: white header, logo left, menu right (computers) ===== */
   #mainLayout{height:calc(100vh - var(--tb-h, 74px)); background:var(--paper);
@@ -512,7 +512,7 @@
   #eventInfoModal #eiNotes{min-height:300px;}
   #eventInfoModal #eiVerse{min-height:80px;}
   #eventInfoModal:not(.ei-one) #eiSignInNote{display:none;}
-  #eiSecHead{scroll-margin-top:calc(var(--tb-h, 60px) + 8px);}
+  #eiSecHead, #bdSecHead{scroll-margin-top:calc(var(--tb-h, 60px) + 8px);}
   #eiLabelsSection > summary{display:none;}
   #eiLabelsSection::before{content:'Language & labels'; display:block; font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; letter-spacing:.05em; font-size:24px; color:var(--sage-dark); margin:0 0 4px;}
   #eiLabelsSection > div{margin-top:4px !important;}
@@ -522,7 +522,7 @@
   .ei-phone-wrap{position:sticky; top:calc(var(--tb-h, 70px) + 14px);}
   .ei-phone-label span{text-transform:none; letter-spacing:0; display:block; margin-top:3px; color:#b0281c; font-family:'Plus Jakarta Sans',sans-serif; font-size:12px;}
   .ei-phone-label{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; text-transform:uppercase; letter-spacing:.09em; font-size:12.5px; color:var(--ink-soft); text-align:center; margin-bottom:8px;}
-  .ei-phone{width:100%; max-width:376px; height:min(720px, calc(100vh - var(--tb-h, 70px) - 70px)); margin:0 auto; border:9px solid #343834; border-radius:34px; overflow:hidden; background:#fffefb; box-shadow:0 10px 30px rgba(52,56,52,.18);}
+  .ei-phone{height:min(700px, calc(100vh - var(--tb-h, 70px) - 80px)); aspect-ratio:9 / 18.5; width:auto; max-width:100%; margin:0 auto; border:9px solid #343834; border-radius:34px; overflow:hidden; background:#fffefb; box-shadow:0 10px 30px rgba(52,56,52,.18);}
   .ei-phone iframe{width:100%; height:100%; border:0; display:block;}
   @media (max-width:1180px){ .ei-tiles{grid-template-columns:repeat(2, minmax(0,1fr));} }
   @media (max-width:1100px){
@@ -542,6 +542,17 @@
     #eventInfoModal.ei-one .ei-block.ei-on{padding:16px 14px;}
     .ei-sec-foot .primary-btn{flex:1 1 100%; order:-1;}
   }
+
+  /* ---------- Your big day page (Nov 2026) ---------- */
+  #bdScreen{background:#fff; padding:0 0 30px;}
+  .bd-main.bp-card{width:auto; max-width:none; max-height:none; overflow:visible;}
+  #bpModal .bd-sec{display:none;}
+  #bpModal.ei-one .bd-sec.ei-on{display:block; background:#fff; border:1px solid var(--line); border-radius:12px; padding:22px 24px; margin:0;}
+  #bpModal .bd-sec .bp-secbody{display:block !important;}
+  #bpModal .bd-sec .bp-sech{pointer-events:none; font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-weight:400; letter-spacing:.05em; font-size:24px; color:var(--sage-dark); margin:0 0 12px; justify-content:flex-start; gap:8px;}
+  #bpModal .bd-sec .bp-sech::after{display:none;}
+  #bdScreen .ei-head-actions .bp-try{font-size:13px; color:var(--ink-soft); display:flex; align-items:center; gap:6px;}
+  @media (max-width:560px){ #bpModal.ei-one .bd-sec.ei-on{padding:16px 12px;} #bdScreen .ei-head-actions .bp-try{width:100%;} }
   body.cloud-mode #btnReset{display:none !important;}
   .ei-swatches{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
   .ei-swatch{width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0; box-shadow:0 0 0 1px var(--line);}
@@ -1150,7 +1161,7 @@
     body.mob-menu-open #topActions .dropdown-menu{display:block; position:static !important; left:auto !important; right:auto !important; top:auto !important; margin:0; border:none; border-bottom:1px solid var(--line); border-radius:0; box-shadow:none; background:transparent; padding:0 0 8px 10px; min-width:0 !important;}
     body.mob-menu-open #topActions .dropdown-item{font-size:16px; padding:11px 8px; white-space:normal;}
 
-    #topbar{flex-wrap:wrap; padding:10px 12px 8px; background-position:10px 8px; background-size:auto 46px; position:relative; align-items:center; gap:6px;}
+    #topbar{flex-wrap:wrap; padding:10px 12px 8px; background-position:10px 8px; background-size:auto 46px; position:sticky; top:0; align-items:center; gap:6px;}
     #topbar > div:first-child{padding-left:150px; min-height:50px; white-space:normal; flex:1 1 100%;}
     #topbar .tagline{display:none;}
     #topbar .sub{font-size:12.5px; margin-top:8px; white-space:normal;}
@@ -1271,9 +1282,9 @@
     <div class="menu-wrap">
       <button class="ghost-btn menu-trigger solid-btn" id="bigDayMenuBtn">Big day <span class="menu-caret">&#9662;</span></button>
       <div class="dropdown-menu" id="bigDayMenu">
-        <button class="dropdown-item" id="btnBridal" data-plan-need="2">Bridal party&hellip;</button>
-        <button class="dropdown-item" id="btnVendors" data-plan-need="2">Vendors&hellip;</button>
-        <button class="dropdown-item" id="btnPhotos" data-plan-need="2">Group photos&hellip;</button>
+        <button class="dropdown-item" id="btnBridal" data-plan-need="2">Bridal party</button>
+        <button class="dropdown-item" id="btnVendors" data-plan-need="2">Vendors</button>
+        <button class="dropdown-item" id="btnPhotos" data-plan-need="2">Group photos</button>
       </div>
     </div>
 
@@ -1396,39 +1407,7 @@
 </div>
 <button type="button" id="btnAccessFloat" class="hidden" style="position:fixed; left:18px; bottom:18px; z-index:60; background:#b3402f; color:#fff; border:none; border-radius:28px; padding:12px 20px; font-size:14px; font-weight:600; font-family:inherit; box-shadow:0 6px 18px rgba(0,0,0,.28); cursor:pointer;">Plan ended &mdash; renew</button>
 
-<div id="vendorModal" class="modal-overlay hidden">
-  <div class="modal-card bp-card">
-    <h3>Vendors</h3>
-    <ul class="steps bp-intro"><li>Add everyone helping on the day.</li><li>On a job, pick a vendor under <b>Who</b> (Bridal party page).</li><li>Your bridal party then sees <b>Call</b> and <b>WhatsApp</b> buttons.</li><li>Vendor details show on the bridal party link, so share it only with people you trust.</li></ul>
-    <div class="bp-tpl-title">Add a vendor</div>
-    <div class="bp-tpls" id="vnTypes"></div>
-    <div class="bp-cols bp-cols-v"><span>Type</span><span>Name</span><span>Phone</span><span>Email</span><span>Note</span><span></span></div>
-    <div id="vnList"></div>
-    <datalist id="vnTypeList"></datalist>
-    <div class="modal-actions sticky-actions">
-      <button class="ghost-btn" id="vnAdd" style="margin-right:auto;">+ Add a vendor</button>
-      <button class="primary-btn" id="vnClose">Done</button>
-    </div>
-  </div>
-</div>
 
-<div id="photoModal" class="modal-overlay hidden">
-  <div class="modal-card bp-card">
-    <h3>Group photos</h3>
-    <ul class="steps bp-intro"><li>Name each photo and add a time and place.</li><li>Pick the guests in it and add their WhatsApp number.</li><li>Tap <b>WhatsApp</b> to tell them beforehand.</li><li><b>Phone numbers stay private.</b> They never appear on the guest or bridal party pages.</li><li>The bridal party page shows photo names and who is in them.</li></ul>
-    <label style="font-size:12.5px; color:var(--ink-soft);">Your WhatsApp message <span style="font-weight:400;">({name}, {photo}, {when} and {where} are filled in for each guest)</span></label>
-    <textarea id="phMsg" class="custom-num" rows="3" style="width:100%; margin-bottom:10px;"></textarea>
-    <ul class="steps bp-hint"><li>Keep it short: 10 to 20 minutes in total.</li><li>Ask someone who knows everyone to gather people (the &ldquo;wrangler&rdquo;).</li><li>Biggest groups first, then take people out.</li><li>Seat grandparents near shade or chairs.</li></ul>
-    <div id="phList"></div>
-    <datalist id="phGuestList"></datalist>
-    <div class="modal-actions sticky-actions">
-      <button class="ghost-btn" id="phLib">+ Add ready-made photos</button>
-      <button class="ghost-btn" id="phAdd" style="margin-right:auto;">+ Add my own photo</button>
-      <button class="ghost-btn" id="phSort">Sort by time</button>
-      <button class="primary-btn" id="phClose">Done</button>
-    </div>
-  </div>
-</div>
 
 <div id="bpPreviewModal" class="modal-overlay hidden" style="z-index:960;">
   <div class="modal-card" style="width:560px; max-height:88vh; overflow:auto;">
@@ -1976,7 +1955,7 @@
     <button type="button" class="primary-btn" id="eiPublishBtn">Publish &amp; QR code</button>
    </div>
   </div>
-  <div class="ei-note-publish" style="margin:0 0 14px; background:#fdeceb; border:1px solid #f1b9b3; border-left:5px solid #c0392b; border-radius:10px; padding:11px 14px; font-size:13.5px; line-height:1.55; color:#7a231b; margin-bottom:14px;">
+  <div class="ei-note-publish" style="margin:26px 0 26px; background:#fdeceb; border:1px solid #f1b9b3; border-left:5px solid #c0392b; border-radius:10px; padding:11px 14px; font-size:13.5px; line-height:1.55; color:#7a231b; margin-bottom:14px;">
       <b style="color:#b0281c;">&#9888;&#65039; Remember:</b> guests only see what you have published. Once your page has been published, saving here updates it automatically. If you change the seating chart or floor plan, click <b>Publish guest page</b> again.
     </div>
   <div id="eiLockNote" class="hidden" style="background:#fff6e0; border:1px solid #e8cf8a; border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.5; color:#5a4a1c; margin-bottom:12px;">
@@ -2213,12 +2192,29 @@
   </div>
 </div>
 
-<div id="bpModal" class="modal-overlay hidden">
-  <div class="modal-card bp-card">
-    <h3>Bridal party page</h3>
-    <ul class="steps bp-intro"><li>A private page for your bridal party.</li><li>Each person taps their name and sees only their own jobs, with what to do <b>now</b> and <b>next</b>, plus their packing list.</li><li>Start with a ready-made list, then change anything.</li><li>Tap a heading to open or close a section.</li></ul>
-
-    <div class="ei-block bp-sec" id="bpSecDay">
+<div id="bdScreen" class="hidden">
+ <div class="ei-band">
+  <div class="ei-layout">
+  <div class="ei-left">
+  <div class="ei-head">
+   <div class="ei-head-text">
+    <h2>Your big day</h2>
+    <p class="hint">A private page for your bridal party. Each person taps their name and sees only their own jobs, with what to do <b>now</b> and <b>next</b>, plus their packing list, your vendors and the group photos. Tap a section to fill it in. Everything saves automatically.</p>
+   </div>
+   <div class="ei-head-actions">
+    <span class="bp-try">Preview the day at <input type="time" id="bpTryTime" class="custom-num" style="width:110px;" title="Pick a time to see what the page shows then. Leave it empty to use the real time."></span>
+    <button type="button" class="ghost-btn" id="bpPreview">Open preview in a new tab</button>
+    <button type="button" class="primary-btn" id="bpPublish">Publish bridal party page</button>
+    <span id="bdSaveState" class="ei-save-state"></span>
+   </div>
+  </div>
+  <div class="ei-note-publish" style="margin:26px 0 26px; background:#fdeceb; border:1px solid #f1b9b3; border-left:5px solid #c0392b; border-radius:10px; padding:11px 14px; font-size:13.5px; line-height:1.55; color:#7a231b;">
+   <b style="color:#b0281c;">&#9888;&#65039; Remember:</b> your bridal party only sees what you have published. After changing anything here, click <b>Publish bridal party page</b> again. Anyone with the link can read it, so share it only with your bridal party.
+  </div>
+   <div id="bpModal" class="bp-card bd-main">
+    <div id="bdTiles" class="ei-tiles"></div>
+    <div id="bdSecHead" class="ei-sec-head hidden"><button type="button" class="ghost-btn" id="bdBackTiles">&larr; All sections</button><span id="bdSecCount"></span></div>
+    <div class="ei-block bp-sec bd-sec" data-sec="day" id="bpSecDay">
       <h4 class="bp-sech">The day</h4>
       <div class="bp-secbody">
       <div class="bp-grid2">
@@ -2230,7 +2226,7 @@
       </div>
     </div>
 
-    <div class="ei-block bp-sec closed" id="bpSecPeople">
+    <div class="ei-block bp-sec bd-sec" data-sec="people" id="bpSecPeople">
       <h4 class="bp-sech">Who is who</h4>
       <div class="bp-secbody">
       <ul class="steps bp-hint"><li>List everyone who has jobs.</li><li>A job shows for a person if its <b>Who</b> matches their name or role. Use roles like &ldquo;Best Man&rdquo; and add the real names here.</li><li>Phone numbers can be typed any usual way (083 276 9190 or +27 83 276 9190). They give tap-to-call and WhatsApp buttons.</li></ul>
@@ -2239,7 +2235,7 @@
       </div>
     </div>
 
-    <div class="ei-block bp-sec closed" id="bpSecPack">
+    <div class="ei-block bp-sec bd-sec" data-sec="pack" id="bpSecPack">
       <h4 class="bp-sech">What to pack</h4>
       <div class="bp-secbody">
       <ul class="steps bp-hint"><li>A separate checklist so nobody forgets something important, including honeymoon bags.</li><li>Each item has a <b>What</b>, a <b>Who</b> and a <b>When</b> (&ldquo;The day before&rdquo; or a date like &ldquo;12 Oct&rdquo;).</li><li>Items already on the list are never added twice.</li></ul>
@@ -2254,7 +2250,7 @@
       </div>
     </div>
 
-    <div class="ei-block bp-sec closed" id="bpSecJobs">
+    <div class="ei-block bp-sec bd-sec" data-sec="jobs" id="bpSecJobs">
       <h4 class="bp-sech">Big Day jobs <span id="bpJobCount" class="bp-count"></span></h4>
       <div class="bp-secbody">
       <ul class="steps bp-hint"><li>This is the one master list of everything on the day. Each job appears once.</li><li><b>Two ways to start:</b> let the app assign ready-made jobs to the right person or role, or add them unassigned and do it yourself.</li><li>To give a job to a role, tap the arrow under <b>Who</b> and tick the roles (or use Jobs by role below).</li><li>A job can belong to several roles.</li></ul>
@@ -2277,7 +2273,7 @@
       </div>
     </div>
 
-    <div class="ei-block bp-sec closed" id="bpSecRoles">
+    <div class="ei-block bp-sec bd-sec" data-sec="roles" id="bpSecRoles">
       <h4 class="bp-sech">Jobs by role</h4>
       <div class="bp-secbody">
       <ul class="steps bp-hint"><li>One card per role, showing its jobs.</li><li>Cards stay empty until you pick jobs from Big Day jobs, add that role&rsquo;s ready-made jobs, or add a new job.</li><li>Taking a job off a role does not delete it. It stays in Big Day jobs.</li></ul>
@@ -2286,7 +2282,35 @@
       </div>
     </div>
 
-    <div class="ei-block bp-sec closed" id="bpSecUn">
+    <div class="ei-block bp-sec bd-sec" data-sec="vendors" id="vendorModal">
+      <h4 class="bp-sech">Vendors</h4>
+      <div class="bp-secbody">
+    <ul class="steps bp-intro"><li>Add everyone helping on the day.</li><li>On a job, pick a vendor under <b>Who</b> (Bridal party page).</li><li>Your bridal party then sees <b>Call</b> and <b>WhatsApp</b> buttons.</li><li>Vendor details show on the bridal party link, so share it only with people you trust.</li></ul>
+    <div class="bp-tpl-title">Add a vendor</div>
+    <div class="bp-tpls" id="vnTypes"></div>
+    <div class="bp-cols bp-cols-v"><span>Type</span><span>Name</span><span>Phone</span><span>Email</span><span>Note</span><span></span></div>
+    <div id="vnList"></div>
+    <datalist id="vnTypeList"></datalist>
+      <div class="bp-jobbtns"><button type="button" class="ghost-btn" id="vnAdd">+ Add a vendor</button></div>
+      </div>
+    </div>
+    <div class="ei-block bp-sec bd-sec" data-sec="photos" id="photoModal">
+      <h4 class="bp-sech">Group photos</h4>
+      <div class="bp-secbody">
+    <ul class="steps bp-intro"><li>Name each photo and add a time and place.</li><li>Pick the guests in it and add their WhatsApp number.</li><li>Tap <b>WhatsApp</b> to tell them beforehand.</li><li><b>Phone numbers stay private.</b> They never appear on the guest or bridal party pages.</li><li>The bridal party page shows photo names and who is in them.</li></ul>
+    <label style="font-size:12.5px; color:var(--ink-soft);">Your WhatsApp message <span style="font-weight:400;">({name}, {photo}, {when} and {where} are filled in for each guest)</span></label>
+    <textarea id="phMsg" class="custom-num" rows="3" style="width:100%; margin-bottom:10px;"></textarea>
+    <ul class="steps bp-hint"><li>Keep it short: 10 to 20 minutes in total.</li><li>Ask someone who knows everyone to gather people (the &ldquo;wrangler&rdquo;).</li><li>Biggest groups first, then take people out.</li><li>Seat grandparents near shade or chairs.</li></ul>
+    <div id="phList"></div>
+    <datalist id="phGuestList"></datalist>
+      <div class="bp-jobbtns">
+        <button type="button" class="ghost-btn" id="phLib">+ Add ready-made photos</button>
+        <button type="button" class="ghost-btn" id="phAdd">+ Add my own photo</button>
+        <button type="button" class="ghost-btn" id="phSort">Sort by time</button>
+      </div>
+      </div>
+    </div>
+    <div class="ei-block bp-sec bd-sec" data-sec="un" id="bpSecUn">
       <h4 class="bp-sech">Deleted &amp; unassigned <span id="bpDelCount" class="bp-count"></span></h4>
       <div class="bp-secbody">
       <div class="bp-tpl-title">Jobs nobody has been given</div>
@@ -2296,12 +2320,12 @@
       </div>
     </div>
 
-    <div class="ei-block bp-sec closed" id="bpSecShare">
+    <div class="ei-block bp-sec bd-sec" data-sec="share" id="bpSecShare">
       <h4 class="bp-sech">Share it</h4>
       <div class="bp-secbody">
       <div id="bpSignedOut" class="hidden bp-warn">Sign in to publish this page and get a link. Your work here is saved with your project.</div>
       <div id="bpShare">
-        <div class="bp-linkrow"><input type="text" id="bpLink" class="custom-num" readonly placeholder="Click Publish to get your link"><button type="button" class="ghost-btn" id="bpCopy">Copy link</button><button type="button" class="ghost-btn" id="bpOpenPage">Open page</button></div>
+        <div class="bp-linkrow"><input type="text" id="bpLink" class="custom-num" readonly placeholder="Click Publish to get your link"><button type="button" class="ghost-btn" id="bpCopy">Copy link</button><button type="button" class="ghost-btn" id="bpOpenPage">Open page</button><button type="button" class="ghost-btn" id="bpQrDl">Download QR code</button></div>
         <div style="display:flex; gap:14px; align-items:flex-start; margin-top:10px;">
           <img id="bpQrImg" alt="QR code" style="width:120px; height:120px; border:1px solid var(--line); background:#fff; visibility:hidden;">
           <div style="font-size:12.5px; color:var(--ink-soft); line-height:1.5;">
@@ -2316,14 +2340,15 @@
       </div>
     </div>
 
-    <div class="modal-actions sticky-actions" style="flex-wrap:wrap;">
-      <span class="bp-try">Preview the day at <input type="time" id="bpTryTime" class="custom-num" style="width:110px;" title="Pick a time to see what the page shows then. Leave it empty to use the real time."></span>
-      <button class="ghost-btn" id="bpPreview" style="margin-right:auto;">Preview</button>
-      <button class="ghost-btn" id="bpQrDl">Download QR code</button>
-      <button class="primary-btn" id="bpPublish">Publish</button>
-      <button class="ghost-btn" id="bpClose">Close</button>
-    </div>
+    <div id="bdSecFoot" class="ei-sec-foot hidden"><button type="button" class="ghost-btn" id="bdBackTiles2">&larr; All sections</button><button type="button" class="primary-btn" id="bdNextSec">Next</button></div>
+   </div>
   </div>
+   <aside class="ei-phone-wrap" id="bdPhoneWrap">
+    <div class="ei-phone-label">What your bridal party sees</div>
+    <div class="ei-phone"><iframe id="bdPhoneFrame" title="Preview of your bridal party page"></iframe></div>
+   </aside>
+  </div>
+ </div>
 </div>
 
 <div id="howToModal" class="modal-overlay hidden" style="z-index:400;">
@@ -4759,9 +4784,7 @@ function performRedo(){
 }
 
 function afterHistoryRestore(){
-  try{ if(!document.getElementById('bpModal').classList.contains('hidden')) renderBp(); }catch(e){}
-  try{ if(!document.getElementById('vendorModal').classList.contains('hidden')) vnRender(); }catch(e){}
-  try{ if(!document.getElementById('photoModal').classList.contains('hidden')) phRender(); }catch(e){}
+  try{ if(bdPageOpen()){ renderBp(); vnRender(); phRender(); if(!bdCurrent) bdRenderTiles(); bdChanged(); } }catch(e){}
   const hasTables = state.tables && state.tables.length > 0;
   if(hasTables || !projectActive){
     document.getElementById('hubScreen').classList.add('hidden'); hubOpen = false;
@@ -8711,7 +8734,7 @@ document.getElementById('btnPublishFloat').addEventListener('click', async ()=>{
 function refreshBpPublishFloat(){
   const btn = document.getElementById('btnBpPublishFloat');
   const onChecklist = !document.getElementById('checklistScreen').classList.contains('hidden');
-  const bpOpen = !document.getElementById('bpModal').classList.contains('hidden');
+  const bpOpen = false;   /* the big day page has its own Publish button */
   const ready = !!(sb && cloudUser && cloudEnabled);
   btn.classList.toggle('hidden', !(ready && (onChecklist || bpOpen)));
   /* shift guest publish button up if both would overlap */
@@ -9311,7 +9334,9 @@ function bpAddPackTemplate(t){
 }
 function openBp(){
   if(!needPlan(2, 'The bridal party page')) return;
-  pushNav('bridal');
+  showBdPage('');
+}
+function bdPrepareBridal(){
   const b = bpData();
   const pt = document.getElementById('bpPackTpls'); pt.innerHTML = '';
   BP_PACK_TEMPLATES.forEach(t=> pt.appendChild(bpBtn('+ ' + t.name, ()=> bpAddPackTemplate(t))));
@@ -9320,14 +9345,149 @@ function openBp(){
   b.jobs.forEach(j=>{ if(!j.id) j.id = uid('bj'); });
   bpDedupe(true);
   document.getElementById('bpStatus').textContent = b.published ? 'Published ' + b.published : 'Not published yet';
-  document.querySelectorAll('#bpModal .bp-sec').forEach(sec=> sec.classList.add('closed'));
+  document.querySelectorAll('#bpModal .bp-sec').forEach(sec=> sec.classList.remove('closed'));
   renderBp();
-  document.getElementById('bpModal').classList.remove('hidden');
 }
 ['bpTitle','bpDate','bpNote'].forEach(id=> document.getElementById(id).addEventListener('input', ()=>{
   const b = bpData();
   b.title = document.getElementById('bpTitle').value; b.date = document.getElementById('bpDate').value; b.note = document.getElementById('bpNote').value; isDirty = true;
 }));
+
+/* ===================== Your big day: bridal party, vendors and group photos as one page with tiles ===================== */
+const BD_SECS = [
+  {k:'day',     t:'The day',              d:'Page title, wedding date and a short note.'},
+  {k:'people',  t:'Who is who',           d:'Everyone with a job, with their role and phone number.'},
+  {k:'pack',    t:'What to pack',         d:'Checklists so nobody forgets anything, honeymoon bags too.'},
+  {k:'jobs',    t:'Big Day jobs',         d:'The one master list of everything on the day.'},
+  {k:'roles',   t:'Jobs by role',         d:'Each role’s jobs, e.g. Best Man or MC.'},
+  {k:'vendors', t:'Vendors',              d:'Hair, make-up, catering and more, with Call and WhatsApp buttons.'},
+  {k:'photos',  t:'Group photos',         d:'Who is in each group photo, when and where.'},
+  {k:'un',      t:'Deleted & unassigned', d:'Jobs nobody has yet, and things you deleted.'},
+  {k:'share',   t:'Share it',             d:'Your private link, QR code and 4-digit code.'}
+];
+let bdCurrent = '', bdSaveTimer = null, bdPvTimer = null;
+function bdPageOpen(){ const el = document.getElementById('bdScreen'); return !!el && !el.classList.contains('hidden'); }
+function bdStatus(k){
+  const b = bpData(), n = (x, one, many)=> x + ' ' + (x === 1 ? one : many);
+  const has = v=> !!(v || '').trim();
+  let t = '';
+  if(k === 'day'){ const bits = []; if(has(document.getElementById('bpTitle').value)) bits.push('title'); if(document.getElementById('bpDate').value) bits.push('date'); if(has(document.getElementById('bpNote').value)) bits.push('note'); t = bits.length ? bits.join(', ').replace(/^./, c=> c.toUpperCase()) + ' added' : ''; }
+  else if(k === 'people'){ const x = b.people.filter(p=> has(p.name) || has(p.role)).length; t = x ? n(x, 'person', 'people') : ''; }
+  else if(k === 'pack'){ const x = b.pack.filter(q=> has(q.what)).length; t = x ? n(x, 'item', 'items') : ''; }
+  else if(k === 'jobs'){ const x = b.jobs.filter(j=> has(j.task)).length; t = x ? n(x, 'job', 'jobs') : ''; }
+  else if(k === 'roles'){ const x = document.querySelectorAll('#bpRoles .bp-role').length; t = x ? n(x, 'role', 'roles') : ''; }
+  else if(k === 'vendors'){ const x = vendorList().filter(v=> has(v.name)).length; t = x ? n(x, 'vendor', 'vendors') : ''; }
+  else if(k === 'photos'){ const x = photoList().filter(v=> has(v.name)).length; t = x ? n(x, 'photo', 'photos') : ''; }
+  else if(k === 'un'){
+    const u = b.jobs.filter(j=> has(j.task) && !has(j.who)).length, d = b.trash.length;
+    const bits = []; if(u) bits.push(u + ' unassigned'); if(d) bits.push(d + ' deleted');
+    return {t: bits.length ? bits.join(' · ') : 'Nothing here', done:false, warn: u > 0};
+  }
+  else if(k === 'share'){ return b.published ? {t:'Published ' + b.published, done:true} : {t:'Not published yet', done:false}; }
+  return {t: t || 'Not started yet', done: !!t};
+}
+function bdRenderTiles(){
+  const box = document.getElementById('bdTiles'); box.innerHTML = '';
+  BD_SECS.forEach(sec=>{
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'hub-card ei-tile';
+    const st = bdStatus(sec.k);
+    const h = document.createElement('b'); h.textContent = sec.t;
+    const d = document.createElement('span'); d.textContent = sec.d;
+    const e = document.createElement('em'); e.textContent = (st.done ? '✓ ' : '') + st.t; if(st.done) e.className = 'done'; if(st.warn) e.className = 'locked';
+    b.append(h, d, e);
+    b.addEventListener('click', ()=> bdOpenSec(sec.k));
+    box.appendChild(b);
+  });
+}
+function bdShowTiles(){
+  bdCurrent = '';
+  const m = document.getElementById('bpModal'); m.classList.remove('ei-one');
+  m.querySelectorAll('.bd-sec').forEach(x=> x.classList.remove('ei-on'));
+  document.getElementById('bdTiles').classList.remove('hidden');
+  document.getElementById('bdSecHead').classList.add('hidden');
+  document.getElementById('bdSecFoot').classList.add('hidden');
+  bdRenderTiles(); bdRefreshPhone(true);
+}
+function bdOpenSec(k){
+  bdCurrent = k;
+  const m = document.getElementById('bpModal'); m.classList.add('ei-one');
+  m.querySelectorAll('.bd-sec').forEach(x=> x.classList.toggle('ei-on', x.dataset.sec === k));
+  document.getElementById('bdTiles').classList.add('hidden');
+  document.getElementById('bdSecHead').classList.remove('hidden');
+  document.getElementById('bdSecFoot').classList.remove('hidden');
+  const i = BD_SECS.findIndex(x=> x.k === k);
+  document.getElementById('bdSecCount').textContent = (i + 1) + ' of ' + BD_SECS.length;
+  const nx = BD_SECS[i + 1], nb = document.getElementById('bdNextSec');
+  nb.classList.toggle('hidden', !nx);
+  if(nx) nb.textContent = 'Next: ' + nx.t + ' →';
+  if(k === 'vendors') vnRender();
+  if(k === 'photos') phRender();
+  requestAnimationFrame(()=> m.querySelectorAll('textarea.j-task, textarea.k-what').forEach(bpAutosize));
+  if(window.innerWidth < 760) document.getElementById('bdSecHead').scrollIntoView({block:'start'});
+  else window.scrollTo(0,0);
+  bdRefreshPhone(true);
+}
+function showBdPage(sec){
+  pushNav('bigday');
+  hideHub(); projectActive = true;
+  ['mainLayout','setupScreen','hubBackBar','checklistScreen'].forEach(id=> document.getElementById(id).classList.add('hidden'));
+  document.getElementById('bdScreen').classList.remove('hidden');
+  document.getElementById('topActions').style.display = 'flex';
+  document.getElementById('floatingSaveBtn').style.display = 'none';
+  document.getElementById('topSub').textContent = (state.eventName || 'Your project') + ' — big day';
+  if(window.setNavOn) setNavOn('bigDayMenuBtn');
+  document.getElementById('bdSaveState').textContent = '';
+  bdPrepareBridal(); bdPrepareVendors(); phRender();
+  if(sec) bdOpenSec(sec); else { bdShowTiles(); window.scrollTo(0,0); }
+}
+function hideBdPage(){
+  const el = document.getElementById('bdScreen');
+  if(!el || el.classList.contains('hidden')) return;
+  el.classList.add('hidden');
+}
+/* changes save with the project automatically (every few seconds); show it, and refresh the phone */
+function bdChanged(){
+  clearTimeout(bdSaveTimer);
+  bdSaveTimer = setTimeout(()=>{
+    if(!bdPageOpen()) return;
+    document.getElementById('bdSaveState').textContent = cloudUser ? 'Saved ✓ · click Publish when you are ready' : 'Saved on this computer ✓';
+    if(!bdCurrent) bdRenderTiles();
+    bdRefreshPhone(false);
+  }, 900);
+}
+function bdPreviewData(){
+  const b = bpData(), keep = b.jobs;
+  b.jobs = keep.slice();               /* collecting sorts the jobs: do that on a copy, so rows don't jump while she types */
+  let data;
+  try{ data = bpCollect(); } finally { b.jobs = keep; }
+  return data;
+}
+function bdRefreshPhone(now){
+  clearTimeout(bdPvTimer);
+  bdPvTimer = setTimeout(()=>{
+    const wrap = document.getElementById('bdPhoneWrap');
+    if(!bdPageOpen() || getComputedStyle(wrap).display === 'none') return;
+    try{ localStorage.setItem('tableauBridalPreview', JSON.stringify(bdPreviewData())); }catch(e){ return; }
+    const t = document.getElementById('bpTryTime').value;
+    const url = 'bridal-party.html?preview=1&v=' + Date.now() + (t ? '&now=' + encodeURIComponent(t) : '');
+    const f = document.getElementById('bdPhoneFrame');
+    try{ if(f.contentWindow && f.getAttribute('src')){ f.contentWindow.location.replace(url); return; } }catch(e){}
+    f.src = url;
+  }, now ? 50 : 1200);
+}
+(function(){
+  const pg = document.getElementById('bpModal');
+  ['input','change'].forEach(ev=> pg.addEventListener(ev, bdChanged));
+  pg.addEventListener('click', ()=> setTimeout(bdChanged, 50));
+  document.getElementById('bpTryTime').addEventListener('change', ()=> bdRefreshPhone(true));
+  const back = ()=>{ bdShowTiles(); window.scrollTo(0,0); };
+  document.getElementById('bdBackTiles').addEventListener('click', back);
+  document.getElementById('bdBackTiles2').addEventListener('click', back);
+  document.getElementById('bdNextSec').addEventListener('click', ()=>{
+    const i = BD_SECS.findIndex(x=> x.k === bdCurrent), nx = BD_SECS[i + 1];
+    if(nx) bdOpenSec(nx.k); else back();
+  });
+})();
 document.getElementById('btnBridal').addEventListener('click', openBp);
 document.getElementById('btnNavTables').addEventListener('click', ()=>{ if((state.tables||[]).length) enterMain('seating'); else showSetupScreen(); });
 document.getElementById('btnNavFloor').addEventListener('click', ()=> enterMain('floorplan'));
@@ -9339,8 +9499,6 @@ document.getElementById('btnShareTableau').addEventListener('click', ()=>{
   if(navigator.share){ navigator.share({title:'Tableau Events', text:msg, url}).catch(()=>{}); }
   else { try{ navigator.clipboard.writeText(url); toast('Link copied! Share tableauevents.co.za with a friend.'); }catch(e){ toast('tableauevents.co.za — share this with a friend!', 5000); } }
 });
-document.getElementById('bpClose').addEventListener('click', ()=> document.getElementById('bpModal').classList.add('hidden'));
-document.getElementById('bpModal').addEventListener('click', e=>{ if(e.target === document.getElementById('bpModal')) document.getElementById('bpModal').classList.add('hidden'); });
 document.getElementById('bpAddPerson').addEventListener('click', ()=>{
   const b = bpData(); pushUndo(); const np = {id: uid('bp'), name:'', role:'', phone:''}; b.people.push(np); bpOpen.add(np.id); renderBp();
   const rows = document.querySelectorAll('#bpPeople .bp-row'); if(rows.length) rows[rows.length-1].querySelector('input').focus();
@@ -9454,7 +9612,9 @@ function vnRender(){
 }
 function openVendors(){
   if(!needPlan(2, 'Vendors')) return;
-  pushNav('vendors');
+  showBdPage('vendors');
+}
+function bdPrepareVendors(){
   const dl = document.getElementById('vnTypeList'); dl.innerHTML = '';
   VN_TYPES.forEach(t=>{ const o = document.createElement('option'); o.value = t; dl.appendChild(o); });
   const tb = document.getElementById('vnTypes'); tb.innerHTML = '';
@@ -9463,10 +9623,8 @@ function openVendors(){
     const rows = document.querySelectorAll('#vnList .bp-row'); const last = rows[rows.length-1]; if(last){ last.scrollIntoView({block:'center'}); const i = last.querySelector('.f-main input'); if(i) i.focus(); }
   })));
   vnRender();
-  document.getElementById('vendorModal').classList.remove('hidden');
 }
 document.getElementById('btnVendors').addEventListener('click', openVendors);
-document.getElementById('vnClose').addEventListener('click', ()=> document.getElementById('vendorModal').classList.add('hidden'));
 document.getElementById('vnAdd').addEventListener('click', ()=>{
   pushUndo(); const nv = {id: uid('vn'), type:'', name:'', phone:'', email:'', note:''}; vendorList().push(nv); bpOpen.add(nv.id); vnRender();
   const rows = document.querySelectorAll('#vnList .bp-row'); const last = rows[rows.length-1]; if(last){ last.scrollIntoView({block:'center'}); last.querySelector('input').focus(); }
@@ -9534,9 +9692,8 @@ function phRender(){
     box.appendChild(card);
   });
 }
-function openPhotos(){ if(!needPlan(2, 'Group photos')) return; pushNav('photos'); phRender(); document.getElementById('photoModal').classList.remove('hidden'); }
+function openPhotos(){ if(!needPlan(2, 'Group photos')) return; showBdPage('photos'); }
 document.getElementById('btnPhotos').addEventListener('click', openPhotos);
-document.getElementById('phClose').addEventListener('click', ()=> document.getElementById('photoModal').classList.add('hidden'));
 document.getElementById('phAdd').addEventListener('click', ()=>{
   pushUndo(); photoList().push({id: uid('ph'), name:'', time:'', place:'', guestIds:[], others:'', told:{}}); phRender();
   const cards = document.querySelectorAll('#phList .ph-card'); const last = cards[cards.length-1]; if(last){ last.scrollIntoView({block:'center'}); last.querySelector('input').focus(); }
@@ -10263,7 +10420,7 @@ function authCooldownStart(label, againLabel){
   }, 1000);
 }
 function showAuthScreen(mode){
-  hideEiPage();
+  hideEiPage(); hideBdPage();
   authMode = mode || 'signin';
   authCooldownStop();
   authMessage('');
@@ -10474,13 +10631,15 @@ window.addEventListener('popstate', function(){
   const onChecklist = !document.getElementById('checklistScreen').classList.contains('hidden');
   const onEi = !document.getElementById('eiScreen').classList.contains('hidden');
   if(onEi && eiCurrent){ eiCommit(false); eiShowTiles(); pushNav('eventinfo'); return; }
-  if(onGuest || onSetup || onMain || onChecklist || onEi){ showHub(false); return; }
+  const onBd = bdPageOpen();
+  if(onBd && bdCurrent){ bdShowTiles(); pushNav('bigday'); return; }
+  if(onGuest || onSetup || onMain || onChecklist || onEi || onBd){ showHub(false); return; }
   // 3. On hub — let the browser navigate away normally
 });
 // ─────────────────────────────────────────────────────────────────────────────
 
 function showHub(first){
-  hideEiPage();
+  hideEiPage(); hideBdPage();
   if(window.setNavOn) setNavOn('chartMenuBtn');
   projectActive = true; hubOpen = true;
   document.getElementById('hubTitle').textContent = first ? 'Let\u2019s get started' : 'Let\u2019s map out your day.';
@@ -10505,7 +10664,7 @@ function showHub(first){
   document.getElementById('topSub').textContent = state.eventName || 'Your project';
   window.scrollTo(0,0);
 }
-function hideHub(){ hideEiPage(); hubOpen = false; document.getElementById('hubScreen').classList.add('hidden'); document.getElementById('guestScreen').classList.add('hidden'); }
+function hideHub(){ hideEiPage(); hideBdPage(); hubOpen = false; document.getElementById('hubScreen').classList.add('hidden'); document.getElementById('guestScreen').classList.add('hidden'); }
 function enterMain(view){
   pushNav(view || 'seating');
   hideHub(); showMainUI();
@@ -10583,7 +10742,7 @@ document.getElementById('btnSetupBack').addEventListener('click', ()=> showHub(f
 document.getElementById('btnNoTableSetup').addEventListener('click', showSetupScreen);
 document.getElementById('btnHubMenu').addEventListener('click', ()=>{ showHub(false); });
 function showMainUI(){
-  hideEiPage();
+  hideEiPage(); hideBdPage();
   hubOpen = false; document.getElementById('hubScreen').classList.add('hidden'); document.getElementById('guestScreen').classList.add('hidden'); document.getElementById('hubBackBar').classList.add('hidden');
   document.getElementById('setupScreen').classList.add('hidden');
   document.getElementById('mainLayout').classList.remove('hidden');
@@ -10674,7 +10833,7 @@ document.getElementById('btnNewCloudChart').addEventListener('click', ()=>{
 /* ---- landing page ---- */
 function hideLanding(){ document.getElementById('landingScreen').classList.add('hidden'); }
 async function showLanding(){
-  hideEiPage();
+  hideEiPage(); hideBdPage();
   document.getElementById('authScreen').classList.add('hidden');
   document.getElementById('chartsScreen').classList.add('hidden');
   document.getElementById('landingNewRow').classList.add('hidden');
