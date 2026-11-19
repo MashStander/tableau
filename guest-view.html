@@ -189,6 +189,30 @@
   .note-h:first-child{margin-top:0;}
   .note-p{text-align:center; font-size:15px; line-height:1.6;}
   .note-gap{height:14px;}
+  .songs-note{text-align:center; font-size:15px; line-height:1.55; margin:-6px 0 16px; color:var(--ink-soft, #6b6b6b);}
+  .songs-note:empty{display:none;}
+  .sg-label{display:block; font-size:13px; font-weight:600; margin:10px 0 4px;}
+  .sg-in{width:100%; box-sizing:border-box; font:inherit; font-size:16px; padding:11px 12px; border:1px solid #d9d4c7; border-radius:10px; background:#fff;}
+  .sg-in:focus{outline:2px solid var(--sage); border-color:var(--sage);}
+  .sg-send{width:100%; margin:16px 0 6px; cursor:pointer; font:inherit; font-size:16px;}
+  .sg-send:disabled{opacity:.6;}
+  .sg-msg{text-align:center; font-size:14px; min-height:1.2em; margin:6px 0 0;}
+  .sg-msg.ok{color:var(--sage-dark);} .sg-msg.err{color:#b0281c;}
+  .sg-mine-h{font-size:12px; text-transform:uppercase; letter-spacing:.08em; margin:18px 0 6px; color:var(--ink-soft, #6b6b6b);}
+  .sg-mine{margin:0; padding-left:20px; font-size:14px; line-height:1.6;}
+  .sg-dj{text-align:center; background:var(--paper, #faf8f2); border:1px solid #ece6d8; border-radius:12px; padding:12px 14px; margin:0 0 16px;}
+  .sg-dj-h{font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft, #6b6b6b);}
+  .sg-dj-name{font-size:19px; font-weight:600; margin:2px 0 6px; color:var(--sage-dark);}
+  .sg-dj-links{display:flex; justify-content:center; gap:14px; flex-wrap:wrap; font-size:14px;}
+  .sg-dj-a{color:var(--sage-dark); text-decoration:none; border-bottom:1px solid currentColor;}
+  .sg-list{list-style:none; margin:0; padding:0;}
+  .sg-list li{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px solid #eee8db; font-size:14.5px;}
+  .sg-list li.played{opacity:.55;}
+  .sg-list .sg-empty{justify-content:center; color:var(--ink-soft, #6b6b6b); border:0;}
+  .sg-t{min-width:0;}
+  .sg-like{flex:0 0 auto; border:1px solid var(--sage); background:#fff; color:var(--sage-dark); border-radius:20px; padding:5px 12px; font:inherit; font-size:14px; cursor:pointer;}
+  .sg-like.on, .sg-like:disabled{background:var(--sage); color:#fff; opacity:1;}
+  .sg-played{flex:0 0 auto; font-size:12.5px; color:var(--ink-soft, #6b6b6b);}
   .menu-p{text-align:center; padding:3px 0; font-size:15px;}
   .link-btn{display:block; text-align:center; padding:13px 14px; border:1px solid var(--sage); border-radius:10px; color:var(--sage-dark); text-decoration:none; font-weight:500; margin-bottom:10px;}
   .album-btn{background:var(--sage); color:#fff; border-color:var(--sage-dark);}
@@ -305,6 +329,28 @@
     <button class="back-btn homeBack" data-home="1">&larr; Home</button>
     <div class="card"><h2 class="view-title" id="notesTitle">A note from us</h2><div id="notesBody"></div></div>
   </div>
+  <div id="songsSection" class="hidden">
+    <button class="back-btn homeBack" data-home="1">&larr; Home</button>
+    <div class="card">
+      <h2 class="view-title" id="songsTitle">Song requests</h2>
+      <p class="songs-note" id="songsNote"></p>
+      <div id="sgDj" class="sg-dj hidden">
+        <div class="sg-dj-h" id="sgDjH">Your DJ tonight</div>
+        <div class="sg-dj-name" id="sgDjName"></div>
+        <div class="sg-dj-links"><a id="sgDjLink" class="sg-dj-a hidden" target="_blank" rel="noopener"></a><a id="sgDjPhone" class="sg-dj-a hidden"></a></div>
+      </div>
+      <label class="sg-label" for="sgTitle" id="sgTitleL">Song</label>
+      <input type="text" id="sgTitle" class="sg-in" maxlength="120" autocomplete="off">
+      <label class="sg-label" for="sgArtist" id="sgArtistL">Artist (optional)</label>
+      <input type="text" id="sgArtist" class="sg-in" maxlength="120" autocomplete="off">
+      <label class="sg-label" for="sgName" id="sgNameL">Your name (optional)</label>
+      <input type="text" id="sgName" class="sg-in" maxlength="60" autocomplete="given-name">
+      <button type="button" class="link-btn album-btn sg-send" id="sgSend">Send my request</button>
+      <p class="sg-msg" id="sgMsg"></p>
+      <div id="sgMineBox" class="hidden"><div class="sg-mine-h" id="sgMineH">You asked for</div><ul id="sgMine" class="sg-mine"></ul></div>
+      <div id="sgListBox" class="hidden"><div class="sg-mine-h" id="sgListH">Requested so far</div><ul id="sgList" class="sg-list"></ul></div>
+    </div>
+  </div>
   <div id="giftsSection" class="hidden">
     <button class="back-btn homeBack" data-home="1">&larr; Home</button>
     <div class="card"><h2 class="view-title" id="giftsTitle">Gifts</h2><div id="giftsBody"></div></div>
@@ -366,7 +412,7 @@ const SB_URL = 'https://aalpoaixingjehgnbfop.supabase.co';
 const SB_KEY = 'sb_publishable_ubTdSPCyUwus8voOcwY3kA_SGWO8edE';
 const FP_MAX_PX_WIDTH = 440;
 
-const SECTION_IDS = {seat:'seatSection', program:'programSection', menu:'menuSection', notes:'notesSection', gifts:'giftsSection', photos:'photosSection', links:'linksSection'};
+const SECTION_IDS = {seat:'seatSection', program:'programSection', menu:'menuSection', notes:'notesSection', songs:'songsSection', gifts:'giftsSection', photos:'photosSection', links:'linksSection'};
 let availableSections = [];
 let START_HASH = (location.hash || '').slice(1);
 let CURRENT_SEC = '';   // the screen to reopen when a guest comes back from an outside link
@@ -382,6 +428,7 @@ function imgs(info, key){
 function showSection(name, how){
   how = how || {};
   CURRENT_SEC = name;
+  if(name === 'songs') setTimeout(sgLoadList, 0);
   if(name === 'seat'){
     document.getElementById('searchView').classList.remove('hidden');
     document.getElementById('groupView').classList.add('hidden');
@@ -432,13 +479,14 @@ function buildHome(){
     program:    lbl.program    || 'Programme',
     menu:       lbl.menu       || 'Menu',
     notes:      lbl.notes      || tr('notesTitle'),
+    songs:      lbl.songs      || tr('songsTitle'),
     gifts:      lbl.gifts      || 'Gifts',
     photos:     lbl.photos     || 'Photos & videos',
     links:      lbl.links      || 'Links & info',
     tablemates: lbl.tablemates || 'Sitting at this table'
   };
   // Push labels into section headings
-  ['program','menu','notes','gifts','photos','links'].forEach(id=>{
+  ['program','menu','notes','songs','gifts','photos','links'].forEach(id=>{
     const el = document.getElementById(id+'Title');
     if(el) el.textContent = L[id];
   });
@@ -458,6 +506,8 @@ function buildHome(){
     tiles.push({id:'gifts', label:L.gifts, sub:tr('subGifts')});
   if(info.album && /^https:\/\//i.test(info.album.url || ''))
     tiles.push({id:'photos', label:L.photos, sub:tr('subPhotos')});
+  if(paidPlan && info.songs && info.songs.on)
+    tiles.push({id:'songs', label:L.songs, sub:tr('subSongs')});
   if(info.links && info.links.some(l => /^https?:\/\//i.test(l.url)))
     tiles.push({id:'links', label:L.links, sub:tr('subLinks')});
   availableSections = tiles.map(t=>t.id);
@@ -567,6 +617,34 @@ function renderSections(){
     notes.appendChild(d);
   });
   addImages(notes, imgs(info,'notes'), 'A note from us');
+
+  document.getElementById('songsNote').textContent = (info.songs && info.songs.note) || '';
+  document.getElementById('sgTitleL').textContent = tr('sgSong');
+  document.getElementById('sgArtistL').textContent = tr('sgArtist');
+  document.getElementById('sgNameL').textContent = tr('sgName');
+  document.getElementById('sgSend').textContent = tr('sgSend');
+  document.getElementById('sgMineH').textContent = tr('sgMine');
+  document.getElementById('sgListH').textContent = tr('sgListH');
+  sgShowMine();
+  /* the DJ: a little exposure for their business */
+  const dj = info.songs && info.songs.dj;
+  document.getElementById('sgDj').classList.toggle('hidden', !(dj && dj.name));
+  if(dj && dj.name){
+    document.getElementById('sgDjH').textContent = '\uD83C\uDFA7 ' + tr('sgDjH');
+    document.getElementById('sgDjName').textContent = dj.name;
+    const a = document.getElementById('sgDjLink'), ok = /^https:\/\//i.test(dj.link || '');
+    a.classList.toggle('hidden', !ok);
+    if(ok){
+      a.href = dj.link;
+      const m = dj.link.match(/instagram\.com\/([^\/?#]+)/i);
+      a.textContent = m ? '\uD83D\uDCF7 @' + m[1] : (/facebook\.com/i.test(dj.link) ? '\uD83D\uDC4D Facebook' : '\uD83C\uDF10 ' + dj.link.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, ''));
+    }
+    const ph = document.getElementById('sgDjPhone'), digits = (dj.phone || '').replace(/[^\d+]/g, '');
+    ph.classList.toggle('hidden', digits.length < 9);
+    if(digits.length >= 9){ ph.href = 'tel:' + digits; ph.textContent = '\uD83D\uDCDE ' + tr('sgDjBook') + ': ' + dj.phone; }
+  }
+  SG_LIST_ON = !!(info.songs && info.songs.list);
+  document.getElementById('sgListBox').classList.add('hidden');
 
   const gifts = document.getElementById('giftsBody'); gifts.innerHTML = '';
   if(info.bankNote){ const n = document.createElement('div'); n.className = 'bank-note'; n.textContent = info.bankNote; gifts.appendChild(n); }
@@ -740,7 +818,7 @@ function showGroup(i, list){
 /* ---------- guest page language (fixed wording) ---------- */
 const TXT = {
   en: {
-    subSeat:'Search your name or browse by letter', subProgram:'The order of the day', subMenu:'What is being served', subNotes:'Words, songs and readings', notesTitle:'A note from us',
+    subSeat:'Search your name or browse by letter', subProgram:'The order of the day', subMenu:'What is being served', subNotes:'Words, songs and readings', subSongs:'Ask for a song for the dance floor', songsTitle:'Song requests', sgSong:'Song', sgArtist:'Artist (optional)', sgName:'Your name (optional)', sgSend:'Send my request', sgThanks:'Thank you! \uD83C\uDFB6 Your song is on the list. Add another?', sgFail:'Sorry, that did not go through. Please try again.', sgNeed:'Please type the name of the song.', sgMine:'You asked for', sgLimit:'That\u2019s plenty of requests from this phone. Thank you!', sgPreview:'This is a preview, so requests are not sent.', sgSending:'Sending\u2026', sgDjH:'Your DJ tonight', sgDjBook:'Bookings', sgListH:'Requested so far', sgPlayed:'Played', sgListEmpty:'No requests yet. Be the first!', sgLikeT:'Me too', notesTitle:'A note from us',
     subGifts:'Banking details', subPhotos:'Share your pictures from the day', subLinks:'Website and more',
     back:'← Home', searchAgain:'← Home',
     seatPrompt:'Type your name to see where you’re sitting.', searchPh:'Start typing your name…',
@@ -769,7 +847,7 @@ const TXT = {
     days:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
   },
   af: {
-    subSeat:'Tik jou naam of soek onder die gepaste letter', subProgram:'Die verloop van die dag', subMenu:'Wat word bedien?', subNotes:'Woorde, liedere en voorlesings', notesTitle:"'n Boodskap van ons",
+    subSeat:'Tik jou naam of soek onder die gepaste letter', subProgram:'Die verloop van die dag', subMenu:'Wat word bedien?', subNotes:'Woorde, liedere en voorlesings', subSongs:'Vra vir \u2019n liedjie vir die dansvloer', songsTitle:'Liedjieversoeke', sgSong:'Liedjie', sgArtist:'Kunstenaar (opsioneel)', sgName:'Jou naam (opsioneel)', sgSend:'Stuur my versoek', sgThanks:'Dankie! \uD83C\uDFB6 Jou liedjie is op die lys. Nog een?', sgFail:'Jammer, dit het nie deurgegaan nie. Probeer asseblief weer.', sgNeed:'Tik asseblief die liedjie se naam.', sgMine:'Jy het gevra vir', sgLimit:'Dis genoeg versoeke van hierdie foon af. Dankie!', sgPreview:'Dit is \u2019n voorskou, so versoeke word nie gestuur nie.', sgSending:'Stuur\u2026', sgDjH:'Jou DJ vanaand', sgDjBook:'Besprekings', sgListH:'Reeds gevra', sgPlayed:'Gespeel', sgListEmpty:'Nog geen versoeke nie. Wees die eerste!', sgLikeT:'Ek ook', notesTitle:"'n Boodskap van ons",
     subGifts:'Bankbesonderhede', subPhotos:'Deel jou foto’s van die dag', subLinks:'Webwerf en meer',
     back:'← Tuis', searchAgain:'← Tuis',
     seatPrompt:'Tik jou naam om te sien waar jy sit.', searchPh:'Begin om jou naam te tik…',
@@ -1123,6 +1201,90 @@ function renderFloorPlan(guest){
 })();
 
 init();
+
+
+/* ---------- what has been requested so far (no names), with a thumbs-up ---------- */
+var SG_LIST_ON = false;   /* var: the page may use it before this line runs */
+function sgLikedSet(){ try{ return new Set(JSON.parse(localStorage.getItem(sgKey() + ':liked') || '[]')); }catch(e){ return new Set(); } }
+async function sgLoadList(){
+  if(!SG_LIST_ON || !EVENT_SLUG || new URLSearchParams(location.search).get('preview') === '1') return;
+  let rows = null;
+  try{
+    const r = await fetch(SB_URL + '/rest/v1/rpc/get_song_list', {method:'POST', headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}, body: JSON.stringify({p_slug: EVENT_SLUG})});
+    if(r.ok) rows = await r.json();
+  }catch(e){}
+  if(!Array.isArray(rows)) return;
+  const g = new Map();
+  rows.forEach(x=>{
+    const k = (x.title + '|' + (x.artist || '')).toLowerCase().replace(/\s+/g, ' ').trim();
+    if(!g.has(k)) g.set(k, {k, title:x.title, artist:x.artist || '', id:x.id, n:0, played:false});
+    const y = g.get(k); y.n += 1 + (x.likes || 0); if(x.played) y.played = true;
+  });
+  const list = [...g.values()].sort((a,b)=> (a.played - b.played) || (b.n - a.n));
+  const ul = document.getElementById('sgList'); ul.innerHTML = '';
+  const liked = sgLikedSet();
+  if(!list.length){ const li = document.createElement('li'); li.className = 'sg-empty'; li.textContent = tr('sgListEmpty'); ul.appendChild(li); }
+  list.slice(0, 40).forEach(y=>{
+    const li = document.createElement('li'); if(y.played) li.className = 'played';
+    const t = document.createElement('span'); t.className = 'sg-t'; t.textContent = y.title + (y.artist ? ' – ' + y.artist : '');
+    li.appendChild(t);
+    if(y.played){ const p = document.createElement('span'); p.className = 'sg-played'; p.textContent = '✓ ' + tr('sgPlayed'); li.appendChild(p); }
+    else {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'sg-like'; b.title = tr('sgLikeT');
+      b.textContent = '👍 ' + y.n; b.disabled = liked.has(y.k);
+      b.addEventListener('click', async ()=>{
+        b.disabled = true;
+        let ok = false;
+        try{
+          const r = await fetch(SB_URL + '/rest/v1/rpc/like_song', {method:'POST', headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}, body: JSON.stringify({p_slug: EVENT_SLUG, p_id: y.id})});
+          ok = r.ok && (await r.json()) === true;
+        }catch(e){}
+        if(!ok){ b.disabled = false; return; }
+        y.n++; b.textContent = '👍 ' + y.n; b.classList.add('on');
+        const s2 = sgLikedSet(); s2.add(y.k); try{ localStorage.setItem(sgKey() + ':liked', JSON.stringify([...s2])); }catch(e){}
+      });
+      li.appendChild(b);
+    }
+    ul.appendChild(li);
+  });
+  document.getElementById('sgListBox').classList.remove('hidden');
+}
+setInterval(()=>{ const sec = document.getElementById('songsSection'); if(sec && !sec.classList.contains('hidden')) sgLoadList(); }, 30000);
+/* ---------- Song requests: guests send a song to the couple's list ---------- */
+const SG_MAX = 10;
+function sgKey(){ return 'tableauSongs:' + (EVENT_SLUG || 'preview'); }
+function sgMineList(){ try{ return JSON.parse(localStorage.getItem(sgKey()) || '[]'); }catch(e){ return []; } }
+function sgShowMine(){
+  const list = sgMineList(), ul = document.getElementById('sgMine'); ul.innerHTML = '';
+  list.forEach(x=>{ const li = document.createElement('li'); li.textContent = x.title + (x.artist ? ' – ' + x.artist : ''); ul.appendChild(li); });
+  document.getElementById('sgMineBox').classList.toggle('hidden', !list.length);
+}
+document.getElementById('sgSend').addEventListener('click', async ()=>{
+  const msg = document.getElementById('sgMsg'), btn = document.getElementById('sgSend');
+  const title = document.getElementById('sgTitle').value.trim();
+  const artist = document.getElementById('sgArtist').value.trim();
+  const guest = document.getElementById('sgName').value.trim();
+  msg.className = 'sg-msg';
+  if(!title){ msg.textContent = tr('sgNeed'); msg.classList.add('err'); document.getElementById('sgTitle').focus(); return; }
+  if(sgMineList().length >= SG_MAX){ msg.textContent = tr('sgLimit'); return; }
+  if(new URLSearchParams(location.search).get('preview') === '1' || !EVENT_SLUG){ msg.textContent = tr('sgPreview'); return; }
+  btn.disabled = true; msg.textContent = tr('sgSending');
+  let ok = false;
+  try{
+    const r = await fetch(SB_URL + '/rest/v1/rpc/add_song_request', {method:'POST', headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'},
+      body: JSON.stringify({p_slug: EVENT_SLUG, p_title: title, p_artist: artist, p_guest: guest})});
+    ok = r.ok && (await r.json()) === true;
+  }catch(e){}
+  btn.disabled = false;
+  if(!ok){ msg.textContent = tr('sgFail'); msg.classList.add('err'); return; }
+  const list = sgMineList(); list.push({title, artist});
+  try{ localStorage.setItem(sgKey(), JSON.stringify(list)); }catch(e){}
+  try{ if(guest) localStorage.setItem('tableauSongName', guest); }catch(e){}
+  document.getElementById('sgTitle').value = ''; document.getElementById('sgArtist').value = '';
+  msg.textContent = tr('sgThanks'); msg.classList.add('ok');
+  sgShowMine(); sgLoadList();
+});
+try{ const n = localStorage.getItem('tableauSongName'); if(n) document.getElementById('sgName').value = n; }catch(e){}
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "be579bcee3e94e09a386e86132979b21"}'></script><!-- End Cloudflare Web Analytics -->
 <script>

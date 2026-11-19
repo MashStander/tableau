@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1d211d">
+<title>Song requests for the DJ</title>
+<style>
+  :root{--bg:#1d211d; --card:#2a302a; --line:#3a423a; --ink:#f3f1ea; --soft:#b6bdb3; --sage:#94ab96; --sage-d:#7d9479; --pink:#f5ac9f;}
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:760px; margin:0 auto; padding:18px 14px 60px;}
+  header{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
+  h1{font-size:22px; margin:0; font-weight:600;}
+  .couple{color:var(--pink); font-size:15px; margin-top:2px;}
+  .upd{color:var(--soft); font-size:12.5px; margin-top:6px;}
+  .btns{display:flex; gap:8px; flex-wrap:wrap;}
+  button{font:inherit; cursor:pointer;}
+  .btn{background:transparent; color:var(--ink); border:1px solid var(--line); border-radius:10px; padding:9px 14px; font-size:14px;}
+  .btn:active{background:var(--line);}
+  h2{font-size:13px; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); margin:22px 0 8px; font-weight:600;}
+  .row{display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:8px;}
+  .row .n{flex:0 0 34px; height:34px; border-radius:50%; background:var(--sage-d); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px;}
+  .row .t{flex:1 1 auto; min-width:0;}
+  .row .song{font-size:18px; font-weight:600; line-height:1.25;}
+  .row .art{color:var(--soft); font-size:15px;}
+  .row .meta{display:flex; gap:6px; flex-wrap:wrap; margin-top:5px;}
+  .chip{font-size:12px; background:#384038; color:var(--ink); border-radius:20px; padding:2px 9px;}
+  .chip.hot{background:var(--pink); color:#3b2420;}
+  .who{font-size:12.5px; color:var(--soft); margin-top:4px;}
+  .play{flex:0 0 auto; background:var(--sage); color:#152015; border:0; border-radius:10px; padding:11px 14px; font-weight:700; font-size:14px;}
+  .played .row{opacity:.55;}
+  .played .play{background:transparent; color:var(--ink); border:1px solid var(--line); font-weight:500;}
+  .msg{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; color:var(--soft); text-align:center; line-height:1.55;}
+  .foot{color:var(--soft); font-size:12px; text-align:center; margin-top:30px;}
+  .foot a{color:var(--sage);}
+  .toast{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:9px 16px; border-radius:20px; font-size:14px; opacity:0; transition:opacity .3s; pointer-events:none;}
+  .toast.on{opacity:1;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>&#127911; Song requests</h1>
+      <div class="couple" id="couple"></div>
+      <div class="upd" id="upd">Loading&hellip;</div>
+    </div>
+    <div class="btns">
+      <button class="btn" id="refresh">Refresh</button>
+      <button class="btn" id="copy">Copy list</button>
+    </div>
+  </header>
+  <div id="out"></div>
+  <p class="foot">Most popular songs are at the top: each request and each &#128077; from a guest counts.<br>This list updates by itself every 30 seconds and keeps your screen on while it is open.<br>Made with <a href="https://tableauevents.co.za" target="_blank" rel="noopener">Tableau</a></p>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const SB_URL = 'https://aalpoaixingjehgnbfop.supabase.co';
+const SB_KEY = 'sb_publishable_ubTdSPCyUwus8voOcwY3kA_SGWO8edE';
+const P = new URLSearchParams(location.search);
+const SLUG = P.get('e') || '', KEY = P.get('k') || '';
+let groups = [], busy = false;
+
+function rpc(name, body){
+  return fetch(SB_URL + '/rest/v1/rpc/' + name, {method:'POST', headers:{'apikey':SB_KEY, 'Authorization':'Bearer ' + SB_KEY, 'Content-Type':'application/json'}, body: JSON.stringify(body)})
+    .then(r=> r.ok ? r.json() : null).catch(()=> null);
+}
+function toast(t){ const el = document.getElementById('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(()=> el.classList.remove('on'), 2200); }
+function message(t){ document.getElementById('out').innerHTML = ''; const d = document.createElement('div'); d.className = 'msg'; d.textContent = t; document.getElementById('out').appendChild(d); }
+
+function group(songs){
+  const g = new Map();
+  songs.forEach(s=>{
+    const k = (s.title + '|' + (s.artist || '')).toLowerCase().replace(/\s+/g, ' ').trim();
+    if(!g.has(k)) g.set(k, {title:s.title, artist:s.artist || '', ids:[], names:[], likes:0, played:true, first:s.created_at});
+    const x = g.get(k); x.ids.push(s.id); x.likes += (s.likes || 0); if(s.guest) x.names.push(s.guest);
+    if(!s.played) x.played = false;   // a group counts as played only when every request in it is
+  });
+  return [...g.values()].map(x=> Object.assign(x, {score: x.ids.length + x.likes}))
+    .sort((a,b)=> (b.score - a.score) || (a.first < b.first ? -1 : 1));
+}
+function rowFor(x, i){
+  const r = document.createElement('div'); r.className = 'row';
+  const n = document.createElement('div'); n.className = 'n'; n.textContent = x.played ? '✓' : (i + 1);
+  const t = document.createElement('div'); t.className = 't';
+  const s = document.createElement('div'); s.className = 'song'; s.textContent = x.title; t.appendChild(s);
+  if(x.artist){ const a = document.createElement('div'); a.className = 'art'; a.textContent = x.artist; t.appendChild(a); }
+  const m = document.createElement('div'); m.className = 'meta';
+  const c1 = document.createElement('span'); c1.className = 'chip' + (x.score >= 3 ? ' hot' : ''); c1.textContent = x.ids.length + (x.ids.length === 1 ? ' request' : ' requests'); m.appendChild(c1);
+  if(x.likes){ const c2 = document.createElement('span'); c2.className = 'chip'; c2.textContent = '👍 ' + x.likes; m.appendChild(c2); }
+  t.appendChild(m);
+  if(x.names.length){ const w = document.createElement('div'); w.className = 'who'; w.textContent = 'From ' + [...new Set(x.names)].join(', '); t.appendChild(w); }
+  const b = document.createElement('button'); b.className = 'play'; b.textContent = x.played ? 'Undo' : 'Played ✓';
+  b.addEventListener('click', async ()=>{
+    b.disabled = true;
+    const ok = await rpc('set_song_played', {p_slug: SLUG, p_key: KEY, p_ids: x.ids, p_played: !x.played});
+    if(ok !== true){ b.disabled = false; toast('That did not work. Check your signal and try again.'); return; }
+    toast(x.played ? 'Back on the list' : 'Ticked off 🎶');
+    load();
+  });
+  r.append(n, t, b);
+  return r;
+}
+function render(){
+  const out = document.getElementById('out'); out.innerHTML = '';
+  const todo = groups.filter(x=> !x.played), done = groups.filter(x=> x.played);
+  if(!groups.length){ message('No song requests yet. Guests send them from the Song requests tile on the wedding guest page. This list fills up by itself.'); return; }
+  const h1 = document.createElement('h2'); h1.textContent = 'Still to play (' + todo.length + ')'; out.appendChild(h1);
+  if(!todo.length){ const d = document.createElement('div'); d.className = 'msg'; d.textContent = 'All requests played. Nice one! 🎉'; out.appendChild(d); }
+  todo.forEach((x,i)=> out.appendChild(rowFor(x, i)));
+  if(done.length){
+    const h2 = document.createElement('h2'); h2.textContent = 'Played (' + done.length + ')'; out.appendChild(h2);
+    const box = document.createElement('div'); box.className = 'played';
+    done.forEach((x,i)=> box.appendChild(rowFor(x, i)));
+    out.appendChild(box);
+  }
+}
+async function load(){
+  if(busy) return; busy = true;
+  const d = await rpc('get_dj_songs', {p_slug: SLUG, p_key: KEY});
+  busy = false;
+  if(!d){ message('This link is not working. It may be old: ask the couple to send you the latest DJ link.'); document.getElementById('upd').textContent = ''; return; }
+  if(d.event){ document.getElementById('couple').textContent = d.event; document.title = 'Song requests – ' + d.event; }
+  groups = group(d.songs || []);
+  render();
+  document.getElementById('upd').textContent = 'Last updated ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+document.getElementById('refresh').addEventListener('click', load);
+document.getElementById('copy').addEventListener('click', async ()=>{
+  const txt = groups.filter(x=> !x.played).map((x,i)=> (i + 1) + '. ' + x.title + (x.artist ? ' – ' + x.artist : '') + ' (' + x.score + ')').join('\n');
+  if(!txt){ toast('Nothing to copy yet'); return; }
+  try{ await navigator.clipboard.writeText(txt); toast('List copied'); }catch(e){ prompt('Copy the list:', txt); }
+});
+/* keep the screen on while the DJ has this open (where the phone allows it) */
+let lock = null;
+async function keepAwake(){ try{ if('wakeLock' in navigator && document.visibilityState === 'visible') lock = await navigator.wakeLock.request('screen'); }catch(e){} }
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'visible'){ keepAwake(); load(); } });
+
+if(!SLUG || !KEY) message('This link is incomplete. Ask the couple to send you the DJ link again.');
+else { load(); keepAwake(); setInterval(()=>{ if(document.visibilityState === 'visible') load(); }, 30000); }
+</script>
+</body>
+</html>
