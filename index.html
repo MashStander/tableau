@@ -562,12 +562,41 @@
   .splash-pic img{display:block; max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; border-radius:6px; animation:splashIn 1.1s ease both;}
   .splash-tag{flex:0 0 auto; margin:0; font-family:'Corinthia',cursive; color:var(--rose, #e07a6f); font-size:clamp(34px, 6vh, 60px); line-height:1; text-align:center;}
   @media (max-aspect-ratio: 1/1){   /* phones and tablets held upright: keep it together in the middle */
-    #splash{justify-content:center; gap:clamp(18px, 4vh, 40px);}
+    #splash{padding:clamp(12px, 2.5vh, 26px) 10px; justify-content:center; gap:clamp(14px, 3.5vh, 34px);}
     .splash-pic{flex:0 1 auto; margin:0;}
+    .splash-pic img{max-height:calc(100vh - 200px); max-height:calc(100dvh - 200px);}   /* leaves room for the logo and tagline */
     .splash-tag{font-size:min(9.5vw, 56px); white-space:nowrap;}
   }
   @keyframes splashIn{from{opacity:0; transform:scale(.985);} to{opacity:1; transform:none;}}
   @media (prefers-reduced-motion: reduce){ .splash-pic img{animation:none;} #splash{transition:none;} }
+
+  .ei-check{display:flex !important; gap:9px; align-items:flex-start; font-size:14px !important; color:var(--ink) !important; margin:0 0 14px !important; cursor:pointer; line-height:1.45;}
+  .ei-check input{margin-top:3px; width:17px; height:17px; flex:0 0 auto; accent-color:var(--sage-dark);}
+  .ei-songs{margin-top:18px; border-top:1px solid var(--line); padding-top:14px;}
+  .ei-songs-head{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px;}
+  .ei-songs-btns{display:flex; gap:6px; flex-wrap:wrap;}
+  .ei-songs-btns .ghost-btn{padding:6px 11px; font-size:12.5px;}
+  .ei-song-list{display:flex; flex-direction:column; gap:6px; max-height:420px; overflow:auto;}
+  .ei-song{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:8px 10px;}
+  .ei-song-t{font-size:14px; line-height:1.45; min-width:0;}
+  .ei-song-t span{color:var(--ink-soft);}
+  .ei-song-t em{font-style:normal; font-size:11.5px; background:#e3ebdf; color:var(--sage-dark); border-radius:20px; padding:1px 8px; margin-left:8px; white-space:nowrap;}
+  .ei-song-t small{display:block; font-size:12px; color:var(--ink-soft);}
+  .ei-song-del{border:none; background:none; color:var(--ink-soft); cursor:pointer; font-size:14px; padding:2px 6px;}
+  .ei-song-del:hover{color:#b0281c;}
+
+  .ei-dj{margin-top:16px; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:14px 16px;}
+  .ei-dj h5{font-size:14px; margin:0 0 6px; color:var(--ink);}
+  .ei-dj label{font-size:12px; color:var(--ink-soft); display:block; margin-bottom:3px;}
+  .ei-dj-grid{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px;}
+  .ei-dj-grid .custom-num{width:100%;}
+  .ei-dj-link{display:flex; gap:6px; flex-wrap:wrap; align-items:center;}
+  .ei-dj-link input{flex:1 1 260px; min-width:0; font-size:12.5px; color:var(--ink-soft); background:#fff;}
+  .ei-dj-link .ghost-btn{padding:6px 11px; font-size:12.5px;}
+  .ei-song.is-played{opacity:.6;}
+  .ei-song-t em.played{background:#eee; color:#666;}
+  @media (max-width:760px){ .ei-dj-grid{grid-template-columns:1fr;} }
+  .ei-song-empty{font-size:13px; color:var(--ink-soft); margin:4px 0;}
   body.cloud-mode #btnReset{display:none !important;}
   .ei-swatches{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
   .ei-swatch{width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0; box-shadow:0 0 0 1px var(--line);}
@@ -1263,6 +1292,7 @@
 <div id="splash" role="img" aria-label="Tableau: wedding seating and planning">
   <div class="splash-logo"></div>
   <picture class="splash-pic">
+    <source media="(max-aspect-ratio: 1/1)" srcset="landing-collage-phone.jpg">
     <source media="(max-width:760px)" srcset="landing-collage-960.jpg">
     <img id="splashImg" src="landing-collage.jpg" width="1920" height="830" alt="">
   </picture>
@@ -2052,6 +2082,10 @@
           <input type="text" id="eiLabelNotes" class="custom-num" style="width:100%; box-sizing:border-box;" placeholder="A note from us">
         </div>
         <div>
+          <label style="font-size:12px; color:var(--ink-soft);">Song requests</label>
+          <input type="text" id="eiLabelSongs" class="custom-num" style="width:100%; box-sizing:border-box;" placeholder="Song requests">
+        </div>
+        <div>
           <label style="font-size:12px; color:var(--ink-soft);">Gifts</label>
           <input type="text" id="eiLabelGifts" class="custom-num" style="width:100%; box-sizing:border-box;" placeholder="Gifts">
         </div>
@@ -2164,6 +2198,42 @@
       <div class="ei-tpl-row" id="eiWelcomeSigns"></div>
     </div>
 
+    <div class="ei-block" data-sec="songs">
+      <h4>Song requests</h4>
+      <label class="ei-check"><input type="checkbox" id="eiSongsOn"> Show a <b>Song requests</b> tile on the guest page, so guests can ask for songs for the dance floor</label>
+      <label>A note to your guests (optional)</label>
+      <input type="text" id="eiSongsNote" class="custom-num" maxlength="160" placeholder="e.g. Help us fill the dance floor! Our DJ will play as many as possible.">
+      <label class="ei-check" style="margin-top:14px !important;"><input type="checkbox" id="eiSongsList"> <span>Let guests see what has been requested, and tap &#128077; on songs they want too. <span class="ei-ideas-small">Names are never shown to other guests.</span></span></label>
+      <div class="ei-dj">
+        <h5>&#127911; Your DJ</h5>
+        <p class="ei-tpl-note" style="margin-top:0;">Guests see your DJ&rsquo;s name and link on the Song requests tile, which is nice exposure for their business. Check with your DJ first.</p>
+        <div class="ei-dj-grid">
+          <div><label>Name or business name</label><input type="text" id="eiSongsDjName" class="custom-num" maxlength="60" placeholder="e.g. DJ Sipho Sounds"></div>
+          <div><label>Instagram, Facebook or website</label><input type="text" id="eiSongsDjLink" class="custom-num" maxlength="200" placeholder="e.g. instagram.com/djsiphosounds"></div>
+          <div><label>Phone number for bookings (optional)</label><input type="text" id="eiSongsDjPhone" class="custom-num" maxlength="20" placeholder="e.g. 082 123 4567"></div>
+        </div>
+        <h5 style="margin-top:16px;">The DJ&rsquo;s private link</h5>
+        <p class="ei-tpl-note" style="margin-top:0;">Send this to your DJ before the wedding. On the night they see every request live, most popular first, and tick songs off as they play them. No account or app needed, and you won&rsquo;t be bothered on the day.</p>
+        <div class="ei-dj-link"><input type="text" id="eiDjLinkOut" class="custom-num" readonly>
+          <button type="button" class="ghost-btn" id="eiDjCopy">Copy</button>
+          <button type="button" class="ghost-btn" id="eiDjWa">Send on WhatsApp</button>
+          <button type="button" class="ghost-btn" id="eiDjNew" title="Makes a new link. The old one stops working.">New link</button>
+        </div>
+        <input type="hidden" id="eiSongsDjKey">
+      </div>
+      <div class="ei-songs">
+        <div class="ei-songs-head">
+          <b>Requests so far <span id="eiSongCount"></span></b>
+          <span class="ei-songs-btns">
+            <button type="button" class="ghost-btn" id="eiSongRefresh">Refresh</button>
+            <button type="button" class="ghost-btn" id="eiSongCopy">Copy for the DJ</button>
+            <button type="button" class="ghost-btn" id="eiSongDl">Download list</button>
+          </span>
+        </div>
+        <div id="eiSongList" class="ei-song-list"></div>
+        <p class="ei-tpl-note">Songs asked for more than once are grouped, with the most popular at the top. Send the list to your DJ a few days before the wedding, and again on the day.</p>
+      </div>
+    </div>
     <div class="ei-block" data-sec="photos">
       <h4>Photos &amp; videos from guests</h4>
       <label>Link to your shared album (optional). Guests tap a button on their phone and add their photos and videos there.</label>
@@ -7929,7 +7999,7 @@ function renderEiTemplates(){
   });
 }
 renderEiTemplates();
-const EI_FIELDS = {welcome:'eiWelcome', verse:'eiVerse', program:'eiProgram', menu:'eiMenu', notes:'eiNotes', links:'eiLinks', bankNote:'eiBankNote', bank:'eiBank', date:'eiDate', accent:'eiAccent', fontStyle:'eiFont', listBy:'eiListBy', albumUrl:'eiAlbumUrl', albumNote:'eiAlbumNote'};
+const EI_FIELDS = {welcome:'eiWelcome', verse:'eiVerse', program:'eiProgram', menu:'eiMenu', notes:'eiNotes', songsNote:'eiSongsNote', songsDjName:'eiSongsDjName', songsDjLink:'eiSongsDjLink', songsDjPhone:'eiSongsDjPhone', songsDjKey:'eiSongsDjKey', links:'eiLinks', bankNote:'eiBankNote', bank:'eiBank', date:'eiDate', accent:'eiAccent', fontStyle:'eiFont', listBy:'eiListBy', albumUrl:'eiAlbumUrl', albumNote:'eiAlbumNote'};
 const EI_SECTIONS = ['cover','program','menu','notes','bank'];
 const EI_IMG_MAX = 4;
 function eiMax(sec){ return sec === 'cover' ? 1 : EI_IMG_MAX; }
@@ -8061,6 +8131,9 @@ async function eiHandleFiles(sec, files){
 function openEventInfoModal(){
   const info = state.eventInfo || {};
   Object.keys(EI_FIELDS).forEach(k=>{ document.getElementById(EI_FIELDS[k]).value = info[k] || ''; });
+  document.getElementById('eiSongsOn').checked = !!info.songsOn;
+  document.getElementById('eiSongsList').checked = !!info.songsList;
+  eiSongRows = null;
   renderLinkRows();
   document.getElementById('eiAccent').value = info.accent || '#7c8a70';
   document.getElementById('eiFont').value = eiFontKey(info.fontStyle);
@@ -8069,7 +8142,7 @@ function openEventInfoModal(){
   renderEiSwatches(); updateEiFontSample();
   // Load custom section labels
   const lbl = info.labels || {};
-  ['Seat','Program','Menu','Notes','Gifts','Photos','Links','TableMates'].forEach(k=>{
+  ['Seat','Program','Menu','Notes','Songs','Gifts','Photos','Links','TableMates'].forEach(k=>{
     const el = document.getElementById('eiLabel'+k);
     if(el) el.value = lbl[k.toLowerCase()] || '';
   });
@@ -8119,6 +8192,8 @@ function collectEiInfo(){
   LABEL_KEYS.forEach(([k, id])=>{ const el = document.getElementById(id); if(el && el.value.trim()) labels[k] = el.value.trim(); });
   info.labels = labels;
   info.labelLang = document.getElementById('eiLabelLang').value || '';
+  info.songsOn = document.getElementById('eiSongsOn').checked;
+  info.songsList = document.getElementById('eiSongsList').checked;
   return info;
 }
 /* what guests will see, built from the boxes on the page (for the preview) */
@@ -8133,7 +8208,7 @@ function eiPreviewData(){
   /* show exactly what the published page will show for this plan (the live page removes the locked sections on the server) */
   if(data && data.info){
     if(accessTier < 1){
-      ['program','programDays','menu','notes','links','bankNote','bank','album'].forEach(k=>{ delete data.info[k]; });
+      ['program','programDays','menu','notes','songs','links','bankNote','bank','album'].forEach(k=>{ delete data.info[k]; });
       const im = data.info.images || {}; data.info.images = {cover: im.cover || []};
     }
     data.plan = accessTier;
@@ -8213,6 +8288,7 @@ function notesLines(text){
   while(out.length && out[out.length-1].type === 'gap') out.pop();
   return out;
 }
+function djUrl(u){ u = (u || '').trim(); if(!u) return ''; if(!/^https?:\/\//i.test(u)) u = 'https://' + u; return u; }
 function buildEventInfoForExport(){
   const info = state.eventInfo || {};
   let program = bpParseLines(info.program);
@@ -8242,6 +8318,8 @@ function buildEventInfoForExport(){
     listBy: info.listBy || 'last',
     program, programDays, menu, links,
     notes: notesLines(info.notes),
+    songs: info.songsOn ? {on: true, note: (info.songsNote || '').trim(), list: !!info.songsList,
+      dj: (info.songsDjName || '').trim() ? {name: info.songsDjName.trim(), link: djUrl(info.songsDjLink), phone: (info.songsDjPhone || '').trim()} : null} : null,   /* the DJ key is never published */
     bankNote: (info.bankNote||'').trim(),
     album: (function(){ let u = (info.albumUrl||'').trim(); if(u && !/^https?:\/\//i.test(u)) u = 'https://' + u; return u ? {url: u, note: (info.albumNote||'').trim()} : null; })(),
     bank,
@@ -8265,19 +8343,19 @@ document.getElementById('eiFile').addEventListener('change', e=>{
 });
 document.getElementById('btnEventInfo').addEventListener('click', openEventInfoModal);
 /* ---- Guest page language: fill all section labels at once ---- */
-const LABEL_KEYS = [['seat','eiLabelSeat'],['program','eiLabelProgram'],['menu','eiLabelMenu'],['notes','eiLabelNotes'],['gifts','eiLabelGifts'],['photos','eiLabelPhotos'],['links','eiLabelLinks'],['tablemates','eiLabelTableMates']];
+const LABEL_KEYS = [['seat','eiLabelSeat'],['program','eiLabelProgram'],['menu','eiLabelMenu'],['notes','eiLabelNotes'],['songs','eiLabelSongs'],['gifts','eiLabelGifts'],['photos','eiLabelPhotos'],['links','eiLabelLinks'],['tablemates','eiLabelTableMates']];
 const LABEL_LANGS = {
-  en:  {seat:'', program:'', menu:'', notes:"", gifts:'', photos:'', links:'', tablemates:''},
-  af:  {seat:'Vind my sitplek', program:'Program', menu:'Spyskaart', notes:"'n Boodskap van ons", gifts:'Geskenke', photos:"Foto's en video's", links:'Skakels en inligting', tablemates:'Gaste aan hierdie tafel'},
-  zu:  {seat:'Thola isihlalo sami', program:'Uhlelo', menu:'Imenyu', notes:"", gifts:'Izipho', photos:'Izithombe namavidiyo', links:'Izixhumanisi nolwazi', tablemates:'Abahlezi kuleli tafula'},
-  xh:  {seat:'Fumana isihlalo sam', program:'Inkqubo', menu:'Imenyu', notes:"", gifts:'Izipho', photos:'Iifoto neevidiyo', links:'Amakhonkco nolwazi', tablemates:'Abahlala kule tafile'},
-  st:  {seat:'Fumana setulo sa ka', program:'Lenaneo', menu:'Menyu', notes:"", gifts:'Dimpho', photos:'Ditshwantsho le divideo', links:'Dihokelo le tlhahisoleseding', tablemates:'Ba dutseng tafoleng ena'},
-  tn:  {seat:'Bona setulo sa me', program:'Lenaneo', menu:'Menyu', notes:"", gifts:'Dimpho', photos:'Ditshwantsho le dibidio', links:'Dikgolagano le tshedimosetso', tablemates:'Ba ba dutseng mo tafoleng e'},
-  nso: {seat:'Hwetša setulo sa ka', program:'Lenaneo', menu:'Menyu', notes:"", gifts:'Dimpho', photos:'Diswantšho le dibidio', links:'Dikgokagano le tshedimošo', tablemates:'Ba dutšego tafoleng ye'},
-  ve:  {seat:'Wanani tshidulo tshanga', program:'Mbekanyamushumo', menu:'Menyu', notes:"", gifts:'Zwifhiwa', photos:'Zwifanyiso na dzividio', links:'Vhukwamani na mafhungo', tablemates:'Vho dzulaho kha ino tafula'},
-  ts:  {seat:'Kuma xitulu xa mina', program:'Nongonoko', menu:'Menyu', notes:"", gifts:'Tinyiko', photos:'Swifaniso na tivhidiyo', links:'Swihlanganisi na vuxokoxoko', tablemates:'Lava tshameke etafuleni leri'},
-  ss:  {seat:'Tfola sihlalo sami', program:'Luhlelo', menu:'Imenyu', notes:"", gifts:'Tipho', photos:'Titfombe nemavidiyo', links:'Tixhumanisi nelwati', tablemates:'Labahlala kulelitafula'},
-  nr:  {seat:'Fumana isihlalo sami', program:'Ihlelo', menu:'Imenyu', notes:"", gifts:'Iinsipho', photos:'Iinthombe namavidiyo', links:'Iintjhumanisi nelwazi', tablemates:'Abahlezi etafuleni le'}
+  en:  {seat:'', program:'', menu:'', notes:"", songs:"", gifts:'', photos:'', links:'', tablemates:''},
+  af:  {seat:'Vind my sitplek', program:'Program', menu:'Spyskaart', notes:"'n Boodskap van ons", songs:"Liedjieversoeke", gifts:'Geskenke', photos:"Foto's en video's", links:'Skakels en inligting', tablemates:'Gaste aan hierdie tafel'},
+  zu:  {seat:'Thola isihlalo sami', program:'Uhlelo', menu:'Imenyu', notes:"", songs:"", gifts:'Izipho', photos:'Izithombe namavidiyo', links:'Izixhumanisi nolwazi', tablemates:'Abahlezi kuleli tafula'},
+  xh:  {seat:'Fumana isihlalo sam', program:'Inkqubo', menu:'Imenyu', notes:"", songs:"", gifts:'Izipho', photos:'Iifoto neevidiyo', links:'Amakhonkco nolwazi', tablemates:'Abahlala kule tafile'},
+  st:  {seat:'Fumana setulo sa ka', program:'Lenaneo', menu:'Menyu', notes:"", songs:"", gifts:'Dimpho', photos:'Ditshwantsho le divideo', links:'Dihokelo le tlhahisoleseding', tablemates:'Ba dutseng tafoleng ena'},
+  tn:  {seat:'Bona setulo sa me', program:'Lenaneo', menu:'Menyu', notes:"", songs:"", gifts:'Dimpho', photos:'Ditshwantsho le dibidio', links:'Dikgolagano le tshedimosetso', tablemates:'Ba ba dutseng mo tafoleng e'},
+  nso: {seat:'Hwetša setulo sa ka', program:'Lenaneo', menu:'Menyu', notes:"", songs:"", gifts:'Dimpho', photos:'Diswantšho le dibidio', links:'Dikgokagano le tshedimošo', tablemates:'Ba dutšego tafoleng ye'},
+  ve:  {seat:'Wanani tshidulo tshanga', program:'Mbekanyamushumo', menu:'Menyu', notes:"", songs:"", gifts:'Zwifhiwa', photos:'Zwifanyiso na dzividio', links:'Vhukwamani na mafhungo', tablemates:'Vho dzulaho kha ino tafula'},
+  ts:  {seat:'Kuma xitulu xa mina', program:'Nongonoko', menu:'Menyu', notes:"", songs:"", gifts:'Tinyiko', photos:'Swifaniso na tivhidiyo', links:'Swihlanganisi na vuxokoxoko', tablemates:'Lava tshameke etafuleni leri'},
+  ss:  {seat:'Tfola sihlalo sami', program:'Luhlelo', menu:'Imenyu', notes:"", songs:"", gifts:'Tipho', photos:'Titfombe nemavidiyo', links:'Tixhumanisi nelwati', tablemates:'Labahlala kulelitafula'},
+  nr:  {seat:'Fumana isihlalo sami', program:'Ihlelo', menu:'Imenyu', notes:"", songs:"", gifts:'Iinsipho', photos:'Iinthombe namavidiyo', links:'Iintjhumanisi nelwazi', tablemates:'Abahlezi etafuleni le'}
 };
 (function(){
   const sel = document.getElementById('eiLabelLang');
@@ -8298,6 +8376,114 @@ const LABEL_LANGS = {
     prev = sel.value;
   });
 })();
+
+/* ---------- the DJ's private link ---------- */
+function eiDjNewKey(){
+  const a = new Uint8Array(9); crypto.getRandomValues(a);
+  return Array.from(a, b=> 'abcdefghjkmnpqrstuvwxyz23456789'[b % 31]).join('') + Date.now().toString(36).slice(-3);
+}
+function eiDjEnsureKey(){
+  const el = document.getElementById('eiSongsDjKey');
+  if(!el.value){ el.value = eiDjNewKey(); eiChanged(); }
+}
+function eiDjLink(){
+  const key = document.getElementById('eiSongsDjKey').value;
+  if(!currentPublishSlug || !key) return '';
+  let base = '';
+  try{ base = fixOldBase(localStorage.getItem('tableauFinderBase') || ''); }catch(e){}
+  base = base.split('?')[0];
+  if(!/^https?:\/\//i.test(base)) base = location.href.split('#')[0].split('?')[0].replace(/[^\/]*$/, '') + 'guest-view.html';
+  return base.replace(/[^\/]*$/, '') + 'dj.html?e=' + encodeURIComponent(currentPublishSlug) + '&k=' + encodeURIComponent(key);
+}
+function eiDjShowLink(){
+  const out = document.getElementById('eiDjLinkOut'), link = eiDjLink();
+  out.value = link || (cloudUser ? 'Publish your guest page first, then the DJ link appears here.' : 'Sign in to get a DJ link.');
+  ['eiDjCopy','eiDjWa','eiDjNew'].forEach(id=> document.getElementById(id).disabled = !link);
+}
+function eiWaNumber(p){ let d = (p || '').replace(/\D/g, ''); if(d.charAt(0) === '0') d = '27' + d.slice(1); return d.length >= 10 ? d : ''; }
+(function(){
+  document.getElementById('eiDjCopy').addEventListener('click', async ()=>{
+    eiCommit(false); const link = eiDjLink(); if(!link) return;
+    try{ await navigator.clipboard.writeText(link); toast('DJ link copied.'); }catch(e){ prompt('Copy the DJ link:', link); }
+  });
+  document.getElementById('eiDjWa').addEventListener('click', ()=>{
+    eiCommit(false); const link = eiDjLink(); if(!link) return;
+    const msg = 'Hi! Here is the song request list for ' + (state.eventName || 'our wedding') + '. It updates live during the party, with the most popular songs at the top, and you can tick songs off as you play them: ' + link;
+    const n = eiWaNumber(document.getElementById('eiSongsDjPhone').value);
+    window.open('https://wa.me/' + n + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+  });
+  document.getElementById('eiDjNew').addEventListener('click', ()=>{
+    if(!confirm('Make a new DJ link? The old link will stop working, so you will need to send the new one to your DJ.')) return;
+    document.getElementById('eiSongsDjKey').value = eiDjNewKey(); eiChanged(); eiDjShowLink();
+    toast('New DJ link made. Send it to your DJ.');
+  });
+})();
+/* ---------- Song requests from guests: read, group and share the list ---------- */
+let eiSongRows = null;
+function eiSongGroups(){
+  const g = new Map();
+  (eiSongRows || []).forEach(r=>{
+    const key = (r.title + '|' + (r.artist || '')).toLowerCase().replace(/\s+/g, ' ').trim();
+    if(!g.has(key)) g.set(key, {title:r.title, artist:r.artist || '', ids:[], names:[], first:r.created_at, likes:0, played:false});
+    const x = g.get(key); x.ids.push(r.id); if(r.guest) x.names.push(r.guest);
+    x.likes += (r.likes || 0); if(r.played) x.played = true;
+  });
+  /* most popular first (requests + likes); songs the DJ has played go to the bottom */
+  return [...g.values()].sort((a,b)=> (a.played - b.played) || ((b.ids.length + b.likes) - (a.ids.length + a.likes)) || (a.first < b.first ? -1 : 1));
+}
+function eiSongText(){
+  return eiSongGroups().map((x,i)=> (i + 1) + '. ' + x.title + (x.artist ? ' – ' + x.artist : '') + (x.ids.length > 1 ? '  (' + x.ids.length + ' requests)' : '') + (x.likes ? '  (' + x.likes + ' likes)' : '') + (x.played ? '  – played' : '')).join('\n');
+}
+function eiSongRender(msg){
+  const box = document.getElementById('eiSongList'); box.innerHTML = '';
+  const cnt = document.getElementById('eiSongCount');
+  if(msg){ cnt.textContent = ''; const p = document.createElement('p'); p.className = 'ei-song-empty'; p.textContent = msg; box.appendChild(p); return; }
+  const groups = eiSongGroups();
+  cnt.textContent = '(' + eiSongRows.length + ')';
+  if(!groups.length){ const p = document.createElement('p'); p.className = 'ei-song-empty'; p.textContent = 'No requests yet. Once your guest page is published, guests can send songs from the Song requests tile.'; box.appendChild(p); return; }
+  groups.forEach(x=>{
+    const row = document.createElement('div'); row.className = 'ei-song';
+    const t = document.createElement('div'); t.className = 'ei-song-t';
+    const b = document.createElement('b'); b.textContent = x.title; t.appendChild(b);
+    if(x.artist){ const a = document.createElement('span'); a.textContent = ' – ' + x.artist; t.appendChild(a); }
+    if(x.ids.length > 1){ const c = document.createElement('em'); c.textContent = x.ids.length + ' requests'; t.appendChild(c); }
+    if(x.likes){ const c = document.createElement('em'); c.textContent = '\uD83D\uDC4D ' + x.likes; t.appendChild(c); }
+    if(x.played){ const c = document.createElement('em'); c.className = 'played'; c.textContent = 'Played \u2713'; t.appendChild(c); row.classList.add('is-played'); }
+    if(x.names.length){ const n = document.createElement('small'); n.textContent = 'From ' + [...new Set(x.names)].join(', '); t.appendChild(n); }
+    const del = document.createElement('button'); del.type = 'button'; del.className = 'ei-song-del'; del.title = 'Remove'; del.textContent = '✕';
+    del.addEventListener('click', async ()=>{
+      if(!confirm('Remove "' + x.title + '" from the list?')) return;
+      const r = await sb.from('song_requests').delete().in('id', x.ids);
+      if(r.error){ toast('Could not remove it. Check your internet and try again.'); return; }
+      eiSongRows = eiSongRows.filter(z=> !x.ids.includes(z.id)); eiSongRender();
+    });
+    row.append(t, del); box.appendChild(row);
+  });
+}
+async function eiLoadSongs(){
+  if(!(sb && cloudUser)){ eiSongRender('Sign in to see the songs your guests asked for.'); return; }
+  if(!currentPublishSlug){ eiSongRender('Publish your guest page first. Requests will show up here.'); return; }
+  eiSongRender('Loading…');
+  const r = await sb.from('song_requests').select('id,title,artist,guest,created_at,likes,played').eq('slug', currentPublishSlug).order('created_at', {ascending:true});
+  if(r.error){ eiSongRows = null; eiSongRender(/song_requests|relation|schema/i.test(r.error.message || '') ? 'Song requests are not switched on for the website yet (a one-time setup step in Supabase).' : 'Could not load the requests. Check your internet and click Refresh.'); return; }
+  eiSongRows = r.data || []; eiSongRender();
+}
+(function(){
+  document.getElementById('eiSongRefresh').addEventListener('click', eiLoadSongs);
+  document.getElementById('eiSongCopy').addEventListener('click', async ()=>{
+    if(!eiSongRows || !eiSongRows.length){ toast('There are no requests to copy yet.'); return; }
+    const txt = 'Song requests for ' + (state.eventName || 'our wedding') + '\n\n' + eiSongText();
+    try{ await navigator.clipboard.writeText(txt); toast('Copied. Paste it into WhatsApp or an email to your DJ.'); }
+    catch(e){ prompt('Copy this list:', txt); }
+  });
+  document.getElementById('eiSongDl').addEventListener('click', ()=>{
+    if(!eiSongRows || !eiSongRows.length){ toast('There are no requests to download yet.'); return; }
+    const txt = 'Song requests for ' + (state.eventName || 'our wedding') + '\r\n\r\n' + eiSongText().replace(/\n/g, '\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], {type:'text/plain'}));
+    a.download = 'Song requests - ' + (state.eventName || 'wedding').replace(/[\\/:*?"<>|]/g, '') + '.txt'; a.click();
+    setTimeout(()=> URL.revokeObjectURL(a.href), 2000);
+  });
+})();
 /* ===================== Guest page info: a page with tiles, saved automatically ===================== */
 const EI_SECS = [
   {k:'look',     t:'Names, date & look',     d:'Your names, date, cover photo, colour and font.', g:''},
@@ -8306,6 +8492,7 @@ const EI_SECS = [
   {k:'notes',    t:'A note from us',          d:'A thank-you note, the words of a song, a reading or your love story.', g:'notes'},
   {k:'gifts',    t:'Gifts & banking details', d:'Guests get a Copy button for each line.', g:'gifts'},
   {k:'photos',   t:'Photos & videos',         d:'A button that opens your shared album.', g:'photos'},
+  {k:'songs',    t:'Song requests',           d:'Guests ask for songs for the dance floor. You get one list for your DJ.', g:'songs'},
   {k:'links',    t:'Links',                   d:'Your wedding website, registry or directions.', g:'links'},
   {k:'signs',    t:'Welcome sign to print',   d:'A2 Canva designs that match your menu and programme.', g:''},
   {k:'language', t:'Language & labels',       d:'Afrikaans, isiZulu and more, or your own words.', g:''}
@@ -8332,6 +8519,7 @@ function eiStatus(k){
   else if(k === 'notes'){ t = withPics(eiVal('eiNotes') ? 'Added' : '', 'notes'); }
   else if(k === 'gifts'){ const x = eiLines('eiBank'); t = withPics(x ? n(x, 'line', 'lines') : (eiVal('eiBankNote') ? 'Note added' : ''), 'bank'); }
   else if(k === 'photos'){ t = eiVal('eiAlbumUrl') ? 'Album linked' : ''; }
+  else if(k === 'songs'){ const on = document.getElementById('eiSongsOn').checked, c = eiSongRows ? eiSongRows.length : 0; return on ? {t: 'On' + (c ? ' \u00B7 ' + c + (c === 1 ? ' request' : ' requests') : ''), done:true} : {t:'Off \u2013 hidden from guests', done:false}; }
   else if(k === 'links'){ const x = eiVal('eiLinks').split('\n').filter(l=> l.trim()).length; t = x ? n(x, 'link', 'links') : ''; }
   else if(k === 'signs'){ return {t:'Canva templates', done:false}; }
   else if(k === 'language'){
@@ -8379,6 +8567,7 @@ function eiOpenSec(k){
   nb.classList.toggle('hidden', !nx);
   if(nx) nb.textContent = 'Next: ' + nx.t + ' →';
   if(k === 'look') updateEiFontSample();
+  if(k === 'songs'){ eiDjEnsureKey(); eiDjShowLink(); eiLoadSongs(); }
   eiRefreshPhone(true);
   if(window.innerWidth < 760) document.getElementById('eiSecHead').scrollIntoView({block:'start'});
   else window.scrollTo(0,0);
@@ -8733,7 +8922,7 @@ document.getElementById('planInfoBuy').addEventListener('click', ()=>{
 function tierView(d){
   if(accessTier >= 1 || !d || !d.info) return d;
   const i = d.info, cov = (i.images && i.images.cover) || [];
-  ['program','programDays','menu','notes','links','bankNote','bank','album'].forEach(k=> delete i[k]);
+  ['program','programDays','menu','notes','songs','links','bankNote','bank','album'].forEach(k=> delete i[k]);
   i.images = {cover: cov};
   return d;
 }
