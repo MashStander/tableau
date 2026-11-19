@@ -585,6 +585,9 @@
   .ei-song-del{border:none; background:none; color:var(--ink-soft); cursor:pointer; font-size:14px; padding:2px 6px;}
   .ei-song-del:hover{color:#b0281c;}
 
+  .ei-lang-note{background:#eef3ec; border:1px solid #d5e0d1; border-radius:10px; padding:10px 13px; font-size:13.5px; line-height:1.5; color:var(--ink); margin:0 0 14px;}
+  .ei-on-narrow{display:none;}
+  @media (max-width:1100px){ .ei-on-wide{display:none;} .ei-on-narrow{display:inline;} }
   .ei-dj{margin-top:16px; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:14px 16px;}
   .ei-dj h5{font-size:14px; margin:0 0 6px; color:var(--ink);}
   .ei-dj label{font-size:12px; color:var(--ink-soft); display:block; margin-bottom:3px;}
@@ -1194,6 +1197,9 @@
     #topActions[style*="flex"] ~ #mobMenuBtn{display:flex; align-items:center; justify-content:center;}
     #topbar #topActions{display:none !important;}
     body.mob-menu-open{overflow:hidden;}
+    body.mob-menu-open #topbar{z-index:450;}
+    body.mob-menu-open #topActions #btnNavContact{text-decoration:none;}   /* the sticky strip must lift the open menu above floating buttons */
+    body.mob-menu-open #topbar #topActions[style*="flex"]{height:100vh; height:100dvh; bottom:auto;}
     body.mob-menu-open #topbar #topActions[style*="flex"]{display:flex !important; position:fixed; inset:0; z-index:400; background:var(--paper); flex-direction:column; flex-wrap:nowrap; align-items:stretch; justify-content:flex-start; gap:0; overflow-y:auto; padding:0 20px calc(30px + env(safe-area-inset-bottom));}
     body.mob-menu-open .mob-menu-head{display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:var(--paper); padding:14px 0 10px; margin-bottom:6px; border-bottom:1px solid var(--line); z-index:1;}
     .mob-menu-head span{font-family:'Lora',serif; font-size:22px; color:var(--sage-dark);}
@@ -2046,6 +2052,7 @@
       <div style="margin-top:12px; font-size:13px; color:var(--ink-soft); line-height:1.5; margin-bottom:10px;">
         Pick a language to fill in all the labels at once. You can then change any word you like. Blank boxes show the English label.
       </div>
+      <div class="ei-lang-note">&#127757; While your planning dashboard stays in English, you can preview the Guest Mobile Page in your chosen language <span class="ei-on-wide">using the live preview on the right.</span><span class="ei-on-narrow">with <b>Open preview in a new tab</b> at the top of this page.</span></div>
       <div style="margin-bottom:12px;">
         <label for="eiLabelLang" style="font-size:12px; color:var(--ink-soft);">Language</label>
         <select id="eiLabelLang" class="custom-num" style="width:100%; box-sizing:border-box;">
@@ -8486,6 +8493,7 @@ async function eiLoadSongs(){
 })();
 /* ===================== Guest page info: a page with tiles, saved automatically ===================== */
 const EI_SECS = [
+  {k:'language', t:'Language & labels',       d:'Afrikaans, isiZulu and more, or your own words.', g:''},
   {k:'look',     t:'Names, date & look',     d:'Your names, date, cover photo, colour and font.', g:''},
   {k:'program',  t:'Programme',               d:'The order of the day, with times.', g:'program'},
   {k:'menu',     t:'Menu',                    d:'Your dishes, or a photo of your printed menu.', g:'menu'},
@@ -8494,8 +8502,7 @@ const EI_SECS = [
   {k:'photos',   t:'Photos & videos',         d:'A button that opens your shared album.', g:'photos'},
   {k:'songs',    t:'Song requests',           d:'Guests ask for songs for the dance floor. You get one list for your DJ.', g:'songs'},
   {k:'links',    t:'Links',                   d:'Your wedding website, registry or directions.', g:'links'},
-  {k:'signs',    t:'Welcome sign to print',   d:'A2 Canva designs that match your menu and programme.', g:''},
-  {k:'language', t:'Language & labels',       d:'Afrikaans, isiZulu and more, or your own words.', g:''}
+  {k:'signs',    t:'Welcome sign to print',   d:'A2 Canva designs that match your menu and programme.', g:''}
 ];
 let eiCurrent = '', eiLastSig = '', eiSaveTimer = null, eiPubTimer = null, eiPvTimer = null;
 function eiPageOpen(){ return !document.getElementById('eiScreen').classList.contains('hidden'); }
