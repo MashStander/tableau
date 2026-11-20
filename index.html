@@ -523,7 +523,8 @@
   .ei-phone-label span{text-transform:none; letter-spacing:0; display:block; margin-top:3px; color:#b0281c; font-family:'Plus Jakarta Sans',sans-serif; font-size:12px;}
   .ei-phone-label{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; text-transform:uppercase; letter-spacing:.09em; font-size:12.5px; color:var(--ink-soft); text-align:center; margin-bottom:8px;}
   .ei-phone{height:min(700px, calc(100vh - var(--tb-h, 70px) - 80px)); aspect-ratio:9 / 18.5; width:auto; max-width:100%; margin:0 auto; border:9px solid #343834; border-radius:34px; overflow:hidden; background:#fffefb; box-shadow:0 10px 30px rgba(52,56,52,.18);}
-  .ei-phone iframe{width:100%; height:100%; border:0; display:block;}
+  .ei-phone{position:relative;}
+  .ei-phone iframe{position:absolute; top:0; left:0; width:390px; height:100%; border:0; display:block; transform-origin:0 0;}   /* drawn at a real phone's width, then shrunk to fit (see fitPhones) */
   @media (max-width:1180px){ .ei-tiles{grid-template-columns:repeat(2, minmax(0,1fr));} }
   @media (max-width:1100px){
     .ei-layout{grid-template-columns:1fr;}
@@ -9689,6 +9690,22 @@ function bdPrepareBridal(){
   b.title = document.getElementById('bpTitle').value; b.date = document.getElementById('bpDate').value; b.note = document.getElementById('bpNote').value; isDirty = true;
 }));
 
+
+/* the phone previews: show the page at a real phone's width (390), shrunk to fit the frame,
+   so it looks exactly like it does on guests' phones */
+function fitPhones(){
+  document.querySelectorAll('.ei-phone').forEach(ph=>{
+    const f = ph.querySelector('iframe'); if(!f) return;
+    const w = ph.clientWidth, h = ph.clientHeight;
+    if(!w || !h) return;
+    const sc = w / 390;
+    f.style.width = '390px';
+    f.style.height = (h / sc) + 'px';
+    f.style.transform = 'scale(' + sc + ')';
+  });
+}
+if('ResizeObserver' in window){ const ro = new ResizeObserver(fitPhones); document.querySelectorAll('.ei-phone').forEach(ph=> ro.observe(ph)); }
+window.addEventListener('resize', fitPhones);
 /* ===================== Your big day: bridal party, vendors and group photos as one page with tiles ===================== */
 const BD_SECS = [
   {k:'day',     t:'The day',              d:'Page title, wedding date and a short note.'},
