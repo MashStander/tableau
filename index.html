@@ -600,6 +600,34 @@
   .ei-song-t em.played{background:#eee; color:#666;}
   @media (max-width:760px){ .ei-dj-grid{grid-template-columns:1fr;} }
   .ei-song-empty{font-size:13px; color:var(--ink-soft); margin:4px 0;}
+
+  /* ---------- View all tables ---------- */
+  #allTablesModal .at-card{width:min(1180px, 96vw) !important; max-width:none !important; max-height:92vh; overflow:auto;}
+  .at-head{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;}
+  .at-sum{font-size:13px; color:var(--ink-soft); margin-top:4px;}
+  .at-btns{display:flex; gap:8px;}
+  .at-hint{font-size:12.5px; color:var(--ink-soft); margin:8px 0 14px;}
+  .at-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:12px; align-items:start;}
+  .at-table{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px; break-inside:avoid;}
+  .at-unseated{background:var(--paper); border-style:dashed;}
+  .at-name{display:block; background:none; border:0; padding:0; font:inherit; font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-size:18px; letter-spacing:.04em; color:var(--sage-dark); cursor:pointer; text-align:left;}
+  button.at-name:hover{text-decoration:underline;}
+  .at-count{font-size:12px; color:var(--ink-soft); margin:2px 0 8px;}
+  .at-count.full{color:var(--sage-dark); font-weight:600;}
+  .at-count.over{color:#b0281c; font-weight:600;}
+  .at-table ol, .at-table ul{margin:0; padding-left:22px; font-size:13.5px; line-height:1.55;}
+  .at-table ul{list-style:none; padding-left:0;}
+  .at-dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:7px; vertical-align:1px;}
+  .at-empty{list-style:none; margin-left:-22px; color:var(--ink-soft); font-style:italic;}
+  @media print{
+    body.printing-tables > *:not(#allTablesModal){display:none !important;}
+    body.printing-tables #allTablesModal{position:static !important; background:none !important; display:block !important; padding:0 !important;}
+    body.printing-tables .at-card{width:auto !important; max-height:none !important; overflow:visible !important; box-shadow:none !important; border:0 !important; padding:0 !important;}
+    body.printing-tables .at-btns, body.printing-tables .at-hint{display:none !important;}
+    body.printing-tables .at-grid{grid-template-columns:repeat(3, 1fr) !important;}
+    body.printing-tables .at-table{border-color:#ccc;}
+    body.printing-tables .at-dot{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  }
   body.cloud-mode #btnReset{display:none !important;}
   .ei-swatches{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
   .ei-swatch{width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0; box-shadow:0 0 0 1px var(--line);}
@@ -1731,6 +1759,7 @@
         <label><input type="checkbox" id="fitToggle" checked> Fit table to screen</label>
         <span id="seatViewToggle" title="How the seats look"><button type="button" class="sv-btn" data-sv="chairs">Chairs view</button><button type="button" class="sv-btn" data-sv="cards">Cards view</button></span>
         <span id="zoomLabel"></span>
+        <button class="ghost-btn" id="btnAllTables" title="See every table and who sits there, on one page">View all tables</button>
         <button id="btnClearTable" title="Send all seated guests at this table back to the side panel">Clear names from table</button>
         <div class="toolbar-divider"></div>
         <button class="ghost-btn" id="btnExportChartPng">Download as image</button>
@@ -2473,6 +2502,19 @@
  </div>
 </div>
 
+<div id="allTablesModal" class="modal-overlay hidden">
+  <div class="modal-card at-card">
+    <div class="at-head">
+      <div><h3 style="margin:0;">All tables</h3><div class="at-sum" id="atSum"></div></div>
+      <div class="at-btns">
+        <button type="button" class="ghost-btn" id="atPrint">Print</button>
+        <button type="button" class="primary-btn" id="atClose">Close</button>
+      </div>
+    </div>
+    <p class="at-hint">Tap a table&rsquo;s name to open it in the seating chart.</p>
+    <div class="at-grid" id="atGrid"></div>
+  </div>
+</div>
 <div id="howToModal" class="modal-overlay hidden" style="z-index:400;">
   <div class="modal-card" style="width:560px;">
     <h3>How-to videos</h3>
@@ -7600,6 +7642,59 @@ function exportSeatingChartPDF(){
 
 document.getElementById('btnExportChartPng').addEventListener('click', exportSeatingChartPNG);
 document.getElementById('btnExportChartPdf').addEventListener('click', exportSeatingChartPDF);
+
+/* ---------- View all tables: every table and its guests on one page ---------- */
+function openAllTables(){
+  const grid = document.getElementById('atGrid'); grid.innerHTML = '';
+  const sideOrder = s=> ({top:0, right:1, bottom:2, left:3}[s] ?? 4);
+  let seatedTotal = 0, seatsTotal = 0;
+  state.tables.forEach(t=>{
+    const gs = state.guests.filter(g=> g.seat && g.seat.tableId === t.id)
+      .sort((a,b)=> (sideOrder(a.seat.side) - sideOrder(b.seat.side)) || ((a.seat.index||0) - (b.seat.index||0)));
+    const total = tableTotalSeats(t);
+    seatedTotal += gs.length; seatsTotal += total;
+    const card = document.createElement('div'); card.className = 'at-table';
+    const h = document.createElement('button'); h.type = 'button'; h.className = 'at-name'; h.textContent = t.name;
+    h.addEventListener('click', ()=>{
+      document.getElementById('allTablesModal').classList.add('hidden');
+      state.activeTableId = t.id; switchMainView('seating'); updateTopSub(); renderTable(); if(typeof renderTableTabs === 'function') renderTableTabs();
+    });
+    const c = document.createElement('div'); c.className = 'at-count' + (gs.length > total ? ' over' : (gs.length === total ? ' full' : ''));
+    c.textContent = gs.length + ' of ' + total + ' seats';
+    const ol = document.createElement('ol');
+    gs.forEach(g=>{
+      const li = document.createElement('li');
+      const dot = document.createElement('span'); dot.className = 'at-dot'; dot.style.background = groupOf(g).color || '#999';
+      li.append(dot, document.createTextNode(g.name));
+      ol.appendChild(li);
+    });
+    if(!gs.length){ const li = document.createElement('li'); li.className = 'at-empty'; li.textContent = 'Nobody seated yet'; ol.appendChild(li); }
+    card.append(h, c, ol); grid.appendChild(card);
+  });
+  const unseated = state.guests.filter(g=> !g.seat);
+  if(unseated.length){
+    const card = document.createElement('div'); card.className = 'at-table at-unseated';
+    const h = document.createElement('div'); h.className = 'at-name'; h.textContent = 'Not seated yet';
+    const c = document.createElement('div'); c.className = 'at-count'; c.textContent = unseated.length + (unseated.length === 1 ? ' guest' : ' guests');
+    const ol = document.createElement('ul');
+    unseated.slice().sort((a,b)=> a.name.localeCompare(b.name)).forEach(g=>{ const li = document.createElement('li'); const dot = document.createElement('span'); dot.className = 'at-dot'; dot.style.background = groupOf(g).color || '#999'; li.append(dot, document.createTextNode(g.name)); ol.appendChild(li); });
+    card.append(h, c, ol); grid.appendChild(card);
+  }
+  if(!state.tables.length){ const p = document.createElement('p'); p.className = 'at-hint'; p.textContent = 'You have no tables yet.'; grid.appendChild(p); }
+  document.getElementById('atSum').textContent = state.tables.length + (state.tables.length === 1 ? ' table' : ' tables') + ' · ' + seatedTotal + ' of ' + state.guests.length + ' guests seated' + (seatsTotal ? ' · ' + seatsTotal + ' seats' : '');
+  document.getElementById('allTablesModal').classList.remove('hidden');
+}
+document.getElementById('btnAllTables').addEventListener('click', openAllTables);
+document.getElementById('atClose').addEventListener('click', ()=> document.getElementById('allTablesModal').classList.add('hidden'));
+document.getElementById('allTablesModal').addEventListener('click', e=>{ if(e.target.id === 'allTablesModal') e.target.classList.add('hidden'); });
+document.getElementById('atPrint').addEventListener('click', ()=>{
+  document.body.classList.add('printing-tables');
+  const done = ()=>{ document.body.classList.remove('printing-tables'); window.removeEventListener('afterprint', done); };
+  window.addEventListener('afterprint', done);
+  window.print();
+  setTimeout(done, 1500);
+});
+
 
 /* ===================== FIT TO SCREEN ===================== */
 function applyFitToScreen(){
