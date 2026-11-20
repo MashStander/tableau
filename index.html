@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tableau</title>
+<link rel="manifest" href="app-manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#ffffff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tableau">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Dynalight&family=WindSong:wght@400;500&family=Bodoni+Moda:wght@400;600&family=Italiana&family=Raleway:wght@400;600&family=Ephesis&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Corinthia:wght@400&display=swap" rel="stylesheet">
@@ -629,6 +636,23 @@
     body.printing-tables .at-table{border-color:#ccc;}
     body.printing-tables .at-dot{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
   }
+
+  /* ---------- Install Tableau on a phone ---------- */
+  .app-install{text-align:center; margin:18px 0 4px;}
+  .a2hs-btn{display:inline-flex; align-items:center; gap:12px; text-align:left; background:#fff; border:1px solid var(--line); border-radius:14px; padding:11px 16px; font:inherit; color:var(--ink); cursor:pointer;}
+  .a2hs-btn b{display:block; font-size:14.5px; font-weight:600;}
+  .a2hs-btn small{display:block; font-size:12px; color:var(--ink-soft); margin-top:1px;}
+  .a2hs-ic{font-size:24px;}
+  .a2hs-sheet{position:fixed; inset:0; z-index:600; background:rgba(0,0,0,.45); display:flex; align-items:flex-end; justify-content:center;}
+  .a2hs-sheet.hidden{display:none;}
+  .a2hs-card{background:var(--paper); border-radius:20px 20px 0 0; width:100%; max-width:520px; padding:22px 22px 30px; box-sizing:border-box;}
+  .a2hs-card h3{margin:0 0 12px; font-size:20px; color:var(--ink);}
+  .a2hs-card ol{margin:0 0 18px; padding-left:22px; font-size:15px; line-height:1.6; text-align:left;}
+  .a2hs-card li{margin:6px 0;}
+  .a2hs-card .key{display:inline-block; border:1px solid var(--line); border-radius:6px; padding:0 7px; background:#fff; font-weight:600;}
+  .a2hs-note{margin:-4px 0 12px; font-size:14px; line-height:1.5; color:var(--ink-soft);}
+  .a2hs-close{width:100%; background:var(--btn); color:#fff; border:none; border-radius:12px; padding:13px; font:inherit; font-size:15px; font-weight:600; cursor:pointer;}
+  .a2hs-chrome{margin-bottom:10px; background:#fff; color:var(--sage-dark); border:1px solid var(--sage-dark);}
   body.cloud-mode #btnReset{display:none !important;}
   .ei-swatches{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
   .ei-swatch{width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0; box-shadow:0 0 0 1px var(--line);}
@@ -1338,6 +1362,7 @@
   var sp = document.getElementById('splash');
   var seen = false;
   try{ seen = sessionStorage.getItem('tableauSplashSeen') === '1'; sessionStorage.setItem('tableauSplashSeen', '1'); }catch(e){}
+  if(window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) seen = true;   /* opened from the home screen icon */
   if(seen){ sp.parentNode.removeChild(sp); return; }
   var done = false, started = false;
   function close(){
@@ -1376,6 +1401,7 @@
         <button class="dropdown-item hidden" id="btnAccessMenu">View plans / Use access code&hellip;</button>
         <button class="dropdown-item" id="btnSignInMenu">Sign in to save online&hellip;</button>
         <button class="dropdown-item" id="btnShareTableau">Share Tableau with a friend</button>
+        <button class="dropdown-item hidden" id="btnInstallMenu">Install Tableau on my phone</button>
         <a class="dropdown-item" id="btnContact" href="/contact.html" target="_blank" rel="noopener" style="text-decoration:none; display:block;">Contact us</a>
         <button class="dropdown-item" id="btnSignOut">Sign out</button>
         <button class="dropdown-item hidden" id="btnMyCharts">My projects&hellip;</button>
@@ -1860,6 +1886,10 @@
       <div style="margin-top:10px;"><button class="auth-link" id="btnLandHowTo" type="button">Watch the how-to videos</button></div>
       <div style="margin-top:10px;"><a class="auth-link" href="/contact.html" target="_blank" rel="noopener">Contact us</a></div>
       <div style="margin-top:10px;"><a class="auth-link" href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener">See a live example of Full Planner package on your phone</a><div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Bridal party code for the example: <b>6064</b></div></div>
+    </div>
+
+    <div class="app-install hidden" id="appInstallWrap">
+      <button type="button" class="a2hs-btn" id="appInstallBtn"><span class="a2hs-ic">&#128242;</span><span><b>Install Tableau on my phone</b><small>Open your planning with one tap, full-screen</small></span></button>
     </div>
 
     <div id="landingIn" class="hidden">
@@ -2514,6 +2544,15 @@
     </div>
     <p class="at-hint">Tap a table&rsquo;s name to open it in the seating chart.</p>
     <div class="at-grid" id="atGrid"></div>
+  </div>
+</div>
+<div class="a2hs-sheet hidden" id="appSheet" role="dialog" aria-modal="true">
+  <div class="a2hs-card">
+    <h3>Install Tableau on your phone</h3>
+    <p class="a2hs-note hidden" id="appSheetNote"></p>
+    <ol id="appSheetSteps"></ol>
+    <button type="button" class="a2hs-close a2hs-chrome hidden" id="appSheetChrome">Open in Chrome now</button>
+    <button type="button" class="a2hs-close" id="appSheetClose">OK</button>
   </div>
 </div>
 <div id="howToModal" class="modal-overlay hidden" style="z-index:400;">
@@ -11507,6 +11546,55 @@ function escapeAttr(str){
   // close if clicking the dark backdrop
   document.getElementById('tryNoAccountPopup').addEventListener('click', function(e){
     if(e.target===this) hideTryPopup();
+  });
+})();
+</script>
+<script>
+/* ---- Install Tableau (the planning app) on a phone ---- */
+(function(){
+  const wrap = document.getElementById('appInstallWrap'), menuBtn = document.getElementById('btnInstallMenu'), sheet = document.getElementById('appSheet');
+  const ua = navigator.userAgent;
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const phone = window.matchMedia('(pointer: coarse)').matches || /Android|iPhone|iPad|iPod/i.test(ua);
+  const ios = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const inApp = /Instagram|FBAN|FBAV|FB_IAB|FBIOS|Messenger|WhatsApp|Line\/|Snapchat|TikTok|musical_ly|BytedanceWebview|LinkedInApp|Pinterest|; wv\)/i.test(ua);
+  let installEvent = null;
+  if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+  window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); installEvent = e; });
+  window.addEventListener('appinstalled', ()=>{ wrap.classList.add('hidden'); menuBtn.classList.add('hidden'); });
+  if(standalone || !phone) return;          // already installed, or on a computer
+  wrap.classList.remove('hidden'); menuBtn.classList.remove('hidden');
+  const K = t=> '<span class="key">' + t + '</span>';
+  function show(steps, note, chrome){
+    const ol = document.getElementById('appSheetSteps'); ol.innerHTML = '';
+    steps.forEach(t=>{ const li = document.createElement('li'); li.innerHTML = t; ol.appendChild(li); });
+    const n = document.getElementById('appSheetNote'); n.textContent = note || ''; n.classList.toggle('hidden', !note);
+    document.getElementById('appSheetChrome').classList.toggle('hidden', !chrome);
+    sheet.classList.remove('hidden');
+  }
+  async function install(){
+    const m = document.getElementById('chartMenu'); if(m) m.classList.remove('open');
+    if(inApp){
+      return ios
+        ? show(['Tap the ' + K('⋯') + ' menu (top right or bottom right of this screen).', 'Tap ' + K('Open in external browser') + ' or ' + K('Open in Safari') + '.', 'In Safari, tap ' + K('📲 Install Tableau on my phone') + ' again.'],
+               'You opened Tableau inside another app (like Instagram, Facebook or WhatsApp), and it can’t install apps. Open it in your normal browser first:')
+        : show(['Tap the ' + K('⋮') + ' menu at the top right of this screen.', 'Tap ' + K('Open in Chrome') + ' (or ' + K('Open in browser') + ').', 'In Chrome, tap ' + K('📲 Install Tableau on my phone') + ' again.'],
+               'You opened Tableau inside another app (like Instagram, Facebook or WhatsApp), and it can’t install apps. Open it in your normal browser first:', true);
+    }
+    if(installEvent){                        // Android: the phone's own "Install" box
+      installEvent.prompt();
+      try{ const r = await installEvent.userChoice; if(r && r.outcome === 'accepted'){ wrap.classList.add('hidden'); menuBtn.classList.add('hidden'); } }catch(e){}
+      installEvent = null; return;
+    }
+    if(ios) show(['Tap the ' + K('Share') + ' button ' + K('⬆︎') + ' (at the bottom in Safari, or the top right in Chrome).', 'Scroll down and tap ' + K('Add to Home Screen') + '.', 'Tap ' + K('Add') + '. Tableau now has its own icon on your phone.']);
+    else show(['Tap the ' + K('⋮') + ' menu at the top right of your browser.', 'Tap ' + K('Install app') + ' or ' + K('Add to Home screen') + '.', 'Tap ' + K('Install') + ' or ' + K('Add') + '. Tableau now has its own icon on your phone.']);
+  }
+  document.getElementById('appInstallBtn').addEventListener('click', install);
+  menuBtn.addEventListener('click', install);
+  document.getElementById('appSheetClose').addEventListener('click', ()=> sheet.classList.add('hidden'));
+  sheet.addEventListener('click', e=>{ if(e.target === sheet) sheet.classList.add('hidden'); });
+  document.getElementById('appSheetChrome').addEventListener('click', ()=>{
+    location.href = 'intent://' + location.host + location.pathname + location.search + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(location.href) + ';end';
   });
 })();
 </script>
