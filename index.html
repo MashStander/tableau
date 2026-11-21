@@ -520,6 +520,7 @@
   #eventInfoModal #eiNotes{min-height:300px;}
   #eventInfoModal #eiVerse{min-height:80px;}
   #eventInfoModal:not(.ei-one) #eiSignInNote{display:none;}
+  #eventInfoModal.ei-no-pics #eiSignInNote{display:none;}
   #eiSecHead, #bdSecHead{scroll-margin-top:calc(var(--tb-h, 60px) + 8px);}
   #eiLabelsSection > summary{display:none;}
   #eiLabelsSection::before{content:'Language & labels'; display:block; font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; letter-spacing:.05em; font-size:24px; color:var(--sage-dark); margin:0 0 4px;}
@@ -612,6 +613,24 @@
   #eventInfoModal .ei-desc{margin:-6px 0 14px; font-size:14px; color:var(--ink-soft); line-height:1.5;}
   #eventInfoModal details > .ei-desc{margin:8px 0 0;}
   @media (max-width:560px){ .ei-chip{padding:7px 11px; font-size:13px;} }
+
+  .hub-card:not(.hub-first) b small{font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); margin-left:6px;}
+  .hub-plan-head{font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); padding:2px 4px;}
+  body.no-planning .hub-col-plan{display:none !important;}
+  body.no-planning .hub-cols{grid-template-columns:repeat(3, minmax(0,1fr));}
+  @media (max-width:1100px){ body.no-planning .hub-cols{grid-template-columns:repeat(2, minmax(0,1fr));} }
+  @media (max-width:760px){ body.no-planning .hub-cols{grid-template-columns:1fr;} }
+
+  .ei-switch{display:flex !important; align-items:center; gap:12px; cursor:pointer; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:var(--paper); margin:0 0 14px !important;}
+  .ei-switch input{position:absolute; opacity:0; width:1px; height:1px;}
+  .ei-sw{flex:0 0 auto; width:44px; height:26px; border-radius:13px; background:#cfcac0; position:relative; transition:background .15s;}
+  .ei-sw::after{content:''; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition:left .15s;}
+  .ei-switch input:checked + .ei-sw{background:var(--sage-dark);}
+  .ei-switch input:checked + .ei-sw::after{left:21px;}
+  .ei-switch input:focus-visible + .ei-sw{outline:2px solid var(--sage-dark); outline-offset:2px;}
+  .ei-sw-text{display:flex; flex-direction:column; font-size:14.5px; color:var(--ink);}
+  .ei-sw-text small{font-size:12.5px; color:var(--ink-soft); margin-top:2px;}
+  .ls-planning{display:none !important;}
   /* ---- Phase 2: numbered steps, Publish / Live pill, Planning beta ---- */
   .nav-step i{display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; border:1px solid currentColor; font-style:normal; font-size:10.5px; margin-right:6px; vertical-align:1px; opacity:.75;}
   .beta-tag{font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; background:#efe6d6; color:#7a6a4a; border-radius:8px; padding:1px 6px; vertical-align:2px;}
@@ -1555,35 +1574,38 @@
 <div id="hubScreen" class="hidden">
  <div class="hub-band">
   <h2 id="hubTitle">Let&rsquo;s get started</h2>
-  <p class="hint" id="hubSub">We suggest working through these in order, starting with your guest list. You can jump to any step, and come back here any time from Help &rarr; What to do next.</p>
+  <p class="hint" id="hubSub">Three steps, in order. The same steps are in the menu at the top.</p>
   <div class="hub-cols">
    <div class="hub-col">
     <div class="hub-card hub-first">
-      <b>1. Create your guest list <small>Start here</small></b>
-      <span>Most of Tableau is built from your guest list, so this is the best place to begin.</span>
+      <b>1a. Your guest list <small>Start here</small></b>
       <ol class="hub-steps">
         <li><i>a</i><span>Download the <a id="hubDl">free Excel template</a>.</span></li>
-        <li><i>b</i><span>Fill it in on your computer: names, groups, cell numbers and any wedding roles. Keep the columns as they are.</span></li>
-        <li><i>c</i><span><a id="hubUp">Import your completed list</a> into Tableau.</span></li>
+        <li><i>b</i><span>Fill in names and groups. Keep the columns as they are.</span></li>
+        <li><i>c</i><span><a id="hubUp">Import your list</a>.</span></li>
       </ol>
-      <span>Prefer to type them in? <a id="hubManual">Add guests one by one</a>.</span>
+      <span>Or <a id="hubManual">type guests in one by one</a>.</span>
       <em id="hubStatGuests"></em>
     </div>
    </div>
    <div class="hub-col">
-    <button type="button" class="hub-card" data-hub="tables"><b>2. Set up tables</b><span>Choose round, rectangle, U-shape or bridal tables and seat your guests.</span><em id="hubStatTables"></em></button>
-    <button type="button" class="hub-card" data-hub="floorplan"><b>3. Create a floor plan</b><span>Set the size of your room and place tables, a dance floor, doors and more.</span><em id="hubStatFloor"></em></button>
+    <button type="button" class="hub-card" data-hub="tables"><b>1b. Your tables</b><span>Add your tables and seat your guests.</span><em id="hubStatTables"></em></button>
+    <button type="button" class="hub-card" data-hub="floorplan"><b>Floor plan <small>Optional</small></b><span>Show guests where their table is in the room.</span><em id="hubStatFloor"></em></button>
    </div>
    <div class="hub-col">
-    <button type="button" class="hub-card" data-hub="bridal" data-plan-need="2"><b>4. Bridal party page</b><span>Jobs for the day, packing lists and a private link for your bridal party.</span><em id="hubStatBridal"></em></button>
-    <button type="button" class="hub-card" data-hub="vendors" data-plan-need="2"><b>5. Vendors</b><span>Hair and makeup, catering, photographer and more, with contact details your bridal party can tap.</span><em id="hubStatVendors"></em></button>
+    <button type="button" class="hub-card" data-hub="guestpage"><b>2. Your guest page</b><span>Programme, menu, gifts, photos and more.</span><em id="hubStatGuestPage"></em></button>
+    <button type="button" class="hub-card" data-hub="share"><b>3. Share</b><span>Publish, then print your QR code or send the link.</span><em id="hubStatShare"></em></button>
    </div>
-   <div class="hub-col">
-    <button type="button" class="hub-card" data-hub="photos" data-plan-need="2"><b>6. Group photos</b><span>Plan each group photo, who is in it, and WhatsApp the guests beforehand.</span><em id="hubStatPhotos"></em></button>
-    <button type="button" class="hub-card" data-hub="checklist" data-plan-need="2"><b>7. Wedding checklist</b><span>Important dates and tasks from booking vendors to the week before. Tick them off as you go.</span><em id="hubStatChecklist"></em></button>
+   <div class="hub-col hub-col-plan">
+    <div class="hub-plan-head">Planning <span class="beta-tag">beta</span></div>
+    <button type="button" class="hub-card" data-hub="bridal" data-plan-need="2"><b>Bridal party page</b><span>Jobs, packing lists and a private link.</span><em id="hubStatBridal"></em></button>
+    <button type="button" class="hub-card" data-hub="vendors" data-plan-need="2"><b>Vendors</b><span>Contact details your bridal party can tap.</span><em id="hubStatVendors"></em></button>
+    <button type="button" class="hub-card" data-hub="photos" data-plan-need="2"><b>Group photos</b><span>Who is in each photo.</span><em id="hubStatPhotos"></em></button>
+    <button type="button" class="hub-card" data-hub="checklist" data-plan-need="2"><b>Wedding checklist</b><span>Dates and tasks, ticked off as you go.</span><em id="hubStatChecklist"></em></button>
    </div>
   </div>
  </div>
+
  <p class="page-tagline">Familiar, with a spritz of magic.</p>
 </div>
 
@@ -1617,8 +1639,8 @@
     <input type="text" id="accessCodeInput" placeholder="TBL-XXXX-XXXX" autocomplete="off" autocapitalize="characters" style="width:100%; font-size:17px; letter-spacing:.06em; text-transform:uppercase;">
     <div id="accessMsg" style="font-size:13px; min-height:20px; margin-top:8px;"></div>
     <div id="accessBuyRow" class="hidden" style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px;">
-      <button id="accessBuyBtn1" class="primary-btn" style="font-size:13px; padding:8px 14px;" onclick="buyPlan(1)">Buy Guest Page Plan – R100/year</button>
-      <button id="accessBuyBtn2" class="primary-btn" style="font-size:13px; padding:8px 14px;" onclick="buyPlan(2)">Buy Full Planner – R200/year</button>
+      <button id="accessBuyBtn1" class="primary-btn" style="font-size:13px; padding:8px 14px;" onclick="buyPlan(1)">Buy Premium – R299 once-off</button>
+      <button id="accessBuyBtn2" class="primary-btn hidden" style="font-size:13px; padding:8px 14px;" onclick="buyPlan(2)">Full Planner</button>
     </div>
     <div class="modal-actions" style="flex-wrap:wrap;">
       <button class="ghost-btn" id="accessLater" style="margin-right:auto;">Not now</button>
@@ -1828,10 +1850,10 @@
 
     <div class="sidebar-section">
       <h3>
-        <span class="collapse-toggle" id="groupsToggle"><span class="chev" id="groupsChev"></span> Groups <span class="collapse-hint">(Click to collapse section)</span></span>
+        <span class="collapse-toggle" id="groupsToggle"><span class="chev" id="groupsChev"></span> Groups</span>
         <span class="small-link" id="toggleAddGroup">+ add group</span>
       </h3>
-      <p class="section-desc" id="groupsDesc">Group people together to seat entire sets of guests easily.</p>
+      <p class="section-desc" id="groupsDesc">Seat whole groups at once, like family or friends.</p>
       <div id="groupsBody">
         <div id="groupsList"></div>
         <form id="addGroupForm" class="hidden">
@@ -1844,9 +1866,9 @@
 
     <div class="sidebar-section">
       <h3>
-        <span class="collapse-toggle" id="addGuestToggle"><span class="chev" id="addGuestChev"></span> Add a guest <span class="collapse-hint">(Click to collapse section)</span></span>
+        <span class="collapse-toggle" id="addGuestToggle"><span class="chev" id="addGuestChev"></span> Add a guest</span>
       </h3>
-      <p class="section-desc" id="addGuestDesc">Add guests individually, or use the buttons below to download our guest list template and upload your list from your computer.</p>
+      <p class="section-desc" id="addGuestDesc">Type a name, or upload your list using our Excel template.</p>
       <div id="addGuestBody">
         <form id="addGuestForm">
           <input type="text" id="newGuestName" placeholder="Guest name" maxlength="40" required>
@@ -1992,7 +2014,7 @@
   <div class="auth-card landing-card">
     <div class="auth-logo landing-logo" role="img" aria-label="Tableau"></div>
     <p class="landing-tag">Familiar, with a spritz of magic.</p>
-    <p class="landing-sub">Your whole wedding day in one place: seat your guests, design the room, plan the day with your bridal party, and share one QR code with your guests.</p>
+    <p class="landing-sub">Seat your guests, design the room and share one QR code with everything your guests need.</p>
     <p class="landing-desktop-note">Seat your guests on your phone or computer. The floor plan is easiest on a computer.</p>
 
     <div id="landingOut">
@@ -2002,7 +2024,7 @@
       <div style="margin-top:16px;"><button class="auth-link" id="btnLandSkip" type="button">Try it without an account</button></div>
       <div style="margin-top:10px;"><button class="auth-link" id="btnLandHowTo" type="button">Watch the how-to videos</button></div>
       <div style="margin-top:10px;"><a class="auth-link" href="/contact.html" target="_blank" rel="noopener">Contact us</a></div>
-      <div style="margin-top:10px;"><a class="auth-link" href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener">See a live example of Full Planner package on your phone</a><div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Bridal party code for the example: <b>6064</b></div></div>
+      <div style="margin-top:10px;"><a class="auth-link" href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener">See a live example on your phone</a><div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Bridal party code for the example: <b>6064</b></div></div>
     </div>
 
     <div class="app-install hidden" id="appInstallWrap">
@@ -2026,7 +2048,7 @@
           <button type="button" class="primary-btn" id="landingCodeGo" style="width:auto; padding:0 18px;">Unlock</button>
         </div>
         <div id="landingCodeMsg" style="font-size:12.5px; min-height:18px; margin-top:6px;"></div>
-        <div style="font-size:12px; margin-top:2px;"><a href="#" id="landingSeePlans" style="color:var(--sage-dark);">See what each plan includes</a> &middot; <a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener" style="color:var(--sage-dark);">Live example</a> of Full Planner package (bridal party code: <b>6064</b>)</div>
+        <div style="font-size:12px; margin-top:2px;"><a href="#" id="landingSeePlans" style="color:var(--sage-dark);">See what each plan includes</a> &middot; <a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener" style="color:var(--sage-dark);">Live example</a> on your phone (bridal party code: <b>6064</b>)</div>
       </div>
       <div style="margin-top:16px;"><button class="auth-link" id="btnLandSignOut" type="button">Sign out</button> &middot; <a class="auth-link" href="/contact.html" target="_blank" rel="noopener">Contact us</a></div>
     </div>
@@ -2044,16 +2066,16 @@
       <li><span class="ls-n">5</span><div class="ls-t"><b>One QR code <span class="ls-chip free">Free</span></b>Guests scan it, find their name and see their table marked with a red star. <a href="https://tableauevents.co.za/guest-view.html?event=event-xu8id" target="_blank" rel="noopener">Try a live example of the FREE plan on your phone.</a></div></li>
       <li><span class="ls-n">6</span><div class="ls-t"><b>Make it yours <span class="ls-chip free">Free</span></b>Add your photo, date, colours and style, all saved to your account.</div></li>
     </ol></div>
-    <div class="ls-col"><h3 class="ls-col-h">Optional paid plans</h3>
+    <div class="ls-col"><h3 class="ls-col-h">Optional: Premium</h3>
     <ol class="landing-steps" start="7">
-      <li class="ls-paid ls-gp"><span class="ls-n">7</span><div class="ls-t"><b>Menu, programme, notes and gifts <button type="button" class="ls-chip" data-plan="1">Guest page plan &middot; R100 a year</button></b>An add-on to your QR guest page. Upload your menu, programme, banking details and a note or song words, so guests have them right on their phones (Canva templates available). <a href="https://tableauevents.co.za/guest-view.html?event=hannah-caleb-c4xnx" target="_blank" rel="noopener">Try a live example of the Guest page plan on your phone.</a><br><a href="https://tableauevents.co.za/guest-view.html?event=mia-henco-vxwzv" target="_blank" rel="noopener" lang="af">Toets ons AFRIKAANSE voorbeeld op jou foon.</a></div></li>
-      <li class="ls-paid"><span class="ls-n">8</span><div class="ls-t"><b>Wedding checklist <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>A built-in task list organised by how far out you are — from 12 months to the week before. Tick items off, assign tasks to people, and hide anything that doesn't apply to your wedding.</div></li>
-      <li class="ls-paid"><span class="ls-n">9</span><div class="ls-t"><b>Bridal party page <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Jobs, packing lists and vendor contacts on a private link.</div></li>
-      <li class="ls-paid"><span class="ls-n">10</span><div class="ls-t"><b>Vendors and group photos <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Keep every contact in one place, plan each group photo and WhatsApp the guests in it.</div></li>
-      <li class="ls-paid"><span class="ls-n">11</span><div class="ls-t"><b>The whole weekend <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Add a day before and a day after, each with its own programme. <a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener">Try a live example of the Full Planner on your phone.</a> The bridal party code is <strong>6064</strong>.</div></li>
+      <li class="ls-paid ls-gp"><span class="ls-n">7</span><div class="ls-t"><b>Menu, programme, notes and gifts <button type="button" class="ls-chip" data-plan="1">Premium &middot; R299 once-off</button></b>An add-on to your QR guest page. Upload your menu, programme, banking details and a note or song words, so guests have them right on their phones (Canva templates available). <a href="https://tableauevents.co.za/guest-view.html?event=hannah-caleb-c4xnx" target="_blank" rel="noopener">Try a live example of Premium on your phone.</a><br><a href="https://tableauevents.co.za/guest-view.html?event=mia-henco-vxwzv" target="_blank" rel="noopener" lang="af">Toets ons AFRIKAANSE voorbeeld op jou foon.</a></div></li>
+      <li class="ls-paid ls-planning"><span class="ls-n">8</span><div class="ls-t"><b>Wedding checklist <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>A built-in task list organised by how far out you are — from 12 months to the week before. Tick items off, assign tasks to people, and hide anything that doesn't apply to your wedding.</div></li>
+      <li class="ls-paid ls-planning"><span class="ls-n">9</span><div class="ls-t"><b>Bridal party page <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Jobs, packing lists and vendor contacts on a private link.</div></li>
+      <li class="ls-paid ls-planning"><span class="ls-n">10</span><div class="ls-t"><b>Vendors and group photos <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Keep every contact in one place, plan each group photo and WhatsApp the guests in it.</div></li>
+      <li class="ls-paid ls-planning"><span class="ls-n">11</span><div class="ls-t"><b>The whole weekend <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Add a day before and a day after, each with its own programme. <a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener">Try a live example on your phone.</a> The bridal party code is <strong>6064</strong>.</div></li>
     </ol></div>
     </div>
-    <p class="landing-steps-note">Steps 1 to 6 are free. Steps 7 to 11 are optional paid plans: Guest page R100 a year, Full planner R200 a year. <a id="lsPlans">See what each plan includes</a></p>
+    <p class="landing-steps-note">Steps 1 to 6 are free. Premium adds the rest of your guest page for R299, once-off. <a id="lsPlans">See what each plan includes</a></p>
     </div>
   </div>
   <p class="page-tagline">Familiar, with a spritz of magic.</p>
@@ -2205,7 +2227,7 @@
   <div class="ei-head">
    <div class="ei-head-text">
     <h2>Your guest page</h2>
-    <p class="hint">Everything your guests see when they scan your QR code. Tap a section to fill it in. Empty sections stay hidden from guests. <b>Anyone with your link sees this page,</b> including banking details, so only add what you are happy to share.</p>
+    <p class="hint">Fill in what you want guests to see. Empty sections stay hidden. <b>Anyone with your link can see this page,</b> so only add what you&rsquo;re happy to share.</p>
    </div>
    <div class="ei-head-actions">
     <span id="eiSaveState" class="ei-save-state"></span>
@@ -2215,8 +2237,8 @@
   </div>
 
   <div id="eiLockNote" class="hidden" style="background:#fff6e0; border:1px solid #e8cf8a; border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.5; color:#5a4a1c; margin-bottom:12px;">
-      <b>&#128274; Programme, menu, a note from you, gifts, photos link and links are part of the Guest page plan (R100 a year).</b> Find my seat works without them.
-      <div style="margin-top:8px;"><button type="button" class="ghost-btn" id="eiMoreBtn">More info</button> <button type="button" class="ghost-btn" id="eiUnlockBtn">See plans &amp; unlock</button></div>
+      <b>&#128274; Programme, menu, a note from you, gifts, photos, song requests and links are part of Premium (R299 once-off).</b> Find my seat works without them.
+      <div style="margin-top:8px;"><button type="button" class="ghost-btn" id="eiMoreBtn">More info</button> <button type="button" class="ghost-btn" id="eiUnlockBtn">Get Premium</button></div>
     </div>
    <div id="eventInfoModal" class="ei-main">
     <div id="eiTiles" class="ei-tiles"></div>
@@ -2235,7 +2257,7 @@
           <option value="af">Afrikaans</option>
           <option value="own">My own words</option>
         </select>
-        <div style="font-size:12px; color:var(--ink-soft); margin-top:5px; line-height:1.45;">Changing a word below switches this to <b>My own words</b>. Buttons and hints on your guest page stay in the language you chose last.</div>
+        <div style="font-size:12px; color:var(--ink-soft); margin-top:5px; line-height:1.45;">Changing a word switches this to <b>My own words</b>.</div>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
         <div>
@@ -2370,26 +2392,27 @@
 
     <div class="ei-block" data-sec="signs">
       <h4>Welcome sign (A2 printable)</h4>
-      <div class="ei-tpl-note">A large sign to greet your guests at the entrance. Each design matches the programme and menu template with the same number. Tap one to open it in Canva, add your names and date, then download it as a PDF to print at A2 size.</div>
+      <div class="ei-tpl-note">Matches the programme and menu template with the same number. Tap one to edit it in Canva, then download a PDF and print at A2.</div>
       <div class="ei-tpl-row" id="eiWelcomeSigns"></div>
     </div>
 
     <div class="ei-block" data-sec="songs">
       <h4>Song requests</h4>
-      <label class="ei-check"><input type="checkbox" id="eiSongsOn"> Show a <b>Song requests</b> tile on the guest page, so guests can ask for songs for the dance floor</label>
+      <label class="ei-switch"><input type="checkbox" id="eiSongsOn"><span class="ei-sw"></span><span class="ei-sw-text"><b>Song requests on your guest page</b><small id="eiSongsOnState">Off</small></span></label>
+      <div id="eiSongsMore">
       <label>A note to your guests (optional)</label>
       <input type="text" id="eiSongsNote" class="custom-num" maxlength="160" placeholder="e.g. Help us fill the dance floor! Our DJ will play as many as possible.">
       <label class="ei-check" style="margin-top:14px !important;"><input type="checkbox" id="eiSongsList"> <span>Let guests see what has been requested, and tap &#128077; on songs they want too. <span class="ei-ideas-small">Names are never shown to other guests.</span></span></label>
       <div class="ei-dj">
         <h5>&#127911; Your DJ</h5>
-        <p class="ei-tpl-note" style="margin-top:0;">Guests see your DJ&rsquo;s name and link on the Song requests tile, which is nice exposure for their business. Check with your DJ first.</p>
+        <p class="ei-tpl-note" style="margin-top:0;">Guests see this on the Song requests tab. Check with your DJ first.</p>
         <div class="ei-dj-grid">
           <div><label>Name or business name</label><input type="text" id="eiSongsDjName" class="custom-num" maxlength="60" placeholder="e.g. DJ Sipho Sounds"></div>
           <div><label>Instagram, Facebook or website</label><input type="text" id="eiSongsDjLink" class="custom-num" maxlength="200" placeholder="e.g. instagram.com/djsiphosounds"></div>
           <div><label>Phone number for bookings (optional)</label><input type="text" id="eiSongsDjPhone" class="custom-num" maxlength="20" placeholder="e.g. 082 123 4567"></div>
         </div>
         <h5 style="margin-top:16px;">The DJ&rsquo;s private link</h5>
-        <p class="ei-tpl-note" style="margin-top:0;">Send this to your DJ before the wedding. On the night they see every request live, most popular first, and tick songs off as they play them. No account or app needed, and you won&rsquo;t be bothered on the day.</p>
+        <p class="ei-tpl-note" style="margin-top:0;">Send it to your DJ. They see every request live, most popular first, and tick songs off. No account needed.</p>
         <div class="ei-dj-link"><input type="text" id="eiDjLinkOut" class="custom-num" readonly>
           <button type="button" class="ghost-btn" id="eiDjCopy">Copy</button>
           <button type="button" class="ghost-btn" id="eiDjWa">Send on WhatsApp</button>
@@ -2407,12 +2430,13 @@
           </span>
         </div>
         <div id="eiSongList" class="ei-song-list"></div>
-        <p class="ei-tpl-note">Songs asked for more than once are grouped, with the most popular at the top. Send the list to your DJ a few days before the wedding, and again on the day.</p>
+        <p class="ei-tpl-note">Most popular first.</p>
       </div>
+    </div>
     </div>
     <div class="ei-block" data-sec="photos">
       <h4>Photos &amp; videos from guests</h4>
-      <label>Link to your shared album (optional). Guests tap a button on their phone and add their photos and videos there.</label>
+      <label>Link to your shared album. Guests tap a button and add their photos and videos.</label>
       <input type="text" id="eiAlbumUrl" class="custom-num" style="width:100%; margin-bottom:8px;" placeholder="https://photos.app.goo.gl/...">
       <label>A short note for guests (optional)</label>
       <input type="text" id="eiAlbumNote" class="custom-num" style="width:100%; margin-bottom:8px;" placeholder="e.g. Add your favourite moments from the day!">
@@ -6505,8 +6529,8 @@ function renderTable(){
   const note = document.createElement('div');
   note.id = 'legendNote';
   note.textContent = isPhone() ? 'Tap a guest in the Guests tab, then tap a seat. Tap a seated guest to move them, or to send them back to the list.' : table.shape === 'rectangle'
-    ? 'Drag a guest from the list onto a seat. Drag a seated guest back to the list to unseat them (or double-click them). Use the \u2190 / \u2192 buttons between seats to open up a space, or the small curved arrows on an empty seat to close one back up (the arrow starts on the side the guests come from).'
-    : 'Drag a guest from the list onto a seat. Drag a seated guest back to the list to unseat them, or double-click them.';
+    ? 'Drag a guest onto a seat. To remove them, drag them back to the list or double-click. The \u2190 / \u2192 buttons between seats open up a space; the curved arrows on an empty seat close it again.'
+    : 'Drag a guest onto a seat. To remove them, drag them back to the list or double-click.';
   const container = document.getElementById('tableArea');
   container.querySelectorAll('#legendNote').forEach(el=>el.remove());
   container.appendChild(note);
@@ -8544,6 +8568,7 @@ function openEventInfoModal(){
   const info = state.eventInfo || {};
   Object.keys(EI_FIELDS).forEach(k=>{ document.getElementById(EI_FIELDS[k]).value = info[k] || ''; });
   document.getElementById('eiSongsOn').checked = !!info.songsOn;
+  eiSongsSwitch();
   fiRenderAll();
   document.getElementById('eiSongsList').checked = !!info.songsList;
   eiSongRows = null;
@@ -8911,6 +8936,14 @@ async function eiLoadSongs(){
   });
 })();
 
+
+/* song requests: one switch; the details only show when it is on */
+function eiSongsSwitch(){
+  const on = document.getElementById('eiSongsOn').checked;
+  document.getElementById('eiSongsMore').classList.toggle('hidden', !on);
+  document.getElementById('eiSongsOnState').textContent = on ? 'On \u2013 guests see a Song requests tab' : 'Off';
+}
+document.getElementById('eiSongsOn').addEventListener('change', eiSongsSwitch);
 /* ===================== Programme and menu as fill-in boxes =====================
    Stored as before (lines of text), so older weddings and the guest page keep working:
    programme "14:00 | Ceremony | Chapel", menu "# Starters" then one dish per line. */
@@ -9054,6 +9087,7 @@ function eiOpenSec(k){
   eiCurrent = k;
   const sec = EI_SECS.find(x=> x.k === k) || EI_SECS[0];
   document.getElementById('eventInfoModal').classList.add('ei-one');
+  document.getElementById('eventInfoModal').classList.toggle('ei-no-pics', !['look','program','menu','notes','gifts'].includes(k));
   document.querySelectorAll('#eventInfoModal .ei-block[data-sec]').forEach(b=> b.classList.toggle('ei-on', b.dataset.sec === k));
   document.getElementById('eiTiles').classList.remove('hidden');
   document.getElementById('eiSecHead').classList.add('hidden');
@@ -9145,7 +9179,7 @@ function eiRefreshPhone(now){
     const url = 'guest-view.html?preview=1&frame=1&v=' + Date.now() + hash;
     /* replace, so the preview never adds steps to the Back button */
     const note = document.getElementById('eiPhoneNote');
-    note.textContent = (sec && sec.g && !eiStatus(sec.k).done) ? '\u00B7 ' + sec.t.toLowerCase() + ' is empty, so guests don\u2019t see it yet' : '';
+    note.textContent = (sec && sec.g && !eiStatus(sec.k).done) ? '\u00B7 ' + sec.t.toLowerCase() + (sec.k === 'songs' ? ' is off' : ' is empty') + ', so guests don\u2019t see it yet' : '';
     try{ if(f.contentWindow && f.getAttribute('src')){ f.contentWindow.location.replace(url); return; } }catch(e){}
     f.src = url;
   }, now ? 50 : 900);
@@ -9230,17 +9264,17 @@ async function buyPlan(tier){
   if(p.get('payment') === 'success'){
     history.replaceState({}, '', location.pathname);
     // Show toast after a short delay so the page has loaded
-    setTimeout(()=> toast('Payment successful! 🎉 Check your email for your access code — it may take a minute or two to arrive.', 10000), 800);
+    setTimeout(()=> toast('Payment successful! 🎉 Check your email for your Premium code (it can take a minute or two), then enter it under Account → Plan & payment.', 12000), 800);
   } else if(p.get('payment') === 'cancelled'){
     history.replaceState({}, '', location.pathname);
     setTimeout(()=> toast('Payment cancelled — no charge was made.', 5000), 800);
   }
 })();
-const PLAN_NAMES = ['Free', 'Guest page', 'Full planner'];
-const PLAN_PRICE = ['Free', 'R100 a year', 'R200 a year'];
+const PLAN_NAMES = ['Free', 'Premium', 'Full planner'];
+const PLAN_PRICE = ['Free', 'R299 once-off', 'Full planner'];
 const PLAN_LINES = [
   'Seating chart, floor plan, guest page and QR code',
-  'Adds programme, menu, a note from you, gifts and photos link to your guest page',
+  'Adds programme, menu, a note from you, gifts, photos, song requests and links to your guest page',
   'Adds bridal party, vendors and group photos'
 ];
 let hasAccess = true, accessUser = null;     // everyone can save and publish; the plan decides which sections are open
@@ -9320,24 +9354,25 @@ function openAccessModal(need, what){
   const signedIn = !!(sb && cloudUser);
   let intro;
   if(!signedIn) intro = 'Create an account or sign in first. Then you can enter a code here to unlock more.';
-  else if(accessNeed && what) intro = what + ' is part of the ' + (accessNeed === 2 ? 'Full planner (R200 a year)' : 'Guest page plan, R100 a year (and the Full planner)') + '. Enter your access code (it starts with TBL-) to unlock it.';
-  else intro = 'Enter your access code (it starts with TBL-) to unlock more, or to add another year.';
+  else if(accessNeed && what) intro = what + ' is part of ' + (accessNeed === 2 ? 'the planning tools, which are in beta and only open to couples who already have the Full planner' : 'Premium (R299 once-off)') + '. Buy it below, or enter your access code (it starts with TBL-).';
+  else intro = 'Have an access code? Enter it here (it starts with TBL-).';
   document.getElementById('accessIntro').textContent = intro;
   const cur = accessTier;
   let line = 'Your plan: ' + PLAN_NAMES[cur];
-  if(cur > 0 && accessExpires) line += ' (until ' + fmtLong(accessExpires) + ')';
+  if(cur > 0 && accessExpires && (new Date(accessExpires) - new Date()) > 3 * 365 * 86400000) line += ' (once-off, yours to keep)';
+  else if(cur > 0 && accessExpires) line += ' (until ' + fmtLong(accessExpires) + ')';
   else if(cur > 0) line += ' (no end date)';
   else if(accessHad) line += ' — your last plan has ended';
   document.getElementById('accessPlanNow').textContent = line;
-  document.getElementById('accessPlans').innerHTML = PLAN_NAMES.map((nm,i)=>
+  document.getElementById('accessPlans').innerHTML = PLAN_NAMES.map((nm,i)=> (i === 2 && cur < 2) ? '' :
     '<div class="plan-row' + (i === cur ? ' now' : '') + (i === accessNeed ? ' need' : '') + '"><b>' + (i <= cur ? '✓ ' : '🔒 ') + nm + ' <small style="font-weight:600; color:var(--ink-soft);">&middot; ' + PLAN_PRICE[i] + '</small></b><span>' + PLAN_LINES[i] + '</span>' + (i > 0 ? '<a href="#" class="plan-more" data-plan="' + i + '">More info</a>' : '') + '</div>').join('');
   // Show buy buttons for plans the user doesn't have yet
   const row = document.getElementById('accessBuyRow');
-  if(signedIn && cur < 2){
+  if(signedIn && cur < 1){
     row.classList.remove('hidden');
     const b1 = document.getElementById('accessBuyBtn1'), b2 = document.getElementById('accessBuyBtn2');
-    if(b1){ b1.classList.toggle('hidden', cur >= 1); b1._orig = 'Buy Guest Page Plan – R100/year'; }
-    if(b2){ b2.classList.toggle('hidden', cur >= 2); b2._orig = 'Buy Full Planner – R200/year'; }
+    if(b1){ b1.classList.remove('hidden'); b1._orig = 'Buy Premium – R299 once-off'; b1.textContent = b1._orig; b1.disabled = false; }
+    if(b2) b2.classList.add('hidden');      /* Planning is in beta: the Full planner is no longer sold */
   } else { row.classList.add('hidden'); }
   document.getElementById('accessModal').classList.remove('hidden');
   setTimeout(()=> document.getElementById('accessCodeInput').focus(), 50);
@@ -9373,7 +9408,7 @@ setInterval(()=>{
 }, 3000);
 /* "More info" window for the paid plans. Put screenshots in the site folder plan-images/ as guest-1.jpg, guest-2.jpg, guest-3.jpg and full-1.jpg ... full-3.jpg */
 const PLAN_INFO = {
-  1: {title: 'Guest page plan', img: 'guest', bullets: [
+  1: {title: 'Premium', img: 'guest', bullets: [
     '<b>Programme:</b> the order of the day, with times. Type it in or add a picture.',
     '<b>Menu:</b> your dishes, or a photo of your printed menu.',
     '<b>A note from us:</b> a thank-you note, the words of the worship song, a reading, your vows or your love story.',
@@ -9382,7 +9417,7 @@ const PLAN_INFO = {
     '<b>Links:</b> your wedding website, registry or directions.',
     'Guests see it all by scanning the same QR code. You never reprint anything.']},
   2: {title: 'Full planner', img: 'full', bullets: [
-    '<b>Everything in the Guest page plan:</b> upload your menu, programme and banking details so guests have them right on their phones, plus Canva templates (welcome sign, menu and programme), the Excel guest list template, seating chart, floor plan layout and a QR code for your guests. On top of that, the Full planner adds:',
+    '<b>Everything in Premium:</b> upload your menu, programme and banking details so guests have them right on their phones, plus Canva templates (welcome sign, menu and programme), the Excel guest list template, seating chart, floor plan layout and a QR code for your guests. On top of that, the Full planner adds:',
     '<b>Bridal party page:</b> an interactive page with the day&rsquo;s tasks for each bridal party member, with times and places, plus packing lists and the duties assigned to each person. Each member gets a WhatsApp link for quick access on the day, and the page has a private link and 4-digit code for your bridal party.',
     '<b>Vendors:</b> hair, make-up, catering, photographer and more, including their schedules for the day, with Call and WhatsApp buttons so your bridal party can reach them easily.',
     '<b>Group photos:</b> plan where and when each group photo happens and who is in it, then WhatsApp the guests beforehand.',
@@ -9393,7 +9428,7 @@ function openPlanInfo(n){
   const d = PLAN_INFO[n]; if(!d) return;
   planInfoNow = n;
   document.getElementById('planInfoTitle').textContent = d.title;
-  document.getElementById('planInfoPrice').textContent = PLAN_PRICE[n] + (n > 0 ? ' \u00b7 one year of access, renewable' : '');
+  document.getElementById('planInfoPrice').textContent = n === 1 ? 'R299 once-off \u00b7 pay once for your wedding' : (n === 2 ? 'Planning tools are in beta' : PLAN_PRICE[n]);
   document.getElementById('planInfoList').innerHTML = d.bullets.map(b=> '<li>' + b + '</li>').join('');
   const box = document.getElementById('planInfoImgs'); box.innerHTML = '';
   for(let i = 1; i <= 3; i++){
@@ -9404,8 +9439,8 @@ function openPlanInfo(n){
   document.getElementById('planInfoUnlock').classList.toggle('hidden', !locked);
   document.getElementById('planInfoBuy').classList.toggle('hidden', !locked);
   document.getElementById('planInfoLive').innerHTML = n === 2
-    ? '<a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener" style="color:var(--sage-dark); font-weight:600;">Try a live example of the Full Planner on your phone.</a> The bridal party code is <b>6064</b>.'
-    : '<a href="https://tableauevents.co.za/guest-view.html?event=hannah-caleb-c4xnx" target="_blank" rel="noopener" style="color:var(--sage-dark); font-weight:600;">Try a live example of the Guest page plan on your phone.</a>';
+    ? '<a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener" style="color:var(--sage-dark); font-weight:600;">Try a live example on your phone.</a> The bridal party code is <b>6064</b>.'
+    : '<a href="https://tableauevents.co.za/guest-view.html?event=hannah-caleb-c4xnx" target="_blank" rel="noopener" style="color:var(--sage-dark); font-weight:600;">Try a live example of Premium on your phone.</a>';
   document.getElementById('planInfoModal').classList.remove('hidden');
 }
 document.getElementById('accessPlans').addEventListener('click', e=>{
@@ -11459,6 +11494,11 @@ function showHub(first){
   hubStat('hubStatGuests', g ? g + (g===1?' guest added':' guests added') : 'Not started yet', g);
   hubStat('hubStatTables', t ? t + (t===1?' table set up':' tables set up') : 'Not started yet', t);
   hubStat('hubStatFloor', fp ? 'Room started' : (state.floorPlan ? 'Room size set' : 'Not started yet'), state.floorPlan);
+  { const ei = state.eventInfo || {};
+    const n = ['program','menu','notes','albumUrl','links'].filter(k=> String(ei[k]||'').trim()).length + ((ei.bank||ei.bankNote) ? 1 : 0) + (ei.songsOn ? 1 : 0);
+    hubStat('hubStatGuestPage', n ? n + (n === 1 ? ' section filled in' : ' sections filled in') : 'Find my seat only, so far', n);
+    const live = document.getElementById('pubPill').dataset.state === 'live';
+    hubStat('hubStatShare', live ? 'Live \u2713' : 'Not published yet', live); }
   hubStat('hubStatBridal', bj ? bj + ' items so far' : 'Not started yet', bj);
   const nv = (state.vendors||[]).length, np = (state.photos||[]).length;
   hubStat('hubStatVendors', nv ? nv + (nv===1?' vendor added':' vendors added') : 'Not started yet', nv);
@@ -11483,6 +11523,10 @@ document.querySelectorAll('.hub-card').forEach(c=> c.addEventListener('click', (
     if((state.tables||[]).length) enterMain('seating'); else showSetupScreen();
   } else if(k === 'floorplan'){
     enterMain('floorplan');
+  } else if(k === 'guestpage'){
+    openEventInfoModal();
+  } else if(k === 'share'){
+    openFinderModal();
   } else if(k === 'bridal'){
     openBp();
   } else if(k === 'vendors'){
