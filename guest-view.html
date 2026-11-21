@@ -433,6 +433,14 @@
                   bankNote, bank:[{label,value}], images:{program:[url], menu:[url], bank:[url]}} }
 */
 const IN_FRAME = new URLSearchParams(location.search).get('frame') === '1';   /* shown inside the app's phone preview */
+/* in the app's phone preview, outside links (album, registry, maps) open in a new tab:
+   sites like Google refuse to open inside another page and show an error instead */
+if(IN_FRAME) document.addEventListener('click', e=>{
+  const l = e.target.closest && e.target.closest('a[href]');
+  if(!l) return;
+  let u; try{ u = new URL(l.href, location.href); }catch(err){ return; }
+  if(/^https?:$/.test(u.protocol) && u.origin !== location.origin){ e.preventDefault(); window.open(u.href, '_blank', 'noopener'); }
+}, true);
 const EVENT_SLUG = (function(){
   const q = ((new URLSearchParams(location.search)).get('event') || '').toLowerCase().replace(/[^a-z0-9-]/g,'');
   try{
