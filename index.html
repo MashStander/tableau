@@ -596,6 +596,28 @@
   .ei-lang-note{background:#eef3ec; border:1px solid #d5e0d1; border-radius:10px; padding:10px 13px; font-size:13.5px; line-height:1.5; color:var(--ink); margin:0 0 14px;}
   .ei-on-narrow{display:none;}
   @media (max-width:1100px){ .ei-on-wide{display:none;} .ei-on-narrow{display:inline;} }
+
+  /* programme and menu fill-in boxes */
+  .fi-head{display:grid; gap:6px; font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-soft); margin:8px 0 4px;}
+  .fi-head i{text-transform:none; letter-spacing:0; font-style:normal;}
+  .fi-prog{grid-template-columns:84px minmax(0,1.4fr) minmax(0,1fr) 30px;}
+  .fi-row{display:grid; gap:6px; margin-bottom:6px; align-items:center;}
+  .fi-row .custom-num, .fi-course .custom-num{width:100% !important; box-sizing:border-box; margin:0;}
+  .fi-time{text-align:center;}
+  .fi-del{border:0; background:none; color:var(--ink-soft); font-size:15px; cursor:pointer; padding:6px; border-radius:6px;}
+  .fi-del:hover{color:#b0281c; background:#fbeeee;}
+  .fi-add{margin:4px 0 12px;}
+  .fi-course{border:1px solid var(--line); border-radius:10px; padding:10px 10px 6px; margin-bottom:10px; background:var(--paper);}
+  .fi-chead{display:grid; grid-template-columns:minmax(0,1fr) 30px; gap:6px; margin-bottom:6px;}
+  .fi-cname{font-weight:600;}
+  .fi-dishes{padding-left:14px; border-left:2px solid var(--line); margin-left:4px;}
+  .fi-drow{display:grid; grid-template-columns:minmax(0,1fr) 30px; gap:6px; margin-bottom:6px;}
+  .fi-link{background:none; border:0; color:var(--sage-dark); font:inherit; font-size:13.5px; font-weight:600; padding:4px 2px 2px 18px; cursor:pointer;}
+  @media (max-width:560px){
+    .fi-head.fi-prog{display:none;}
+    .fi-row.fi-prog{grid-template-columns:76px minmax(0,1fr) 30px; border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:8px;}
+    .fi-row.fi-prog .fi-where{grid-column:1 / 3;}
+  }
   .ei-dj{margin-top:16px; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:14px 16px;}
   .ei-dj h5{font-size:14px; margin:0 0 6px; color:var(--ink);}
   .ei-dj label{font-size:12px; color:var(--ink-soft); display:block; margin-bottom:3px;}
@@ -1471,7 +1493,7 @@
     <div class="menu-wrap">
       <button class="ghost-btn menu-trigger solid-btn" id="bigDayMenuBtn">Big day <span class="menu-caret">&#9662;</span></button>
       <div class="dropdown-menu" id="bigDayMenu">
-        <button class="dropdown-item" id="btnNavGuestPage">Guest mobile page</button>
+        <button class="dropdown-item" id="btnNavGuestPage">Guest page</button>
         <button class="dropdown-item" id="btnBridal" data-plan-need="2">Bridal party</button>
         <button class="dropdown-item" id="btnVendors" data-plan-need="2">Vendors</button>
         <button class="dropdown-item" id="btnPhotos" data-plan-need="2">Group photos</button>
@@ -2170,7 +2192,7 @@
       <b style="color:#b0281c;">&#9888;&#65039; Remember:</b> guests only see what you have published. Once your page has been published, saving here updates it automatically. If you change the seating chart or floor plan, click <b>Publish guest page</b> again.
     </div>
   <div id="eiLockNote" class="hidden" style="background:#fff6e0; border:1px solid #e8cf8a; border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.5; color:#5a4a1c; margin-bottom:12px;">
-      <b>&#128274; Programme, menu, a note from you, gifts, photos link and links are part of the Guest page plan (R100 a year).</b> Your seating pages work without them.
+      <b>&#128274; Programme, menu, a note from you, gifts, photos link and links are part of the Guest page plan (R100 a year).</b> Find my seat works without them.
       <div style="margin-top:8px;"><button type="button" class="ghost-btn" id="eiMoreBtn">More info</button> <button type="button" class="ghost-btn" id="eiUnlockBtn">See plans &amp; unlock</button></div>
     </div>
    <div id="eventInfoModal" class="ei-main">
@@ -2178,28 +2200,19 @@
     <div id="eiSecHead" class="ei-sec-head hidden"><button type="button" class="ghost-btn" id="eiBackTiles">&larr; All sections</button><span id="eiSecCount"></span></div>
     <!-- Section labels (language customisation) -->
     <details id="eiLabelsSection" class="ei-block" data-sec="language" open>
-      <summary style="cursor:pointer; font-size:13px; font-weight:600; color:var(--ink); user-select:none;">🌍 Guest page language <span style="font-weight:400; color:var(--ink-soft);">(English, Afrikaans, isiZulu&hellip;)</span></summary>
+      <summary style="cursor:pointer; font-size:13px; font-weight:600; color:var(--ink); user-select:none;">🌍 Guest page language <span style="font-weight:400; color:var(--ink-soft);">(English or Afrikaans)</span></summary>
       <div style="margin-top:12px; font-size:13px; color:var(--ink-soft); line-height:1.5; margin-bottom:10px;">
-        Pick a language to fill in all the labels at once. You can then change any word you like. Blank boxes show the English label.
+        Choose English or Afrikaans and every label on your guest page changes. Want different words? Choose <b>My own words</b> and type them in below. Blank boxes show the English label.
       </div>
-      <div class="ei-lang-note">&#127757; While your planning dashboard stays in English, you can preview the Guest Mobile Page in your chosen language <span class="ei-on-wide">using the live preview on the right.</span><span class="ei-on-narrow">with <b>Open preview in a new tab</b> at the top of this page.</span></div>
+      <div class="ei-lang-note">&#127757; While your planning dashboard stays in English, you can preview your guest page in your chosen language <span class="ei-on-wide">using the live preview on the right.</span><span class="ei-on-narrow">with <b>Open preview in a new tab</b> at the top of this page.</span></div>
       <div style="margin-bottom:12px;">
         <label for="eiLabelLang" style="font-size:12px; color:var(--ink-soft);">Language</label>
         <select id="eiLabelLang" class="custom-num" style="width:100%; box-sizing:border-box;">
-          <option value="">Choose a language&hellip;</option>
           <option value="en">English</option>
           <option value="af">Afrikaans</option>
-          <option value="zu">isiZulu</option>
-          <option value="xh">isiXhosa</option>
-          <option value="st">Sesotho</option>
-          <option value="tn">Setswana</option>
-          <option value="nso">Sepedi</option>
-          <option value="ve">Tshiven&#7693;a</option>
-          <option value="ts">Xitsonga</option>
-          <option value="ss">siSwati</option>
-          <option value="nr">isiNdebele</option>
+          <option value="own">My own words</option>
         </select>
-        <div style="font-size:12px; color:var(--ink-soft); margin-top:5px; line-height:1.45;">Tip: ask a home-language speaker to check the words before you share the page.</div>
+        <div style="font-size:12px; color:var(--ink-soft); margin-top:5px; line-height:1.45;">Changing a word below switches this to <b>My own words</b>. Buttons and hints on your guest page stay in the language you chose last.</div>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
         <div>
@@ -2277,8 +2290,11 @@
 
     <div class="ei-block" data-sec="program">
       <h4>Programme</h4>
-      <label>Type it in &mdash; one item per line, like <code>14:00 | Ceremony</code></label>
-      <textarea id="eiProgram" class="custom-num" rows="4" style="width:100%;" placeholder="14:00 | Ceremony&#10;15:30 | Drinks and photos&#10;18:00 | Dinner"></textarea>
+      <label>Add each part of the day. Guests see the time, what&rsquo;s happening and where.</label>
+      <div class="fi-head fi-prog"><span>Time</span><span>What</span><span>Where <i>(optional)</i></span><span></span></div>
+      <div class="fi-list" id="fiProgram"></div>
+      <button type="button" class="ghost-btn fi-add" id="fiProgramAdd">+ Add an item</button>
+      <textarea id="eiProgram" hidden></textarea>
       <div class="ei-imgs" id="eiImgs-program"></div>
       <button type="button" class="ghost-btn ei-add-img" data-sec="program">+ Add a picture</button>
       <div class="ei-tpl" data-sec="program"></div>
@@ -2286,8 +2302,10 @@
 
     <div class="ei-block" data-sec="menu">
       <h4>Menu</h4>
-      <label>Type it in &mdash; one dish per line; start a line with <code>#</code> for a heading</label>
-      <textarea id="eiMenu" class="custom-num" rows="5" style="width:100%;" placeholder="# Starters&#10;Butternut soup&#10;# Mains&#10;Slow-roast lamb&#10;Mushroom wellington (V)"></textarea>
+      <label>Add each course and its dishes.</label>
+      <div class="fi-list" id="fiMenu"></div>
+      <button type="button" class="ghost-btn fi-add" id="fiMenuAdd">+ Add a course</button>
+      <textarea id="eiMenu" hidden></textarea>
       <div class="ei-imgs" id="eiImgs-menu"></div>
       <button type="button" class="ghost-btn ei-add-img" data-sec="menu">+ Add a picture</button>
       <div class="ei-tpl" data-sec="menu"></div>
@@ -8501,6 +8519,7 @@ function openEventInfoModal(){
   const info = state.eventInfo || {};
   Object.keys(EI_FIELDS).forEach(k=>{ document.getElementById(EI_FIELDS[k]).value = info[k] || ''; });
   document.getElementById('eiSongsOn').checked = !!info.songsOn;
+  fiRenderAll();
   document.getElementById('eiSongsList').checked = !!info.songsList;
   eiSongRows = null;
   renderLinkRows();
@@ -8515,7 +8534,14 @@ function openEventInfoModal(){
     const el = document.getElementById('eiLabel'+k);
     if(el) el.value = lbl[k.toLowerCase()] || '';
   });
-  document.getElementById('eiLabelLang').value = LABEL_LANGS[info.labelLang] ? info.labelLang : '';
+  { const sel = document.getElementById('eiLabelLang');
+    const cur = LABEL_KEYS.map(([k, id])=> (document.getElementById(id).value || '').trim());
+    const l = (info.labelLang === 'af') ? 'af' : 'en';
+    const set = LABEL_LANGS[l];
+    const same = cur.every((v, i)=> !v || v === (set[LABEL_KEYS[i][0]] || ''));
+    sel.dataset.base = l;
+    sel.value = (info.labelLang && !LABEL_LANGS[info.labelLang]) ? 'own' : (same ? l : 'own');
+    if(cur.every(v=> !v) && info.labelLang !== 'af') sel.value = 'en'; }
   const im = info.images || {};
   eiImages = {cover:(im.cover||[]).slice(), program:(im.program||[]).slice(), menu:(im.menu||[]).slice(), notes:(im.notes||[]).slice(), bank:(im.bank||[]).slice()};
   eiNewPaths = []; eiRemoved = []; eiBusy = 0;
@@ -8560,7 +8586,7 @@ function collectEiInfo(){
   const labels = {};
   LABEL_KEYS.forEach(([k, id])=>{ const el = document.getElementById(id); if(el && el.value.trim()) labels[k] = el.value.trim(); });
   info.labels = labels;
-  info.labelLang = document.getElementById('eiLabelLang').value || '';
+  { const sel = document.getElementById('eiLabelLang'), v = sel.value; info.labelLang = (v === 'en' || v === 'af') ? v : (sel.dataset.base || 'en'); }
   info.songsOn = document.getElementById('eiSongsOn').checked;
   info.songsList = document.getElementById('eiSongsList').checked;
   return info;
@@ -8733,7 +8759,7 @@ const LABEL_LANGS = {
   sel.addEventListener('focus', ()=>{ prev = sel.value; });
   sel.addEventListener('change', ()=>{
     const set = LABEL_LANGS[sel.value];
-    if(!set){ prev = sel.value; return; }
+    if(!set){ prev = sel.value; const f = document.getElementById('eiLabelSeat'); if(f) f.focus(); return; }
     // If she has typed her own words (not just a language we filled in), check before replacing them
     const current = LABEL_KEYS.map(([k, id])=> (document.getElementById(id).value || '').trim());
     const hasText = current.some(v=> v);
@@ -8742,8 +8768,14 @@ const LABEL_LANGS = {
       sel.value = prev; return;
     }
     LABEL_KEYS.forEach(([k, id])=>{ document.getElementById(id).value = set[k] || ''; });
+    sel.dataset.base = sel.value;
     prev = sel.value;
   });
+  // typing her own word for any label switches the choice to "My own words"
+  LABEL_KEYS.forEach(([k, id])=> document.getElementById(id).addEventListener('input', ()=>{
+    const set = LABEL_LANGS[sel.value];
+    if(set && LABEL_KEYS.some(([kk, ii])=> (document.getElementById(ii).value || '').trim() !== (set[kk] || ''))){ sel.value = 'own'; prev = 'own'; }
+  }));
 })();
 
 /* ---------- the DJ's private link ---------- */
@@ -8853,6 +8885,82 @@ async function eiLoadSongs(){
     setTimeout(()=> URL.revokeObjectURL(a.href), 2000);
   });
 })();
+
+/* ===================== Programme and menu as fill-in boxes =====================
+   Stored as before (lines of text), so older weddings and the guest page keep working:
+   programme "14:00 | Ceremony | Chapel", menu "# Starters" then one dish per line. */
+function fiSync(id, text){ const ta = document.getElementById(id); ta.value = text; ta.dispatchEvent(new Event('input', {bubbles:true})); }
+function fiInput(cls, ph, val, max){ const i = document.createElement('input'); i.type = 'text'; i.className = 'custom-num ' + cls; i.placeholder = ph; i.value = val || ''; i.maxLength = max || 120; return i; }
+function fiDel(title){ const b = document.createElement('button'); b.type = 'button'; b.className = 'fi-del'; b.title = title; b.setAttribute('aria-label', title); b.textContent = '✕'; return b; }
+/* programme */
+function fiProgRows(){
+  return splitLines(document.getElementById('eiProgram').value).map(l=>{ const [time, rest] = splitPair(l); const p = rest.split('|'); return {time, what:(p[0]||'').trim(), where:p.slice(1).join(' | ').trim()}; });
+}
+function fiProgWrite(rows){
+  fiSync('eiProgram', rows.filter(r=> r.what.trim() || r.time.trim()).map(r=> (r.time.trim() + ' | ' + r.what.trim() + (r.where.trim() ? ' | ' + r.where.trim() : ''))).join('\n'));
+}
+function fiProgRender(addBlank){
+  const box = document.getElementById('fiProgram'); box.innerHTML = '';
+  const rows = fiProgRows(); if(!rows.length || addBlank) rows.push({time:'', what:'', where:''});
+  const focusLast = addBlank;
+  const save = ()=> fiProgWrite([...box.querySelectorAll('.fi-row')].map(r=> ({time:r.children[0].value, what:r.children[1].value, where:r.children[2].value})));
+  rows.forEach((r, i)=>{
+    const row = document.createElement('div'); row.className = 'fi-row fi-prog';
+    const t = fiInput('fi-time', '14:00', r.time, 12), w = fiInput('fi-what', i === 0 ? 'Ceremony' : 'What happens', r.what), p = fiInput('fi-where', i === 0 ? 'The chapel' : 'Where', r.where);
+    const d = fiDel('Remove this item');
+    [t, w, p].forEach(x=> x.addEventListener('input', e=>{ e.stopPropagation(); save(); }));
+    d.addEventListener('click', ()=>{ row.remove(); save(); fiProgRender(); });
+    row.append(t, w, p, d); box.appendChild(row);
+  });
+  if(focusLast){ const l = box.querySelector('.fi-row:last-child .fi-time'); if(l) l.focus(); }
+}
+document.getElementById('fiProgramAdd').addEventListener('click', ()=> fiProgRender(true));
+/* menu */
+function fiMenuCourses(){
+  const out = [];
+  splitLines(document.getElementById('eiMenu').value).forEach(l=>{
+    if(l.charAt(0) === '#') out.push({name:l.replace(/^#+\s*/, ''), dishes:[]});
+    else { if(!out.length) out.push({name:'', dishes:[]}); out[out.length - 1].dishes.push(l); }
+  });
+  return out;
+}
+function fiMenuWrite(courses){
+  const lines = [];
+  courses.forEach(c=>{ const ds = c.dishes.map(d=> d.trim()).filter(Boolean); if(c.name.trim()) lines.push('# ' + c.name.trim()); else if(!ds.length) return; ds.forEach(d=> lines.push(d)); });
+  fiSync('eiMenu', lines.join('\n'));
+}
+function fiMenuRender(addBlank){
+  const box = document.getElementById('fiMenu'); box.innerHTML = '';
+  let courses = fiMenuCourses(); if(!courses.length || addBlank) courses.push({name:'', dishes:['']});
+  const focus = addBlank;
+  const save = ()=> fiMenuWrite([...box.querySelectorAll('.fi-course')].map(c=> ({name:c.querySelector('.fi-cname').value, dishes:[...c.querySelectorAll('.fi-dish')].map(x=> x.value)})));
+  courses.forEach((c, ci)=>{
+    const card = document.createElement('div'); card.className = 'fi-course';
+    const hd = document.createElement('div'); hd.className = 'fi-chead';
+    const cn = fiInput('fi-cname', ci === 0 ? 'Course, e.g. Starters' : 'Course', c.name, 60);
+    const cd = fiDel('Remove this course');
+    cn.addEventListener('input', e=>{ e.stopPropagation(); save(); });
+    cd.addEventListener('click', ()=>{ if((c.dishes.join('') + c.name) && !confirm('Remove this course and its dishes?')) return; card.remove(); save(); fiMenuRender(); });
+    hd.append(cn, cd); card.appendChild(hd);
+    const list = document.createElement('div'); list.className = 'fi-dishes';
+    const addDish = (val, i)=>{
+      const r = document.createElement('div'); r.className = 'fi-drow';
+      const dIn = fiInput('fi-dish', i === 0 ? 'Dish, e.g. Butternut soup' : 'Dish', val, 120);
+      const dd = fiDel('Remove this dish');
+      dIn.addEventListener('input', e=>{ e.stopPropagation(); save(); });
+      dIn.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); const n = addDish('', 1); n.focus(); } });
+      dd.addEventListener('click', ()=>{ r.remove(); save(); });
+      r.append(dIn, dd); list.appendChild(r); return dIn;
+    };
+    (c.dishes.length ? c.dishes : ['']).forEach((d, i)=> addDish(d, i));
+    const ad = document.createElement('button'); ad.type = 'button'; ad.className = 'fi-link'; ad.textContent = '+ Add a dish';
+    ad.addEventListener('click', ()=> addDish('', 1).focus());
+    card.append(list, ad); box.appendChild(card);
+  });
+  if(focus){ const l = box.querySelector('.fi-course:last-child .fi-cname'); if(l) l.focus(); }
+}
+document.getElementById('fiMenuAdd').addEventListener('click', ()=> fiMenuRender(true));
+function fiRenderAll(){ fiProgRender(); fiMenuRender(); }
 /* ===================== Guest page info: a page with tiles, saved automatically ===================== */
 const EI_SECS = [
   {k:'language', t:'Language & labels',       d:'Afrikaans, isiZulu and more, or your own words.', g:''},
@@ -8894,8 +9002,8 @@ function eiStatus(k){
   else if(k === 'language'){
     const sel = document.getElementById('eiLabelLang');
     const own = LABEL_KEYS.some(([key, id])=> eiVal(id));
-    t = sel.value ? sel.options[sel.selectedIndex].text : (own ? 'Your own words' : '');
-    return {t: t || 'English', done: !!t};
+    t = sel.value ? sel.options[sel.selectedIndex].text : (own ? 'My own words' : 'English');
+    return {t: t, done: true};
   }
   return {t: t || 'Empty – hidden from guests', done: !!t};
 }
@@ -9102,7 +9210,7 @@ async function buyPlan(tier){
 const PLAN_NAMES = ['Free', 'Guest page', 'Full planner'];
 const PLAN_PRICE = ['Free', 'R100 a year', 'R200 a year'];
 const PLAN_LINES = [
-  'Seating chart, floor plan and guest QR page',
+  'Seating chart, floor plan, guest page and QR code',
   'Adds programme, menu, a note from you, gifts and photos link to your guest page',
   'Adds bridal party, vendors and group photos'
 ];
@@ -9136,7 +9244,7 @@ async function checkAccess(){
       const days = Math.ceil((new Date(accessExpires) - new Date()) / 86400000);
       if(days <= 30) toast('Your ' + PLAN_NAMES[accessTier] + ' plan ends on ' + fmtLong(accessExpires) + '. Use How to → View plans / Use access code to add another year.', 9000);
     } else if(accessTier === 0 && accessHad){
-      toast('Your plan has ended. Your charts are safe and your seating page still works. Use How to → View plans / Use access code to unlock again.', 9000);
+      toast('Your plan has ended. Your charts are safe and your guest page still works. Use How to → View plans / Use access code to unlock again.', 9000);
     }
   }
 }

@@ -114,6 +114,12 @@
     border-radius:10px; background:var(--white); color:var(--ink); font-family:'Plus Jakarta Sans',sans-serif;
   }
   #searchInput:focus{outline:none; border-color:var(--sage);}
+  .home-search{margin:0 0 16px;}
+  .home-search.hidden{display:none;}
+  #homeSearchInput{width:100%; box-sizing:border-box; font:inherit; font-size:17px; padding:15px 16px; border:1.5px solid var(--sage); border-radius:14px; background:#fff; box-shadow:0 3px 12px rgba(0,0,0,.05);}
+  #homeSearchInput:focus{outline:none; border-color:var(--sage-dark);}
+  #homeSearchHint{margin:10px 0 0;}
+  #homeResults{margin-top:8px;}
   .tap-hint{text-align:center; font-size:14px; line-height:1.45; color:var(--sage-dark); background:#f1f5ef; border-radius:10px; padding:8px 12px; margin:-4px 0 12px;}
   #searchHint{margin:12px 0 -4px;}
   #resultsList{margin-top:14px; display:flex; flex-direction:column; gap:8px;}
@@ -269,6 +275,11 @@
 
   <!-- HOME: tappable choices -->
   <div id="homeView">
+    <div id="homeSearch" class="home-search hidden">
+      <input type="text" id="homeSearchInput" placeholder="Type your name to find your seat&hellip;" autocomplete="off" autocapitalize="words" enterkeyhint="search">
+      <p class="tap-hint hidden" id="homeSearchHint"></p>
+      <div id="homeResults"></div>
+    </div>
     <div id="tileGrid"></div>
     <div id="homeVerseBlock" class="verse-block hidden"></div>
   </div>
@@ -502,7 +513,7 @@ function buildHome(){
   if(matEl) matEl.textContent = L.tablemates;
 
   const tiles = [];
-  tiles.push({id:'seat', label:L.seat, sub:tr('subSeat'), wide:true});
+  tiles.push({id:'seat', label:L.seat, sub:tr('subSeatBrowse'), wide:true});
   if((info.program && info.program.length) || (info.programDays && info.programDays.length) || imgs(info,'program').length)
     tiles.push({id:'program', label:L.program, sub:tr('subProgram')});
   if((info.menu && info.menu.length) || imgs(info,'menu').length)
@@ -827,7 +838,7 @@ function showGroup(i, list){
 /* ---------- guest page language (fixed wording) ---------- */
 const TXT = {
   en: {
-    subSeat:'Search your name or browse by letter', subProgram:'The order of the day', subMenu:'What is being served', subNotes:'Words, songs and readings', subSongs:'Ask for a song for the dance floor', songsTitle:'Song requests', sgSong:'Song', sgArtist:'Artist (optional)', sgName:'Your name (optional)', sgSend:'Send my request', sgThanks:'Thank you! \uD83C\uDFB6 Your song is on the list. Add another?', sgFail:'Sorry, that did not go through. Please try again.', sgNeed:'Please type the name of the song.', sgMine:'You asked for', sgLimit:'That\u2019s plenty of requests from this phone. Thank you!', sgPreview:'This is a preview, so requests are not sent.', sgSending:'Sending\u2026', sgDjH:'Your DJ tonight', sgDjBook:'Bookings', sgListH:'Requested so far', sgPlayed:'Played', sgListEmpty:'No requests yet. Be the first!', sgLikeT:'Me too', notesTitle:'A note from us',
+    subSeat:'Search your name or browse by letter', subSeatBrowse:'Browse all names by letter', homeSearchPh:'Type your name to find your seat\u2026', subProgram:'The order of the day', subMenu:'What is being served', subNotes:'Words, songs and readings', subSongs:'Ask for a song for the dance floor', songsTitle:'Song requests', sgSong:'Song', sgArtist:'Artist (optional)', sgName:'Your name (optional)', sgSend:'Send my request', sgThanks:'Thank you! \uD83C\uDFB6 Your song is on the list. Add another?', sgFail:'Sorry, that did not go through. Please try again.', sgNeed:'Please type the name of the song.', sgMine:'You asked for', sgLimit:'That\u2019s plenty of requests from this phone. Thank you!', sgPreview:'This is a preview, so requests are not sent.', sgSending:'Sending\u2026', sgDjH:'Your DJ tonight', sgDjBook:'Bookings', sgListH:'Requested so far', sgPlayed:'Played', sgListEmpty:'No requests yet. Be the first!', sgLikeT:'Me too', notesTitle:'A note from us',
     subGifts:'Banking details', subPhotos:'Share your pictures from the day', subLinks:'Website and more',
     back:'← Home', searchAgain:'← Home',
     seatPrompt:'Type your name to see where you’re sitting.', searchPh:'Start typing your name…',
@@ -860,7 +871,7 @@ const TXT = {
     days:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
   },
   af: {
-    subSeat:'Tik jou naam of soek onder die gepaste letter', subProgram:'Die verloop van die dag', subMenu:'Wat word bedien?', subNotes:'Woorde, liedere en voorlesings', subSongs:'Vra vir \u2019n liedjie vir die dansvloer', songsTitle:'Liedjieversoeke', sgSong:'Liedjie', sgArtist:'Kunstenaar (opsioneel)', sgName:'Jou naam (opsioneel)', sgSend:'Stuur my versoek', sgThanks:'Dankie! \uD83C\uDFB6 Jou liedjie is op die lys. Nog een?', sgFail:'Jammer, dit het nie deurgegaan nie. Probeer asseblief weer.', sgNeed:'Tik asseblief die liedjie se naam.', sgMine:'Jy het gevra vir', sgLimit:'Dis genoeg versoeke van hierdie foon af. Dankie!', sgPreview:'Dit is \u2019n voorskou, so versoeke word nie gestuur nie.', sgSending:'Stuur\u2026', sgDjH:'Jou DJ vanaand', sgDjBook:'Besprekings', sgListH:'Reeds gevra', sgPlayed:'Gespeel', sgListEmpty:'Nog geen versoeke nie. Wees die eerste!', sgLikeT:'Ek ook', notesTitle:"'n Boodskap van ons",
+    subSeat:'Tik jou naam of soek onder die gepaste letter', subSeatBrowse:'Blaai deur al die name volgens letter', homeSearchPh:'Tik jou naam om jou sitplek te vind\u2026', subProgram:'Die verloop van die dag', subMenu:'Wat word bedien?', subNotes:'Woorde, liedere en voorlesings', subSongs:'Vra vir \u2019n liedjie vir die dansvloer', songsTitle:'Liedjieversoeke', sgSong:'Liedjie', sgArtist:'Kunstenaar (opsioneel)', sgName:'Jou naam (opsioneel)', sgSend:'Stuur my versoek', sgThanks:'Dankie! \uD83C\uDFB6 Jou liedjie is op die lys. Nog een?', sgFail:'Jammer, dit het nie deurgegaan nie. Probeer asseblief weer.', sgNeed:'Tik asseblief die liedjie se naam.', sgMine:'Jy het gevra vir', sgLimit:'Dis genoeg versoeke van hierdie foon af. Dankie!', sgPreview:'Dit is \u2019n voorskou, so versoeke word nie gestuur nie.', sgSending:'Stuur\u2026', sgDjH:'Jou DJ vanaand', sgDjBook:'Besprekings', sgListH:'Reeds gevra', sgPlayed:'Gespeel', sgListEmpty:'Nog geen versoeke nie. Wees die eerste!', sgLikeT:'Ek ook', notesTitle:"'n Boodskap van ons",
     subGifts:'Bankbesonderhede', subPhotos:'Deel jou foto’s van die dag', subLinks:'Webwerf en meer',
     back:'← Tuis', searchAgain:'← Tuis',
     seatPrompt:'Tik jou naam om te sien waar jy sit.', searchPh:'Begin om jou naam te tik…',
@@ -933,6 +944,8 @@ function applyData(){
   const hasGuests = !!(SEAT_DATA.guests && SEAT_DATA.guests.length);
   document.getElementById('emptyDataNote').classList.toggle('hidden', hasGuests);
   document.getElementById('searchInput').classList.toggle('hidden', !hasGuests);
+  document.getElementById('homeSearch').classList.toggle('hidden', !hasGuests);
+  document.getElementById('homeSearchInput').placeholder = tr('homeSearchPh');
   document.querySelector('.seat-prompt').classList.toggle('hidden', !hasGuests);
   const info = SEAT_DATA.info || {};
   applyStaticText();
@@ -1005,6 +1018,7 @@ function init(){
   applyData();
   loadData();
   document.getElementById('searchInput').addEventListener('input', onSearch);
+  document.getElementById('homeSearchInput').addEventListener('input', onHomeSearch);
   document.getElementById('backBtn').addEventListener('click', goHome);
   document.getElementById('groupBack').addEventListener('click', goHome);
   document.getElementById('segMap').addEventListener('click', ()=> setSeatPane('map'));
@@ -1034,10 +1048,17 @@ function init(){
 let currentGuest = null;
 let fpZoom = 1;
 
-function onSearch(){
-  const q = this.value.trim().toLowerCase();
-  const list = document.getElementById('resultsList');
-  const hint = document.getElementById('searchHint');
+function onSearch(){ renderMatches(this.value, document.getElementById('resultsList'), document.getElementById('searchHint'), g=> showSeat(g, 'search')); }
+/* search from the home screen: tapping a name goes straight to the seat */
+function onHomeSearch(){
+  renderMatches(this.value, document.getElementById('homeResults'), document.getElementById('homeSearchHint'), g=>{
+    showSection('seat'); showSeat(g, 'search');
+    const hi = document.getElementById('homeSearchInput'); hi.value = ''; hi.blur();
+    document.getElementById('homeResults').innerHTML = ''; document.getElementById('homeSearchHint').classList.add('hidden');
+  });
+}
+function renderMatches(raw, list, hint, pick){
+  const q = (raw || '').trim().toLowerCase();
   list.innerHTML = ''; hint.classList.add('hidden');
   if(q.length < 2) return;
   const matches = (SEAT_DATA.guests || []).filter(g => g.name.toLowerCase().includes(q)).slice(0, 12);
@@ -1052,7 +1073,7 @@ function onSearch(){
     row.innerHTML = `<span class="result-swatch" style="background:${escapeHtml(g.groupColor || '#999')}"></span>
       <span class="result-name">${escapeHtml(g.name)}</span>
       <span class="result-group">${escapeHtml(g.groupName || '')}</span>`;
-    row.addEventListener('click', ()=> showSeat(g, 'search'));
+    row.addEventListener('click', ()=> pick(g));
     list.appendChild(row);
   });
 }
