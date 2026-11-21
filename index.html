@@ -597,6 +597,17 @@
   .ei-on-narrow{display:none;}
   @media (max-width:1100px){ .ei-on-wide{display:none;} .ei-on-narrow{display:inline;} }
 
+
+  /* ---- Phase 2: numbered steps, Publish / Live pill, Planning beta ---- */
+  .nav-step i{display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; border:1px solid currentColor; font-style:normal; font-size:10.5px; margin-right:6px; vertical-align:1px; opacity:.75;}
+  .beta-tag{font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; background:#efe6d6; color:#7a6a4a; border-radius:8px; padding:1px 6px; vertical-align:2px;}
+  body.no-planning #planningWrap{display:none !important;}
+  body.no-planning .hub-card[data-plan-need="2"]{display:none !important;}
+  .pub-pill{border-radius:999px; padding:6px 14px; font:inherit; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; border:1.5px solid transparent; line-height:1.2;}
+  .pub-pill[data-state="publish"], .pub-pill[data-state="retry"]{background:#2f6f4f; color:#fff;}
+  .pub-pill[data-state="publish"]:hover, .pub-pill[data-state="retry"]:hover{background:#255a40;}
+  .pub-pill[data-state="live"]{background:#eaf4ee; color:#2f6f4f; border-color:#9cc8ad;}
+  .pub-pill[data-state="updating"]{background:#f4f1ea; color:var(--ink-soft); border-color:var(--line);}
   /* programme and menu fill-in boxes */
   .fi-head{display:grid; gap:6px; font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-soft); margin:8px 0 4px;}
   .fi-head i{text-transform:none; letter-spacing:0; font-style:normal;}
@@ -1464,53 +1475,52 @@
 
     <button class="ghost-btn menu-trigger solid-btn" id="btnHome" title="Back to the start page">Home</button>
 
+    <button class="ghost-btn menu-trigger solid-btn nav-step" id="btnNavTables"><i>1</i>Guests &amp; tables</button>
+    <button class="ghost-btn menu-trigger solid-btn hidden" id="btnNavFloor">Create floor plan</button>
+    <button class="ghost-btn menu-trigger solid-btn nav-step" id="btnNavGuestPage"><i>2</i>Guest page</button>
+    <button class="ghost-btn menu-trigger solid-btn nav-step" id="btnExportGuestView"><i>3</i>Share</button>
+
+    <div class="menu-wrap" id="planningWrap">
+      <button class="ghost-btn menu-trigger solid-btn" id="bigDayMenuBtn">Planning <span class="beta-tag">beta</span> <span class="menu-caret">&#9662;</span></button>
+      <div class="dropdown-menu" id="bigDayMenu">
+        <button class="dropdown-item" id="btnNavChecklist" data-plan-need="2">Checklist &amp; calendar</button>
+        <button class="dropdown-item" id="btnBridal" data-plan-need="2">Bridal party</button>
+        <button class="dropdown-item" id="btnVendors" data-plan-need="2">Vendors</button>
+        <button class="dropdown-item" id="btnPhotos" data-plan-need="2">Group photos</button>
+        <button class="dropdown-item" id="btnPublishBridal" data-plan-need="2">Publish bridal party page</button>
+      </div>
+    </div>
+
     <div class="menu-wrap">
-      <button class="ghost-btn menu-trigger solid-btn" id="chartMenuBtn">How to <span class="menu-caret">&#9662;</span></button>
+      <button class="ghost-btn menu-trigger solid-btn" id="chartMenuBtn">Help <span class="menu-caret">&#9662;</span></button>
       <div class="dropdown-menu" id="chartMenu">
         <button class="dropdown-item" id="btnHubMenu">What to do next&hellip;</button>
         <button class="dropdown-item" id="btnHowTo">How-to videos&hellip;</button>
+        <a class="dropdown-item" id="btnContact" href="/contact.html" target="_blank" rel="noopener" style="text-decoration:none; display:block;">Contact us</a>
+      </div>
+    </div>
+
+    <div class="menu-wrap">
+      <button class="ghost-btn menu-trigger solid-btn" id="guestFinderMenuBtn">Account <span class="menu-caret">&#9662;</span></button>
+      <div class="dropdown-menu" id="guestFinderMenu">
+        <button class="dropdown-item hidden" id="btnMyCharts">My weddings&hellip;</button>
+        <button class="dropdown-item hidden" id="btnAccessMenu">Plan &amp; payment&hellip;</button>
         <button class="dropdown-item" id="btnSave">Download backup</button>
         <button class="dropdown-item" id="btnLoad">Load from backup file</button>
         <button class="dropdown-item" id="btnExportCSV">Download guest list (Excel)</button>
-        <button class="dropdown-item hidden" id="btnAccessMenu">View plans / Use access code&hellip;</button>
-        <button class="dropdown-item" id="btnSignInMenu">Sign in to save online&hellip;</button>
-        <button class="dropdown-item" id="btnShareTableau">Share Tableau with a friend</button>
         <button class="dropdown-item hidden" id="btnInstallMenu">Install Tableau on my phone</button>
-        <a class="dropdown-item" id="btnContact" href="/contact.html" target="_blank" rel="noopener" style="text-decoration:none; display:block;">Contact us</a>
+        <button class="dropdown-item" id="btnShareTableau">Tell a friend about Tableau</button>
+        <button class="dropdown-item" id="btnSignInMenu">Sign in to save online&hellip;</button>
         <button class="dropdown-item" id="btnSignOut">Sign out</button>
-        <button class="dropdown-item hidden" id="btnMyCharts">My projects&hellip;</button>
+        <button class="dropdown-item hidden" id="btnEventInfo">Guest page content&hellip;</button>
         <button class="dropdown-item hidden" id="btnReset">New chart</button>
         <button class="dropdown-item hidden" id="btnTemplate">Download Excel template</button>
         <button class="dropdown-item hidden" id="btnImportCSV">Import Excel list</button>
       </div>
     </div>
-
-    <button class="ghost-btn menu-trigger solid-btn" id="btnNavTables">Seating chart &amp; floor plan</button>
-    <button class="ghost-btn menu-trigger solid-btn hidden" id="btnNavFloor">Create floor plan</button>
-
-    <button class="ghost-btn menu-trigger solid-btn" id="btnNavChecklist" data-plan-need="2">Checklist &amp; calendar</button>
-
-    <div class="menu-wrap">
-      <button class="ghost-btn menu-trigger solid-btn" id="bigDayMenuBtn">Big day <span class="menu-caret">&#9662;</span></button>
-      <div class="dropdown-menu" id="bigDayMenu">
-        <button class="dropdown-item" id="btnNavGuestPage">Guest page</button>
-        <button class="dropdown-item" id="btnBridal" data-plan-need="2">Bridal party</button>
-        <button class="dropdown-item" id="btnVendors" data-plan-need="2">Vendors</button>
-        <button class="dropdown-item" id="btnPhotos" data-plan-need="2">Group photos</button>
-      </div>
-    </div>
-
-    <div class="menu-wrap">
-      <button class="ghost-btn menu-trigger solid-btn" id="guestFinderMenuBtn">Publish <span class="menu-caret">&#9662;</span></button>
-      <div class="dropdown-menu" id="guestFinderMenu">
-        <button class="dropdown-item" id="btnExportGuestView">Guest page &amp; QR code&hellip;</button>
-        <button class="dropdown-item" id="btnPublishBridal" data-plan-need="2">Bridal party page</button>
-        <button class="dropdown-item hidden" id="btnEventInfo">Guest page content&hellip;</button>
-      </div>
-    </div>
-    <a class="ghost-btn menu-trigger solid-btn" id="btnNavContact" href="/contact.html" target="_blank" rel="noopener">Contact</a>
   </div>
   <div class="hist-row">
+    <button type="button" id="pubPill" class="pub-pill hidden" title="Your guest page"></button>
     <button class="ghost-btn" id="btnUndo" title="Undo (Ctrl+Z)" disabled>&#8630; Undo</button>
     <button class="ghost-btn" id="btnRedo" title="Redo (Ctrl+Shift+Z)" disabled>Redo &#8631;</button>
   </div>
@@ -1530,7 +1540,7 @@
 <div id="hubScreen" class="hidden">
  <div class="hub-band">
   <h2 id="hubTitle">Let&rsquo;s get started</h2>
-  <p class="hint" id="hubSub">We suggest working through these in order, starting with your guest list. You can jump to any step, and come back here any time from How to &rarr; What to do next.</p>
+  <p class="hint" id="hubSub">We suggest working through these in order, starting with your guest list. You can jump to any step, and come back here any time from Help &rarr; What to do next.</p>
   <div class="hub-cols">
    <div class="hub-col">
     <div class="hub-card hub-first">
@@ -1973,7 +1983,7 @@
     <div id="landingOut">
       <button class="primary-btn" id="btnLandSignIn">Sign in</button>
       <button class="ghost-btn land-btn" id="btnLandSignUp">Create an account</button>
-      <p style="font-size:12.5px; color:var(--ink-soft); margin:10px 0 0; line-height:1.5;">Have an access code? Create your account first, then use How to &rarr; View plans / Use access code to unlock more.</p>
+      <p style="font-size:12.5px; color:var(--ink-soft); margin:10px 0 0; line-height:1.5;">Have an access code? Create your account first, then use Account &rarr; Plan &amp; payment to unlock more.</p>
       <div style="margin-top:16px;"><button class="auth-link" id="btnLandSkip" type="button">Try it without an account</button></div>
       <div style="margin-top:10px;"><button class="auth-link" id="btnLandHowTo" type="button">Watch the how-to videos</button></div>
       <div style="margin-top:10px;"><a class="auth-link" href="/contact.html" target="_blank" rel="noopener">Contact us</a></div>
@@ -2185,12 +2195,10 @@
    <div class="ei-head-actions">
     <span id="eiSaveState" class="ei-save-state"></span>
     <button type="button" class="ghost-btn" id="eiPreviewTab">Open preview in a new tab</button>
-    <button type="button" class="primary-btn" id="eiPublishBtn">Publish &amp; QR code</button>
+    <button type="button" class="primary-btn" id="eiPublishBtn">Share &amp; QR code</button>
    </div>
   </div>
-  <div class="ei-note-publish" style="margin:26px 0 26px; background:#fdeceb; border:1px solid #f1b9b3; border-left:5px solid #c0392b; border-radius:10px; padding:11px 14px; font-size:13.5px; line-height:1.55; color:#7a231b; margin-bottom:14px;">
-      <b style="color:#b0281c;">&#9888;&#65039; Remember:</b> guests only see what you have published. Once your page has been published, saving here updates it automatically. If you change the seating chart or floor plan, click <b>Publish guest page</b> again.
-    </div>
+
   <div id="eiLockNote" class="hidden" style="background:#fff6e0; border:1px solid #e8cf8a; border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.5; color:#5a4a1c; margin-bottom:12px;">
       <b>&#128274; Programme, menu, a note from you, gifts, photos link and links are part of the Guest page plan (R100 a year).</b> Find my seat works without them.
       <div style="margin-top:8px;"><button type="button" class="ghost-btn" id="eiMoreBtn">More info</button> <button type="button" class="ghost-btn" id="eiUnlockBtn">See plans &amp; unlock</button></div>
@@ -2654,7 +2662,7 @@
 
 <div id="finderModal" class="modal-overlay hidden">
   <div class="modal-card" style="width:520px;">
-    <h3>Guest page &amp; QR code</h3>
+    <h3>Share your guest page</h3>
     <div id="finderSignedOut" class="hidden" style="background:var(--linen); border:1px solid var(--line); border-radius:6px; padding:14px; margin-bottom:16px; font-size:13.5px; line-height:1.5;">
       Sign in to publish a guest page. It lets guests scan a QR code and find their seat.
       <div style="margin-top:10px;"><button class="primary-btn" id="btnFinderSignIn">Sign in or create account</button></div>
@@ -8294,7 +8302,10 @@ async function openFinderModal(){
   document.getElementById('finderBaseUrl').value = base;
   document.getElementById('finderStatus').style.color = '';
   setFinderStatus(publishedAt ? 'Published ' + publishedAt : 'Checking…');
-  isPagePublished().then(ok=>{ if(!publishedAt) setFinderStatus(ok ? 'Published. Click Publish again after any changes.' : 'Not published yet. Click Publish before you download or print the QR code.'); });
+  isPagePublished().then(ok=>{
+    setFinderStatus(ok ? 'Live \u2713 Changes update by themselves.' : 'Not live yet. Click Publish, then download your QR code.');
+    document.getElementById('btnFinderPublish').textContent = ok ? 'Update now' : 'Publish guest page';
+  });
   document.getElementById('finderModal').classList.remove('hidden');
   refreshFinderModal();
   if(sb && cloudUser && cloudEnabled && !currentPublishSlug){
@@ -9057,7 +9068,7 @@ function showEiPage(){
   document.getElementById('topActions').style.display = 'flex';
   document.getElementById('floatingSaveBtn').style.display = 'none';
   document.getElementById('topSub').textContent = (state.eventName || 'Your project') + ' — guest page';
-  if(window.setNavOn) setNavOn('bigDayMenuBtn');
+  if(window.setNavOn) setNavOn('btnNavGuestPage');
   eiSetSaveState('');
   eiShowTiles();
   window.scrollTo(0,0);
@@ -9099,7 +9110,8 @@ async function eiAutoPublish(){
   try{ live = !!(sb && cloudUser && cloudEnabled && currentPublishSlug && await isPagePublished()); }catch(e){}
   if(!live){ if(eiPageOpen() && cloudUser) eiSetSaveState('Saved ✓ · not published yet'); return; }
   if(eiPageOpen()) eiSetSaveState('Saved ✓ · updating guest page…');
-  await publishGuestPage();
+  if(pubBusy) return;
+  await pubSendNow();
   const ok = /Published/.test(document.getElementById('finderStatus').textContent);
   if(eiPageOpen()) eiSetSaveState(ok ? 'Saved ✓ · guests see it now' : 'Saved ✓ · guest page not updated, click Publish');
 }
@@ -9242,9 +9254,9 @@ async function checkAccess(){
   if(tellExpiry){
     if(accessTier > 0 && accessExpires){
       const days = Math.ceil((new Date(accessExpires) - new Date()) / 86400000);
-      if(days <= 30) toast('Your ' + PLAN_NAMES[accessTier] + ' plan ends on ' + fmtLong(accessExpires) + '. Use How to → View plans / Use access code to add another year.', 9000);
+      if(days <= 30) toast('Your ' + PLAN_NAMES[accessTier] + ' plan ends on ' + fmtLong(accessExpires) + '. Use Account → Plan & payment to add another year.', 9000);
     } else if(accessTier === 0 && accessHad){
-      toast('Your plan has ended. Your charts are safe and your guest page still works. Use How to → View plans / Use access code to unlock again.', 9000);
+      toast('Your plan has ended. Your charts are safe and your guest page still works. Use Account → Plan & payment to unlock again.', 9000);
     }
   }
 }
@@ -9255,7 +9267,9 @@ function updateAccessUI(){
   fl.classList.toggle('hidden', !(accessHad && accessTier === 0 && inMain));
   document.querySelectorAll('[data-plan-need]').forEach(el=> el.classList.toggle('plan-locked', accessTier < +el.dataset.planNeed));
   document.getElementById('finderBpNote').classList.toggle('plan-hide', accessTier < 2);
-  const m = document.getElementById('btnAccessMenu'); if(m) m.textContent = 'View plans / Use access code…';
+  const m = document.getElementById('btnAccessMenu'); if(m) m.textContent = 'Plan & payment…';
+  /* Planning is in beta: only couples who already have the Full Planner see it */
+  document.body.classList.toggle('no-planning', accessTier < 2);
   updateLandingPlan();
 }
 function updateLandingPlan(){
@@ -9410,26 +9424,68 @@ function canonJson(o){
   if(o && typeof o === 'object') return '{' + Object.keys(o).sort().filter(k=> o[k] !== undefined).map(k=> JSON.stringify(k)+':'+canonJson(o[k])).join(',') + '}';
   return JSON.stringify(o);
 }
+/* ---- Publish / Live ✓ in the top bar ----
+   Before the first publish: a "Publish" button. Once live: a "Live ✓" badge, and any change
+   (seating, floor plan, guest page) goes to guests by itself once she pauses for a few seconds. */
+let pubNoneSlug = null, pubPending = null, pubStable = 0, pubBusy = false, pubLastAuto = null, pubFailed = false;
+function pubSetPill(kind){
+  const b = document.getElementById('pubPill');
+  const txt = {publish:'Publish', live:'Live ✓', updating:'Updating…', retry:'Publish changes'};
+  if(!kind){ b.classList.add('hidden'); return; }
+  b.classList.remove('hidden');
+  b.dataset.state = kind;
+  b.textContent = txt[kind];
+  b.title = kind === 'live' ? 'Your guest page is live. Changes update by themselves. Tap for your link and QR code.'
+          : kind === 'publish' ? 'Your guest page is not live yet. Publish it to get your link and QR code.'
+          : kind === 'updating' ? 'Sending your latest changes to your guest page…'
+          : 'Your latest changes did not reach your guest page. Tap to try again.';
+}
 async function refreshPublishFloat(){
-  const btn = document.getElementById('btnPublishFloat');
+  document.getElementById('btnPublishFloat').classList.add('hidden');      // replaced by the top-bar button
   try{
-    const inMain = !document.getElementById('mainLayout').classList.contains('hidden');
-    if(!(inMain && hasAccess && sb && cloudUser && cloudEnabled && currentPublishSlug && state.tables && state.tables.length)){ btn.classList.add('hidden'); return; }
+    const appOn = document.getElementById('topActions').style.display !== 'none';
+    if(!appOn || !(state.tables && state.tables.length)){ pubSetPill(null); return; }
+    if(!(hasAccess && sb && cloudUser && cloudEnabled && currentPublishSlug) || pubNoneSlug === currentPublishSlug){ pubSetPill('publish'); return; }
+    if(pubBusy){ pubSetPill('updating'); return; }
     if(pubSigSlug !== currentPublishSlug){ pubSig = null; pubSigSlug = currentPublishSlug; }
     if(pubSig === null){
       if(pubFetching) return;
       pubFetching = true;
       try{
         const r = await sb.rpc('get_published', {p_slug: currentPublishSlug});
-        if(!r.error && r.data){ const pd = JSON.parse(JSON.stringify(r.data)); delete pd.plan; pubSig = canonJson(pd); }
-        else { btn.classList.add('hidden'); pubFetching = false; return; }
+        if(r.error){ pubFetching = false; return; }
+        if(!r.data){ pubNoneSlug = currentPublishSlug; pubFetching = false; pubSetPill('publish'); return; }
+        const pd = JSON.parse(JSON.stringify(r.data)); delete pd.plan; pubSig = canonJson(pd);
       }catch(e){ pubFetching = false; return; }
       pubFetching = false;
     }
     const now = canonJson(tierView(JSON.parse(JSON.stringify(buildGuestViewData()))));
-    btn.classList.toggle('hidden', now === pubSig);
+    if(now === pubSig || now === pubLastAuto){ pubStable = 0; pubPending = null; pubFailed = false; pubSetPill('live'); return; }
+    if(pubFailed && now === pubPending){ pubSetPill('retry'); return; }
+    /* wait until nothing has changed for two checks (about 6 seconds), so half-done moves aren't sent */
+    if(now !== pubPending){ pubPending = now; pubStable = 0; pubFailed = false; pubSetPill('live'); return; }
+    if(++pubStable < 2){ pubSetPill('live'); return; }
+    await pubSendNow(now);
   }catch(e){}
 }
+async function pubSendNow(sig){
+  if(pubBusy) return;
+  pubBusy = true; pubSetPill('updating');
+  await publishGuestPage();
+  const ok = /Published/.test(document.getElementById('finderStatus').textContent);
+  pubBusy = false;
+  if(ok){ pubLastAuto = sig || canonJson(tierView(JSON.parse(JSON.stringify(buildGuestViewData())))); pubNoneSlug = null; pubSig = null; pubFailed = false; pubSetPill('live'); }
+  else { pubFailed = true; pubSetPill('retry'); }
+  return ok;
+}
+document.getElementById('pubPill').addEventListener('click', async ()=>{
+  const st = document.getElementById('pubPill').dataset.state;
+  if(st === 'live' || st === 'updating'){ openFinderModal(); return; }
+  if(st === 'retry'){ await pubSendNow(); return; }
+  /* first publish: publish, then show the link and QR code */
+  if(!(hasAccess && sb && cloudUser && cloudEnabled)){ openFinderModal(); return; }
+  if(await pubSendNow()) openFinderModal();
+});
 setInterval(refreshPublishFloat, 3000);
 document.getElementById('btnPublishFloat').addEventListener('click', async ()=>{
   const btn = document.getElementById('btnPublishFloat');
@@ -9475,10 +9531,11 @@ async function publishGuestPage(){
     );
     if(res.error) throw res.error;
     await saveCloudNow();
-    pubSig = canonJson(JSON.parse(JSON.stringify(buildGuestViewData()))); pubSigSlug = currentPublishSlug;
+    pubSig = null; pubSigSlug = currentPublishSlug; pubNoneSlug = null;   /* re-read what guests now see */
     publishedAt = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
     document.getElementById('finderStatus').style.color = '';
-    setFinderStatus('Published ✓ ' + publishedAt + ' — guests see this now.');
+    setFinderStatus('Published ✓ ' + publishedAt + ' — guests see this now. Live \u2713 from now on, changes update by themselves.');
+    document.getElementById('btnFinderPublish').textContent = 'Update now';
     refreshFinderModal();
   }catch(e){
     setFinderStatus('Could not publish. Check your internet connection and try again.');
