@@ -653,6 +653,54 @@
   .a2hs-note{margin:-4px 0 12px; font-size:14px; line-height:1.5; color:var(--ink-soft);}
   .a2hs-close{width:100%; background:var(--btn); color:#fff; border:none; border-radius:12px; padding:13px; font:inherit; font-size:15px; font-weight:600; cursor:pointer;}
   .a2hs-chrome{margin-bottom:10px; background:#fff; color:var(--sage-dark); border:1px solid var(--sage-dark);}
+
+  /* ---------- Phone seating (Seat tab) ---------- */
+  #mSeatView{display:none;}
+  .ms-bar, .ms-sheet{display:none;}
+  @media (max-width:760px){
+    #mobileNav button{font-size:14.5px;}
+    #mainLayout.m-seat #mSeatView{display:block;}
+    #mainLayout.m-seat #tableArea, #mainLayout.m-seat #sidebar{display:none !important;}
+    body:has(#mainLayout.m-seat:not(.hidden)) #floatingSaveBtn{display:none !important;}
+    #mSeatView{width:100%; padding:14px 14px 140px; box-sizing:border-box; overflow-y:auto; -webkit-overflow-scrolling:touch;}
+    .ms-head h2{margin:0; font-size:24px; font-weight:400; letter-spacing:.03em; color:var(--ink);}
+    .ms-sum{margin:2px 0 12px; font-size:13.5px; color:var(--ink-soft);}
+    .ms-block{background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 12px 10px; margin-bottom:14px;}
+    .ms-bh{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px; font-size:15.5px;}
+    .ms-hint{font-size:13px; color:var(--ink-soft); margin:0 0 8px;}
+    .ms-search{width:100%; box-sizing:border-box; font:inherit; font-size:16px; padding:9px 12px; border:1px solid var(--line); border-radius:10px; margin-bottom:6px;}
+    .ms-gh{display:flex; justify-content:space-between; align-items:center; font-size:12.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin:12px 0 4px; font-weight:600;}
+    .ms-row{display:flex; align-items:center; gap:12px; padding:11px 8px; border-radius:10px; font-size:16px; cursor:pointer; -webkit-tap-highlight-color:transparent;}
+    .ms-row + .ms-row{border-top:1px solid #f1eee6;}
+    .ms-row.on{background:#eef3ec;}
+    .ms-row input{width:22px; height:22px; accent-color:var(--sage-dark); flex:0 0 auto; margin:0;}
+    .ms-dot{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px; flex:0 0 auto;}
+    .ms-link{background:none; border:0; color:var(--sage-dark); font:inherit; font-size:13.5px; font-weight:600; padding:4px 2px; cursor:pointer; text-transform:none; letter-spacing:0;}
+    .ms-empty{font-size:14px; color:var(--ink-soft); margin:8px 2px;}
+    .ms-table{border-top:1px solid var(--line); padding:10px 2px 8px;}
+    .ms-table:first-child{border-top:0;}
+    .ms-th{display:flex; align-items:center; gap:10px; font-size:16px;}
+    .ms-th b{flex:1 1 auto; min-width:0;}
+    .ms-count{font-size:12.5px; color:var(--ink-soft); white-space:nowrap;}
+    .ms-count.full{color:var(--sage-dark); font-weight:600;}
+    .ms-names{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+    .ms-name{display:inline-flex; align-items:center; background:var(--paper); border:1px solid var(--line); border-radius:20px; padding:6px 11px; font:inherit; font-size:14px; color:var(--ink); cursor:pointer;}
+    .ms-none{font-size:13px; color:var(--ink-soft); font-style:italic;}
+    .ms-bar{display:flex; position:fixed; left:10px; right:10px; bottom:calc(66px + env(safe-area-inset-bottom)); z-index:75; align-items:center; gap:8px; background:var(--ink); color:#fff; border-radius:14px; padding:8px 8px 8px 14px; box-shadow:0 8px 24px rgba(0,0,0,.25); font-size:14.5px;}
+    .ms-bar.hidden{display:none;}
+    .ms-bar span{flex:1 1 auto;}
+    .ms-clear{background:none; border:0; color:#ddd; font:inherit; font-size:14px; padding:8px;}
+    .ms-go{background:var(--btn); color:#fff; border:0; border-radius:10px; padding:11px 16px; font:inherit; font-size:15px; font-weight:600;}
+    .ms-sheet{display:flex; position:fixed; inset:0; z-index:600; background:rgba(0,0,0,.45); align-items:flex-end; justify-content:center;}
+    .ms-sheet.hidden{display:none;}
+    .ms-card{background:var(--paper); width:100%; max-height:80vh; overflow:auto; border-radius:20px 20px 0 0; padding:18px 16px calc(18px + env(safe-area-inset-bottom)); box-sizing:border-box;}
+    .ms-card h3{margin:0 0 12px; font-size:19px; color:var(--ink);}
+    .ms-opt{display:flex; width:100%; justify-content:space-between; align-items:center; gap:10px; text-align:left; background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:8px; font:inherit; font-size:16px; color:var(--ink); cursor:pointer;}
+    .ms-opt span{font-size:13px; color:var(--ink-soft); white-space:nowrap;}
+    .ms-opt span.warn{color:#b26a00;}
+    .ms-opt:disabled{opacity:.45;}
+    .ms-cancel{width:100%; background:none; border:0; font:inherit; font-size:15px; color:var(--ink-soft); padding:12px;}
+  }
   body.cloud-mode #btnReset{display:none !important;}
   .ei-swatches{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
   .ei-swatch{width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0; box-shadow:0 0 0 1px var(--line);}
@@ -1447,7 +1495,7 @@
   <button type="button" id="mobMenuBtn" aria-label="Open menu" aria-expanded="false">&#9776;</button>
 </div>
 <div id="tapBanner" class="hidden"><span id="tapBannerText"></span><button type="button" id="tapSendBack" class="hidden">Send back to list</button><button type="button" id="tapCancel">Cancel</button></div>
-<div id="mobileNav" class="hidden"><button type="button" id="mnGuests">Guests</button><button type="button" id="mnTable" class="active">Table</button></div>
+<div id="mobileNav" class="hidden"><button type="button" id="mnGuests">Guests</button><button type="button" id="mnSeat">Seat</button><button type="button" id="mnTable" class="active">Chart</button></div>
 <button id="floatingSaveBtn" title="Save chart to your computer" style="display:none;">
   Save chart to your computer
 </button>
@@ -1776,6 +1824,24 @@
 
   <button id="sidebarCollapseBtn" title="Collapse side panel">&laquo;</button>
 
+  <div id="mSeatView">
+    <div class="ms-head">
+      <h2>Seat your guests</h2>
+      <p class="ms-sum" id="msSum"></p>
+    </div>
+    <div class="ms-block">
+      <div class="ms-bh"><b>Not seated yet <span id="msUnCount"></span></b></div>
+      <p class="ms-hint" id="msHint">Tick the guests who sit together, then tap <b>Seat at&hellip;</b></p>
+      <input type="search" id="msSearch" class="ms-search" placeholder="Search a name&hellip;" autocomplete="off">
+      <div id="msUnseated"></div>
+    </div>
+    <div class="ms-block">
+      <div class="ms-bh"><b>Your tables</b><button type="button" class="ms-link" id="msAddTable">+ Add a table</button></div>
+      <div id="msTables"></div>
+    </div>
+  </div>
+  <div class="ms-bar hidden" id="msBar"><span id="msBarText"></span><button type="button" class="ms-clear" id="msClear">Clear</button><button type="button" class="ms-go" id="msGo">Seat at&hellip;</button></div>
+  <div class="ms-sheet hidden" id="msSheet"><div class="ms-card"><h3 id="msSheetTitle"></h3><div id="msSheetBody"></div><button type="button" class="ms-cancel" id="msSheetCancel">Cancel</button></div></div>
   <div id="tableArea">
     <div id="mainViewSwitch">
       <button class="view-tab active" id="viewTabSeating">Seating chart</button>
@@ -1880,7 +1946,7 @@
     <div class="auth-logo landing-logo" role="img" aria-label="Tableau"></div>
     <p class="landing-tag">Familiar, with a spritz of magic.</p>
     <p class="landing-sub">Your whole wedding day in one place: seat your guests, design the room, plan the day with your bridal party, and share one QR code with your guests.</p>
-    <p class="landing-desktop-note">Tip: Tableau works best on a computer. On a phone, seating works but the floor plan does not yet.</p>
+    <p class="landing-desktop-note">Seat your guests on your phone or computer. The floor plan is easiest on a computer.</p>
 
     <div id="landingOut">
       <button class="primary-btn" id="btnLandSignIn">Sign in</button>
@@ -5581,8 +5647,12 @@ function isPhone(){ return window.matchMedia('(max-width:760px)').matches; }
 function setMobileView(v){
   const ml = document.getElementById('mainLayout');
   ml.classList.toggle('m-guests', v === 'guests');
+  ml.classList.toggle('m-seat', v === 'seat');
   document.getElementById('mnGuests').classList.toggle('active', v === 'guests');
-  document.getElementById('mnTable').classList.toggle('active', v !== 'guests');
+  document.getElementById('mnSeat').classList.toggle('active', v === 'seat');
+  document.getElementById('mnTable').classList.toggle('active', v === 'table');
+  if(v === 'seat'){ msRender(); document.getElementById('topSub').textContent = (state.eventName || 'Your project') + ' \u2014 seating'; }
+  else { msSel.clear(); msUpdateBar(); try{ updateTopSub(); }catch(e){} }
   window.scrollTo(0, 0);
   setTimeout(()=>{ try{ applyFitToScreen(); }catch(e){} }, 30);
 }
@@ -5618,7 +5688,8 @@ function handleSeatTap(guest, side, index){
 }
 (function(){
   const ml = document.getElementById('mainLayout'), nav = document.getElementById('mobileNav');
-  const sync = ()=> nav.classList.toggle('hidden', ml.classList.contains('hidden'));
+  let firstShow = true;
+  const sync = ()=>{ nav.classList.toggle('hidden', ml.classList.contains('hidden')); if(firstShow && !ml.classList.contains('hidden') && isPhone()){ firstShow = false; setMobileView('seat'); } };
   new MutationObserver(sync).observe(ml, {attributes:true, attributeFilter:['class']}); sync();
   const _rt = renderTable;
   renderTable = function(){ _rt.apply(this, arguments); updateTapUI(); };
@@ -5632,8 +5703,160 @@ document.getElementById('tapSendBack').addEventListener('click', ()=>{
 });
 document.getElementById('mnGuests').addEventListener('click', ()=> setMobileView('guests'));
 document.getElementById('mnTable').addEventListener('click', ()=> setMobileView('table'));
+document.getElementById('mnSeat').addEventListener('click', ()=> setMobileView('seat'));
 document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && tapSel) clearTapSel(); });
 
+
+/* ===================== Phone seating: tick guests, tap a table ===================== */
+const msSel = new Set();
+function tableSlots(t){
+  const out = [];
+  if(t.shape === 'round'){ for(let i = 0; i < t.totalSeats; i++) out.push({side:'round', index:i}); return out; }
+  if(t.shape === 'u'){
+    for(let i = 0; i < t.baseSeats; i++) out.push({side:'base', index:i});
+    for(let i = 0; i < t.armSeats; i++) out.push({side:'armL', index:i});
+    for(let i = 0; i < t.armSeats; i++) out.push({side:'armR', index:i});
+    return out;
+  }
+  for(let i = 0; i < t.seatsPerSide; i++) out.push({side:'top', index:i});
+  if(!t.oneSide) for(let i = 0; i < t.seatsPerSide; i++) out.push({side:'bottom', index:i});
+  if(t.hasEnds){ out.push({side:'endL'}); out.push({side:'endR'}); }
+  return out;
+}
+function freeSlots(t){
+  const taken = state.guests.filter(g=> g.seat && g.seat.tableId === t.id);
+  return tableSlots(t).filter(sl=> !taken.some(g=> g.seat.side === sl.side && (sl.index === undefined || g.seat.index === sl.index)));
+}
+function msDot(g){ const d = document.createElement('span'); d.className = 'ms-dot'; d.style.background = groupOf(g).color || '#999'; return d; }
+function msRender(){
+  if(!document.getElementById('mainLayout').classList.contains('m-seat')) return;
+  const q = (document.getElementById('msSearch').value || '').trim().toLowerCase();
+  const seated = state.guests.filter(g=> g.seat).length;
+  document.getElementById('msSum').textContent = seated + ' of ' + state.guests.length + ' guests seated' + (state.tables.length ? ' · ' + state.tables.length + (state.tables.length === 1 ? ' table' : ' tables') : '');
+  /* not seated yet, grouped (families and friend groups stay together) */
+  const un = state.guests.filter(g=> !g.seat);
+  document.getElementById('msUnCount').textContent = '(' + un.length + ')';
+  [...msSel].forEach(id=>{ if(!un.some(g=> g.id === id)) msSel.delete(id); });
+  const box = document.getElementById('msUnseated'); box.innerHTML = '';
+  document.getElementById('msSearch').classList.toggle('hidden', un.length < 12);
+  if(!state.guests.length){ box.innerHTML = '<p class="ms-empty">Add your guests first, in the <b>Guests</b> tab.</p>'; }
+  else if(!un.length){ box.innerHTML = '<p class="ms-empty">🎉 Everyone has a seat.</p>'; }
+  const shown = un.filter(g=> !q || g.name.toLowerCase().includes(q));
+  const groups = new Map();
+  shown.forEach(g=>{ const k = groupOf(g).id || ''; if(!groups.has(k)) groups.set(k, []); groups.get(k).push(g); });
+  groups.forEach(list=>{
+    const gr = groupOf(list[0]);
+    const h = document.createElement('div'); h.className = 'ms-gh';
+    const hn = document.createElement('span'); hn.append(msDot(list[0]), document.createTextNode(gr.name || 'No group'));
+    const all = document.createElement('button'); all.type = 'button'; all.className = 'ms-link';
+    const allOn = list.every(g=> msSel.has(g.id));
+    all.textContent = allOn ? 'Untick all' : 'Tick all ' + list.length;
+    all.addEventListener('click', ()=>{ list.forEach(g=> allOn ? msSel.delete(g.id) : msSel.add(g.id)); msRender(); });
+    h.append(hn, all); box.appendChild(h);
+    list.sort((a,b)=> a.name.localeCompare(b.name)).forEach(g=>{
+      const row = document.createElement('label'); row.className = 'ms-row' + (msSel.has(g.id) ? ' on' : '');
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = msSel.has(g.id);
+      cb.addEventListener('change', ()=>{ cb.checked ? msSel.add(g.id) : msSel.delete(g.id); row.classList.toggle('on', cb.checked); msUpdateBar(); msGroupLabels(); });
+      const n = document.createElement('span'); n.textContent = g.name;
+      row.append(cb, n); box.appendChild(row);
+    });
+  });
+  /* tables */
+  const tb = document.getElementById('msTables'); tb.innerHTML = '';
+  if(!state.tables.length) tb.innerHTML = '<p class="ms-empty">No tables yet. Tap <b>+ Add a table</b>.</p>';
+  state.tables.forEach(t=>{
+    const gs = state.guests.filter(g=> g.seat && g.seat.tableId === t.id);
+    const total = tableTotalSeats(t), free = freeSlots(t).length;
+    const card = document.createElement('div'); card.className = 'ms-table';
+    const hd = document.createElement('div'); hd.className = 'ms-th';
+    const nm = document.createElement('b'); nm.textContent = t.name;
+    const ct = document.createElement('span'); ct.className = 'ms-count' + (free === 0 ? ' full' : ''); ct.textContent = gs.length + ' of ' + total + (free === 0 ? ' · full' : '');
+    const chart = document.createElement('button'); chart.type = 'button'; chart.className = 'ms-link'; chart.textContent = 'Chart';
+    chart.title = 'See this table as a drawing';
+    chart.addEventListener('click', ()=>{ state.activeTableId = t.id; updateTopSub(); renderTableTabs(); renderTable(); setMobileView('table'); });
+    hd.append(nm, ct, chart); card.appendChild(hd);
+    const ul = document.createElement('div'); ul.className = 'ms-names';
+    gs.forEach(g=>{
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'ms-name';
+      b.append(msDot(g), document.createTextNode(g.name));
+      b.addEventListener('click', ()=> msGuestSheet(g));
+      ul.appendChild(b);
+    });
+    if(!gs.length){ const e = document.createElement('span'); e.className = 'ms-none'; e.textContent = 'Nobody yet'; ul.appendChild(e); }
+    card.appendChild(ul); tb.appendChild(card);
+  });
+  msUpdateBar();
+}
+function msGroupLabels(){ /* refresh the "Tick all" labels without rebuilding the list */
+  const sc = document.getElementById('msUnseated').scrollTop; msRender(); document.getElementById('msUnseated').scrollTop = sc;
+}
+function msUpdateBar(){
+  const bar = document.getElementById('msBar'), n = msSel.size;
+  const show = n > 0 && document.getElementById('mainLayout').classList.contains('m-seat');
+  bar.classList.toggle('hidden', !show);
+  document.body.classList.toggle('ms-bar-on', show);
+  if(show) document.getElementById('msBarText').textContent = n + (n === 1 ? ' guest ticked' : ' guests ticked');
+}
+function msOpenSheet(title, build){
+  document.getElementById('msSheetTitle').textContent = title;
+  const body = document.getElementById('msSheetBody'); body.innerHTML = '';
+  build(body);
+  document.getElementById('msSheet').classList.remove('hidden');
+}
+function msCloseSheet(){ document.getElementById('msSheet').classList.add('hidden'); }
+function msAfterChange(){ renderGuestList(); renderTable(); renderGroups(); msRender(); }
+/* choose a table for one or more guests */
+function msChooseTable(ids, title){
+  msOpenSheet(title, body=>{
+    if(!state.tables.length){ body.innerHTML = '<p class="ms-empty">You have no tables yet.</p>'; return; }
+    state.tables.forEach(t=>{
+      const movingHere = ids.filter(id=>{ const g = state.guests.find(x=> x.id === id); return g && g.seat && g.seat.tableId === t.id; }).length;
+      const free = freeSlots(t).length;
+      const need = ids.length - movingHere;
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'ms-opt';
+      const l = document.createElement('b'); l.textContent = t.name;
+      const r = document.createElement('span');
+      r.textContent = free === 0 ? 'Full' : (free + (free === 1 ? ' seat free' : ' seats free'));
+      if(free === 0 || need === 0){ b.disabled = true; if(need === 0) r.textContent = 'Already here'; }
+      else if(free < need) r.className = 'warn';
+      b.append(l, r);
+      b.addEventListener('click', ()=>{
+        pushUndo();
+        const slots = freeSlots(t); let seatedN = 0;
+        ids.forEach(id=>{
+          const g = state.guests.find(x=> x.id === id);
+          if(!g || (g.seat && g.seat.tableId === t.id)) return;
+          const sl = slots.shift(); if(!sl) return;
+          g.seat = sl.index === undefined ? {tableId:t.id, side:sl.side} : {tableId:t.id, side:sl.side, index:sl.index};
+          seatedN++;
+        });
+        msSel.clear(); msCloseSheet(); msAfterChange();
+        const left = need - seatedN;
+        toast(left > 0 ? seatedN + ' seated at ' + t.name + '. ' + left + ' still need a seat (the table is full).' : (seatedN === 1 ? '1 guest seated at ' : seatedN + ' guests seated at ') + t.name + '.');
+      });
+      body.appendChild(b);
+    });
+  });
+}
+/* a seated guest: move or remove */
+function msGuestSheet(g){
+  msOpenSheet(g.name, body=>{
+    const mv = document.createElement('button'); mv.type = 'button'; mv.className = 'ms-opt'; mv.innerHTML = '<b>Move to another table</b>';
+    mv.addEventListener('click', ()=> msChooseTable([g.id], 'Move ' + g.name + ' to…'));
+    const rm = document.createElement('button'); rm.type = 'button'; rm.className = 'ms-opt'; rm.innerHTML = '<b>Take off this table</b><span>Back to “Not seated yet”</span>';
+    rm.addEventListener('click', ()=>{ pushUndo(); unseatGuest(g.id); msCloseSheet(); msAfterChange(); toast(g.name + ' is back in “Not seated yet”.'); });
+    body.append(mv, rm);
+  });
+}
+document.getElementById('msGo').addEventListener('click', ()=>{ const ids = [...msSel]; if(ids.length) msChooseTable(ids, (ids.length === 1 ? 'Seat 1 guest' : 'Seat ' + ids.length + ' guests') + ' at…'); });
+document.getElementById('msClear').addEventListener('click', ()=>{ msSel.clear(); msRender(); });
+document.getElementById('msSheetCancel').addEventListener('click', msCloseSheet);
+document.getElementById('msSheet').addEventListener('click', e=>{ if(e.target.id === 'msSheet') msCloseSheet(); });
+document.getElementById('msSearch').addEventListener('input', msRender);
+document.getElementById('msAddTable').addEventListener('click', ()=> openAddTableModal());
+/* keep the phone list up to date after undo, imports and edits elsewhere */
+(function(){ const _rg = renderGuestList; renderGuestList = function(){ _rg.apply(this, arguments); try{ msRender(); }catch(e){} }; })();
+(function(){ const _rt = renderTableTabs; renderTableTabs = function(){ _rt.apply(this, arguments); try{ msRender(); }catch(e){} }; })();
 let bulkDel = null;   /* {gid, keep:Set of guest ids to keep} while deleting several guests in one group */
 function makeGuestChip(guest){
   const g = groupOf(guest);
