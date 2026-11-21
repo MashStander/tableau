@@ -114,6 +114,8 @@
     border-radius:10px; background:var(--white); color:var(--ink); font-family:'Plus Jakarta Sans',sans-serif;
   }
   #searchInput:focus{outline:none; border-color:var(--sage);}
+  .tap-hint{text-align:center; font-size:14px; line-height:1.45; color:var(--sage-dark); background:#f1f5ef; border-radius:10px; padding:8px 12px; margin:-4px 0 12px;}
+  #searchHint{margin:12px 0 -4px;}
   #resultsList{margin-top:14px; display:flex; flex-direction:column; gap:8px;}
   .result-row{
     display:flex; align-items:center; gap:10px; padding:12px 14px; border:1px solid var(--line);
@@ -277,6 +279,7 @@
     <div id="searchView" class="card">
       <p class="seat-prompt">Type your name to see where you're sitting.</p>
       <input type="text" id="searchInput" placeholder="Start typing your name&hellip;" autocomplete="off" autocapitalize="words">
+      <p class="tap-hint hidden" id="searchHint"></p>
       <div id="resultsList"></div>
       <div id="emptyDataNote" class="empty-state hidden">The seating plan hasn't been published yet &mdash; please check back closer to the event.</div>
       <div id="browseWrap" class="hidden">
@@ -290,6 +293,7 @@
     <div id="groupView" class="card hidden">
       <button class="back-btn" id="groupBack">&larr; Home</button>
       <h2 class="view-title" id="groupTitle"></h2>
+      <p class="tap-hint" id="groupHint"></p>
       <div id="groupList"></div>
     </div>
 
@@ -804,6 +808,7 @@ function renderLetterGrid(){
 }
 function showGroup(i, list){
   document.getElementById('groupTitle').textContent = LETTER_GROUPS[i];
+  document.getElementById('groupHint').textContent = '\uD83D\uDC46 ' + tr('tapName');
   const box = document.getElementById('groupList');
   box.innerHTML = '';
   list.slice().sort((a,b)=> sortKey(a).localeCompare(sortKey(b)) || a.name.localeCompare(b.name)).forEach(g=>{
@@ -827,7 +832,7 @@ const TXT = {
     back:'← Home', searchAgain:'← Home',
     seatPrompt:'Type your name to see where you’re sitting.', searchPh:'Start typing your name…',
     browse:'or find your name by letter', browseFirst:'or find your name by letter (listed by first name)', browseLast:'or find your name by letter (listed by surname)',
-    guest1:' guest', guestN:' guests',
+    guest1:' guest', guestN:' guests', tapName:'Tap your name to see your table and who you\u2019re sitting with.',
     seatedAt:'{name} is seated at', unassigned:'(unassigned)',
     atTable1:'1 guest at this table', atTableN:'{n} guests at this table', noTable:'No table yet — please ask a host.',
     segMap:'Where is my table?', segMates:'Who is at my table?', starNote:'The star marks your table.', zoomIn:'Zoom in', zoomOut:'Zoom out',
@@ -860,7 +865,7 @@ const TXT = {
     back:'← Tuis', searchAgain:'← Tuis',
     seatPrompt:'Tik jou naam om te sien waar jy sit.', searchPh:'Begin om jou naam te tik…',
     browse:'of vind die letter van jou naam', browseFirst:'of vind die letter van jou naam (volgens voornaam)', browseLast:'of vind die letter van jou naam (volgens van)',
-    guest1:' gas', guestN:' gaste',
+    guest1:' gas', guestN:' gaste', tapName:'Tik op jou naam om jou tafel te sien en wie saam met jou sit.',
     seatedAt:'{name} sit by', unassigned:'(nog nie toegeken nie)',
     atTable1:'1 gas aan hierdie tafel', atTableN:'{n} gaste aan hierdie tafel', noTable:'Nog geen tafel nie — vra asseblief een van die gashere.',
     segMap:'Waar is my tafel?', segMates:'Wie sit aan my tafel?', starNote:'Die ster wys jou tafel.', zoomIn:'Zoem in', zoomOut:'Zoem uit',
@@ -1032,9 +1037,11 @@ let fpZoom = 1;
 function onSearch(){
   const q = this.value.trim().toLowerCase();
   const list = document.getElementById('resultsList');
-  list.innerHTML = '';
+  const hint = document.getElementById('searchHint');
+  list.innerHTML = ''; hint.classList.add('hidden');
   if(q.length < 2) return;
   const matches = (SEAT_DATA.guests || []).filter(g => g.name.toLowerCase().includes(q)).slice(0, 12);
+  if(matches.length){ hint.textContent = '\uD83D\uDC46 ' + tr('tapName'); hint.classList.remove('hidden'); }
   if(matches.length === 0){
     list.innerHTML = '<div class="no-results">' + escapeHtml(tr('noResults')) + '</div>';
     return;

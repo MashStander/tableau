@@ -1259,9 +1259,13 @@
     #mobMenuClose{width:44px; height:44px; border:1px solid var(--line); border-radius:10px; background:var(--white); color:var(--ink); font-size:18px; cursor:pointer;}
     body.mob-menu-open #topActions > .menu-trigger, body.mob-menu-open #topActions .menu-wrap > .menu-trigger{width:100%; justify-content:flex-start; text-align:left; padding:14px 4px; font-size:17px; border-radius:0; border-bottom:1px solid var(--line);}
     body.mob-menu-open #topActions .menu-wrap, body.mob-menu-open #topActions > *{flex:none;} body.mob-menu-open #topActions .menu-wrap{display:block;}
-    body.mob-menu-open #topActions .menu-wrap > .menu-trigger{pointer-events:none; border-bottom:none; padding:18px 4px 4px; font-size:12.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); background:transparent;}
-    body.mob-menu-open #topActions .menu-caret{display:none;}
-    body.mob-menu-open #topActions .dropdown-menu{display:block; position:static !important; left:auto !important; right:auto !important; top:auto !important; margin:0; border:none; border-bottom:1px solid var(--line); border-radius:0; box-shadow:none; background:transparent; padding:0 0 8px 10px; min-width:0 !important;}
+    /* section headings open and close (tap How to / Big day / Publish) */
+    body.mob-menu-open #topActions .menu-wrap > .menu-trigger{display:flex; justify-content:space-between; align-items:center; background:transparent; cursor:pointer;}
+    body.mob-menu-open #topActions .menu-caret{display:inline-block; font-size:14px; color:var(--ink-soft); transition:transform .2s;}
+    body.mob-menu-open #topActions .menu-wrap:has(.dropdown-menu.open) .menu-caret{transform:rotate(180deg);}
+    body.mob-menu-open #topActions .menu-wrap:has(.dropdown-menu.open) > .menu-trigger{border-bottom:none;}
+    body.mob-menu-open #topActions .dropdown-menu{display:none; position:static !important; left:auto !important; right:auto !important; top:auto !important; margin:0; border:none; border-bottom:1px solid var(--line); border-radius:0; box-shadow:none; background:transparent; padding:0 0 8px 10px; min-width:0 !important;}
+    body.mob-menu-open #topActions .dropdown-menu.open{display:block; padding-left:10px;}
     body.mob-menu-open #topActions .dropdown-item{font-size:16px; padding:11px 8px; white-space:normal;}
 
     #topbar{flex-wrap:wrap; padding:10px 12px 8px; background-position:10px 8px; background-size:auto 46px; position:sticky; top:0; align-items:center; gap:6px;}
@@ -5048,7 +5052,7 @@ document.querySelectorAll('.dropdown-menu').forEach(m=>{
   function setOpen(on){
     document.body.classList.toggle('mob-menu-open', on);
     btn.setAttribute('aria-expanded', on ? 'true' : 'false');
-    if(on) actions.scrollTop = 0;
+    if(on){ actions.scrollTop = 0; document.querySelectorAll('#topActions .dropdown-menu.open').forEach(m=> m.classList.remove('open')); }
   }
   btn.addEventListener('click', e=>{ e.stopPropagation(); setOpen(!document.body.classList.contains('mob-menu-open')); });
   document.getElementById('mobMenuClose').addEventListener('click', e=>{ e.stopPropagation(); setOpen(false); });
