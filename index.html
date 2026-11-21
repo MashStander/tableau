@@ -598,6 +598,19 @@
   @media (max-width:1100px){ .ei-on-wide{display:none;} .ei-on-narrow{display:inline;} }
 
 
+
+  /* guest page editor: small section chips */
+  .ei-tiles{display:flex !important; flex-wrap:wrap; gap:8px; margin-bottom:14px; scroll-margin-top:calc(var(--tb-h, 60px) + 8px);}
+  .ei-chip{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:#fff; color:var(--ink); border-radius:999px; padding:8px 14px; font:inherit; font-size:13.5px; cursor:pointer; line-height:1.2;}
+  .ei-chip:hover{border-color:var(--sage);}
+  .ei-chip i{font-style:normal; font-size:11px; font-weight:700; color:var(--sage-dark);}
+  .ei-chip i:empty{display:none;}
+  .ei-chip i.lk{font-size:11px;}
+  .ei-chip.on{background:var(--sage-dark); border-color:var(--sage-dark); color:#fff; font-weight:600;}
+  .ei-chip.on i{color:#fff;}
+  #eventInfoModal .ei-desc{margin:-6px 0 14px; font-size:14px; color:var(--ink-soft); line-height:1.5;}
+  #eventInfoModal details > .ei-desc{margin:8px 0 0;}
+  @media (max-width:560px){ .ei-chip{padding:7px 11px; font-size:13px;} }
   /* ---- Phase 2: numbered steps, Publish / Live pill, Planning beta ---- */
   .nav-step i{display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; border:1px solid currentColor; font-style:normal; font-size:10.5px; margin-right:6px; vertical-align:1px; opacity:.75;}
   .beta-tag{font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; background:#efe6d6; color:#7a6a4a; border-radius:8px; padding:1px 6px; vertical-align:2px;}
@@ -935,6 +948,7 @@
 
   /* ---------- View switcher ---------- */
   #mainViewSwitch{display:flex; gap:6px; margin-bottom:10px; margin-top:-12px;}
+  .view-tab-all{margin-left:10px; border-style:dashed !important;}
   .view-tab{
     background:transparent; border:1px solid var(--line); color:var(--ink-soft);
     padding:4px 16px; border-radius:20px; font-size:12.5px; line-height:1.4; font-family:'Plus Jakarta Sans',sans-serif;
@@ -1878,6 +1892,7 @@
     <div id="mainViewSwitch">
       <button class="view-tab active" id="viewTabSeating">Seating chart</button>
       <button class="view-tab" id="viewTabFloorPlan">Floor plan</button>
+      <button class="view-tab view-tab-all" id="btnAllTables" title="See every table and who sits there, on one page">View all tables</button>
       <span class="cloud-status" id="cloudStatus"></span>
     </div>
 
@@ -1888,7 +1903,6 @@
         <label><input type="checkbox" id="fitToggle" checked> Fit table to screen</label>
         <span id="seatViewToggle" title="How the seats look"><button type="button" class="sv-btn" data-sv="chairs">Chairs view</button><button type="button" class="sv-btn" data-sv="cards">Cards view</button></span>
         <span id="zoomLabel"></span>
-        <button class="ghost-btn" id="btnAllTables" title="See every table and who sits there, on one page">View all tables</button>
         <button id="btnClearTable" title="Send all seated guests at this table back to the side panel">Clear names from table</button>
         <div class="toolbar-divider"></div>
         <button class="ghost-btn" id="btnExportChartPng">Download as image</button>
@@ -2298,7 +2312,6 @@
 
     <div class="ei-block" data-sec="program">
       <h4>Programme</h4>
-      <label>Add each part of the day. Guests see the time, what&rsquo;s happening and where.</label>
       <div class="fi-head fi-prog"><span>Time</span><span>What</span><span>Where <i>(optional)</i></span><span></span></div>
       <div class="fi-list" id="fiProgram"></div>
       <button type="button" class="ghost-btn fi-add" id="fiProgramAdd">+ Add an item</button>
@@ -2310,7 +2323,6 @@
 
     <div class="ei-block" data-sec="menu">
       <h4>Menu</h4>
-      <label>Add each course and its dishes.</label>
       <div class="fi-list" id="fiMenu"></div>
       <button type="button" class="ghost-btn fi-add" id="fiMenuAdd">+ Add a course</button>
       <textarea id="eiMenu" hidden></textarea>
@@ -8974,10 +8986,10 @@ document.getElementById('fiMenuAdd').addEventListener('click', ()=> fiMenuRender
 function fiRenderAll(){ fiProgRender(); fiMenuRender(); }
 /* ===================== Guest page info: a page with tiles, saved automatically ===================== */
 const EI_SECS = [
-  {k:'language', t:'Language & labels',       d:'Afrikaans, isiZulu and more, or your own words.', g:''},
+  {k:'language', t:'Language & labels',       d:'English or Afrikaans, or your own words.', g:''},
   {k:'look',     t:'Names, date & look',     d:'Your names, date, cover photo, colour and font.', g:''},
-  {k:'program',  t:'Programme',               d:'The order of the day, with times.', g:'program'},
-  {k:'menu',     t:'Menu',                    d:'Your dishes, or a photo of your printed menu.', g:'menu'},
+  {k:'program',  t:'Programme',               d:'The order of the day. Guests see the time, what\u2019s happening and where.', g:'program'},
+  {k:'menu',     t:'Menu',                    d:'Each course and its dishes, or a photo of your printed menu.', g:'menu'},
   {k:'notes',    t:'A note from us',          d:'A thank-you note, the words of a song, a reading or your love story.', g:'notes'},
   {k:'gifts',    t:'Gifts & banking details', d:'Guests get a Copy button for each line.', g:'gifts'},
   {k:'photos',   t:'Photos & videos',         d:'A button that opens your shared album.', g:'photos'},
@@ -9018,47 +9030,49 @@ function eiStatus(k){
   }
   return {t: t || 'Empty – hidden from guests', done: !!t};
 }
+/* small chips for every section; the chosen section opens right underneath, so she never leaves the page */
 function eiRenderTiles(){
   const box = document.getElementById('eiTiles'); box.innerHTML = '';
   const locked = accessTier < 1;
-  EI_SECS.forEach((sec, i)=>{
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'hub-card ei-tile';
+  EI_SECS.forEach(sec=>{
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'ei-chip' + (sec.k === eiCurrent ? ' on' : '');
     const lk = locked && !EI_FREE_SECS.includes(sec.k);
-    const st = lk ? {t:'🔒 Guest page plan', done:false} : eiStatus(sec.k);
-    const h = document.createElement('b'); h.textContent = sec.t;
-    const d = document.createElement('span'); d.textContent = sec.d;
-    const e = document.createElement('em'); e.textContent = (st.done ? '✓ ' : '') + st.t; if(st.done) e.className = 'done'; if(lk) e.className = 'locked';
-    b.append(h, d, e);
-    b.addEventListener('click', ()=>{ if(lk){ needPlan(1, sec.t); return; } eiOpenSec(sec.k); });
+    const st = lk ? {done:false} : eiStatus(sec.k);
+    b.title = sec.d;
+    const mark = document.createElement('i'); mark.className = lk ? 'lk' : (st.done ? 'ok' : '');
+    mark.textContent = lk ? '🔒' : (st.done ? '✓' : '');
+    const t = document.createElement('span'); t.textContent = sec.t;
+    b.append(mark, t);
+    b.addEventListener('click', ()=>{ if(lk){ needPlan(1, sec.t); return; } if(sec.k !== eiCurrent){ eiCommit(false); eiOpenSec(sec.k); } });
     box.appendChild(b);
   });
 }
-function eiShowTiles(){
-  eiCurrent = '';
-  document.getElementById('eventInfoModal').classList.remove('ei-one');
-  document.querySelectorAll('#eventInfoModal .ei-block[data-sec]').forEach(b=> b.classList.remove('ei-on'));
-  document.getElementById('eiTiles').classList.remove('hidden');
-  document.getElementById('eiSecHead').classList.add('hidden');
-  document.getElementById('eiSecFoot').classList.add('hidden');
-  eiRenderTiles(); eiRefreshPhone(true);
-}
+function eiShowTiles(){ eiOpenSec(eiCurrent || EI_SECS[0].k); }
 function eiOpenSec(k){
   eiCurrent = k;
+  const sec = EI_SECS.find(x=> x.k === k) || EI_SECS[0];
   document.getElementById('eventInfoModal').classList.add('ei-one');
   document.querySelectorAll('#eventInfoModal .ei-block[data-sec]').forEach(b=> b.classList.toggle('ei-on', b.dataset.sec === k));
-  document.getElementById('eiTiles').classList.add('hidden');
-  document.getElementById('eiSecHead').classList.remove('hidden');
+  document.getElementById('eiTiles').classList.remove('hidden');
+  document.getElementById('eiSecHead').classList.add('hidden');
   document.getElementById('eiSecFoot').classList.remove('hidden');
+  document.getElementById('eiBackTiles2').classList.add('hidden');
+  /* the short description sits right under the section's heading */
+  document.querySelectorAll('#eventInfoModal .ei-desc').forEach(x=> x.remove());
+  const blk = document.querySelector('#eventInfoModal .ei-block[data-sec="' + k + '"]');
+  if(blk){
+    const d = document.createElement('p'); d.className = 'ei-desc'; d.textContent = sec.d;
+    const h = blk.querySelector(':scope > h4, :scope > summary');
+    if(h) h.after(d); else blk.prepend(d);
+  }
   const i = EI_SECS.findIndex(x=> x.k === k);
-  document.getElementById('eiSecCount').textContent = (i + 1) + ' of ' + EI_SECS.length;
   const nx = EI_SECS[i + 1], nb = document.getElementById('eiNextSec');
   nb.classList.toggle('hidden', !nx);
   if(nx) nb.textContent = 'Next: ' + nx.t + ' →';
   if(k === 'look') updateEiFontSample();
   if(k === 'songs'){ eiDjEnsureKey(); eiDjShowLink(); eiLoadSongs(); }
+  eiRenderTiles();
   eiRefreshPhone(true);
-  if(window.innerWidth < 760) document.getElementById('eiSecHead').scrollIntoView({block:'start'});
-  else window.scrollTo(0,0);
 }
 function showEiPage(){
   pushNav('eventinfo');
@@ -9098,7 +9112,7 @@ function eiCommit(leaving){
   if(eiPageOpen()){
     document.getElementById('topSub').textContent = (state.eventName || 'Your project') + ' — guest page';
     eiSetSaveState(cloudUser ? 'Saved ✓' : 'Saved on this computer ✓');
-    if(!eiCurrent) eiRenderTiles();
+    eiRenderTiles();
     eiRefreshPhone(false);
   }
   /* if the page is already live, update it for guests too (once she pauses) */
@@ -9142,6 +9156,7 @@ function eiRefreshPhone(now){
   document.getElementById('eiBackTiles').addEventListener('click', ()=>{ eiCommit(false); eiShowTiles(); window.scrollTo(0,0); });
   document.getElementById('eiBackTiles2').addEventListener('click', ()=>{ eiCommit(false); eiShowTiles(); window.scrollTo(0,0); });
   document.getElementById('eiNextSec').addEventListener('click', ()=>{
+    setTimeout(()=>{ const t = document.getElementById('eiTiles'); if(t.getBoundingClientRect().top < 0) t.scrollIntoView({block:'start'}); }, 0);
     eiCommit(false);
     const i = EI_SECS.findIndex(x=> x.k === eiCurrent);
     for(let j = i + 1; j < EI_SECS.length; j++){

@@ -69,6 +69,20 @@
   .back-btn:hover{color:var(--sage);}
   .view-title{font-size:26px; color:var(--sage-dark); text-align:center; margin-bottom:16px;}
 
+
+  /* ---- section strip under the names ---- */
+  .sec-strip{position:sticky; top:0; z-index:20; display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+    margin:-8px -16px 18px; padding:10px 16px; background:var(--paper); border-bottom:1px solid var(--line); scroll-behavior:smooth;}
+  .sec-strip::-webkit-scrollbar{display:none;}
+  .sec-chip{flex:0 0 auto; border:1px solid var(--line); background:var(--white); color:var(--ink); border-radius:999px; padding:8px 15px;
+    font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; cursor:pointer; white-space:nowrap;}
+  .sec-chip.on{background:var(--sage-dark); border-color:var(--sage-dark); color:#fff; font-weight:600;}
+  .sec-home{color:var(--ink-soft);}
+  /* inside a section: a slim header (names and date only) and no "Home" links, the strip does that job */
+  body.in-sec #coverFrame, body.in-sec #welcomeLine, body.in-sec #countdownLine, body.in-sec #calLink{display:none !important;}
+  body.in-sec .header{margin-bottom:14px;}
+  body.in-sec .header h1{font-size:28px;}
+  body.in-sec .homeBack, body.in-sec #backBtn, body.in-sec #groupBack{display:none !important;}
   /* ---- home tiles ---- */
   #tileGrid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
   .tile{
@@ -272,6 +286,7 @@
     <div id="countdownLine" class="countdown hidden"></div>
     <a id="calLink" class="cal-link hidden">Add to my calendar</a>
   </div>
+  <nav id="secStrip" class="sec-strip hidden" aria-label="Sections"></nav>
 
   <!-- HOME: tappable choices -->
   <div id="homeView">
@@ -461,6 +476,13 @@ function showSection(name, how){
   });
   document.querySelectorAll('.homeBack').forEach(b=> b.classList.toggle('hidden', availableSections.length <= 1));
   updateSeatBack();
+  const inSec = name !== 'home' && availableSections.length > 1;
+  document.body.classList.toggle('in-sec', inSec);
+  const strip = document.getElementById('secStrip');
+  strip.classList.toggle('hidden', !inSec);
+  strip.querySelectorAll('.sec-chip').forEach(c=> c.classList.toggle('on', c.dataset.sec === name));
+  const on = strip.querySelector('.sec-chip.on');
+  if(on && inSec) strip.scrollLeft = on.offsetLeft - (strip.clientWidth - on.offsetWidth) / 2;
   window.scrollTo(0, 0);
   /* remember the screen in the browser history, so the phone's Back button moves between screens */
   try{
@@ -530,6 +552,16 @@ function buildHome(){
   if(info.links && info.links.some(l => /^https?:\/\//i.test(l.url)))
     tiles.push({id:'links', label:L.links, sub:tr('subLinks')});
   availableSections = tiles.map(t=>t.id);
+  /* the strip under the names: jump between sections without going home first */
+  const strip = document.getElementById('secStrip'); strip.innerHTML = '';
+  if(tiles.length > 1){
+    [{id:'home', label:tr('homeChip')}].concat(tiles).forEach(t=>{
+      const c = document.createElement('button'); c.type = 'button'; c.className = 'sec-chip' + (t.id === 'home' ? ' sec-home' : ''); c.dataset.sec = t.id;
+      c.textContent = t.label;
+      c.addEventListener('click', ()=>{ if(t.id === 'home') goHome(); else if(CURRENT_SEC !== t.id || t.id === 'seat') showSection(t.id, {replace:true}); });
+      strip.appendChild(c);
+    });
+  }
 
   const grid = document.getElementById('tileGrid');
   grid.innerHTML = '';
@@ -840,7 +872,7 @@ const TXT = {
   en: {
     subSeat:'Search your name or browse by letter', subSeatBrowse:'Browse all names by letter', homeSearchPh:'Type your name to find your seat\u2026', subProgram:'The order of the day', subMenu:'What is being served', subNotes:'Words, songs and readings', subSongs:'Ask for a song for the dance floor', songsTitle:'Song requests', sgSong:'Song', sgArtist:'Artist (optional)', sgName:'Your name (optional)', sgSend:'Send my request', sgThanks:'Thank you! \uD83C\uDFB6 Your song is on the list. Add another?', sgFail:'Sorry, that did not go through. Please try again.', sgNeed:'Please type the name of the song.', sgMine:'You asked for', sgLimit:'That\u2019s plenty of requests from this phone. Thank you!', sgPreview:'This is a preview, so requests are not sent.', sgSending:'Sending\u2026', sgDjH:'Your DJ tonight', sgDjBook:'Bookings', sgListH:'Requested so far', sgPlayed:'Played', sgListEmpty:'No requests yet. Be the first!', sgLikeT:'Me too', notesTitle:'A note from us',
     subGifts:'Banking details', subPhotos:'Share your pictures from the day', subLinks:'Website and more',
-    back:'← Home', searchAgain:'← Home',
+    back:'← Home', searchAgain:'← Home', homeChip:'Home',
     seatPrompt:'Type your name to see where you’re sitting.', searchPh:'Start typing your name…',
     browse:'or find your name by letter', browseFirst:'or find your name by letter (listed by first name)', browseLast:'or find your name by letter (listed by surname)',
     guest1:' guest', guestN:' guests', tapName:'Tap your name to see your table and who you\u2019re sitting with.',
@@ -873,7 +905,7 @@ const TXT = {
   af: {
     subSeat:'Tik jou naam of soek onder die gepaste letter', subSeatBrowse:'Blaai deur al die name volgens letter', homeSearchPh:'Tik jou naam om jou sitplek te vind\u2026', subProgram:'Die verloop van die dag', subMenu:'Wat word bedien?', subNotes:'Woorde, liedere en voorlesings', subSongs:'Vra vir \u2019n liedjie vir die dansvloer', songsTitle:'Liedjieversoeke', sgSong:'Liedjie', sgArtist:'Kunstenaar (opsioneel)', sgName:'Jou naam (opsioneel)', sgSend:'Stuur my versoek', sgThanks:'Dankie! \uD83C\uDFB6 Jou liedjie is op die lys. Nog een?', sgFail:'Jammer, dit het nie deurgegaan nie. Probeer asseblief weer.', sgNeed:'Tik asseblief die liedjie se naam.', sgMine:'Jy het gevra vir', sgLimit:'Dis genoeg versoeke van hierdie foon af. Dankie!', sgPreview:'Dit is \u2019n voorskou, so versoeke word nie gestuur nie.', sgSending:'Stuur\u2026', sgDjH:'Jou DJ vanaand', sgDjBook:'Besprekings', sgListH:'Reeds gevra', sgPlayed:'Gespeel', sgListEmpty:'Nog geen versoeke nie. Wees die eerste!', sgLikeT:'Ek ook', notesTitle:"'n Boodskap van ons",
     subGifts:'Bankbesonderhede', subPhotos:'Deel jou foto’s van die dag', subLinks:'Webwerf en meer',
-    back:'← Tuis', searchAgain:'← Tuis',
+    back:'← Tuis', searchAgain:'← Tuis', homeChip:'Tuis',
     seatPrompt:'Tik jou naam om te sien waar jy sit.', searchPh:'Begin om jou naam te tik…',
     browse:'of vind die letter van jou naam', browseFirst:'of vind die letter van jou naam (volgens voornaam)', browseLast:'of vind die letter van jou naam (volgens van)',
     guest1:' gas', guestN:' gaste', tapName:'Tik op jou naam om jou tafel te sien en wie saam met jou sit.',
