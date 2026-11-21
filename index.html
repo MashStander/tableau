@@ -201,6 +201,7 @@
   @media (max-width:700px){ #guestScreen{margin:16px 10px; padding:22px 16px;} }
   #noTablesNote{background:var(--linen); border:1px solid var(--line); border-radius:6px; padding:18px; margin:16px; text-align:center; font-size:14px; color:var(--ink-soft); line-height:1.6;}
   #noTablesNote .primary-btn{margin-top:10px;}
+  #seatingView.no-tables #tableTabs, #seatingView.no-tables #tableToolbar, #seatingView.no-tables #tableScaleOuter{display:none !important;}
   #btnSetupBack{margin-bottom:14px;}
   @media (max-width:700px){ #hubScreen{margin:16px 10px; padding:22px 16px;} .hub-grid{grid-template-columns:1fr;} }
 
@@ -5727,7 +5728,7 @@ function handleSeatTap(guest, side, index){
 (function(){
   const ml = document.getElementById('mainLayout'), nav = document.getElementById('mobileNav');
   let firstShow = true;
-  const sync = ()=>{ nav.classList.toggle('hidden', ml.classList.contains('hidden')); if(firstShow && !ml.classList.contains('hidden') && isPhone()){ firstShow = false; setMobileView('seat'); } };
+  const sync = ()=>{ nav.classList.toggle('hidden', ml.classList.contains('hidden')); if(firstShow && !ml.classList.contains('hidden') && isPhone()){ firstShow = false; setMobileView((state.guests && state.guests.length) ? 'seat' : 'guests'); } };
   new MutationObserver(sync).observe(ml, {attributes:true, attributeFilter:['class']}); sync();
   const _rt = renderTable;
   renderTable = function(){ _rt.apply(this, arguments); updateTapUI(); };
@@ -6481,6 +6482,7 @@ function renderTable(){
   updateSeatViewToggle();
   renderTableTabs();
   document.getElementById('noTablesNote').classList.toggle('hidden', !!(state.tables && state.tables.length));
+  document.getElementById('seatingView').classList.toggle('no-tables', !(state.tables && state.tables.length));
   const table = getActiveTable();
   const wrap = document.getElementById('tableWrap');
   wrap.innerHTML = '';
@@ -9442,6 +9444,7 @@ function canonJson(o){
 /* ---- Publish / Live ✓ in the top bar ----
    Before the first publish: a "Publish" button. Once live: a "Live ✓" badge, and any change
    (seating, floor plan, guest page) goes to guests by itself once she pauses for a few seconds. */
+document.body.classList.add('no-planning');   /* hidden until the plan check says she has the Full Planner */
 let pubNoneSlug = null, pubPending = null, pubStable = 0, pubBusy = false, pubLastAuto = null, pubFailed = false;
 function pubSetPill(kind){
   const b = document.getElementById('pubPill');
@@ -10289,7 +10292,7 @@ function bdRefreshPhone(now){
 })();
 document.getElementById('btnBridal').addEventListener('click', openBp);
 document.getElementById('btnPublishBridal').addEventListener('click', ()=>{ if(needPlan(2, 'The bridal party page')) showBdPage('share'); });
-document.getElementById('btnNavTables').addEventListener('click', ()=>{ if((state.tables||[]).length) enterMain('seating'); else showSetupScreen(); });
+document.getElementById('btnNavTables').addEventListener('click', ()=> enterMain('seating'));   /* guest list first; the page itself offers "Set up your first table" */
 document.getElementById('btnNavFloor').addEventListener('click', ()=> enterMain('floorplan'));
 document.getElementById('btnNavChecklist').addEventListener('click', openChecklist);
 document.getElementById('btnNavGuestPage').addEventListener('click', openEventInfoModal);
