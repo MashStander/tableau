@@ -633,6 +633,7 @@
   .ls-planning{display:none !important;}
 
 
+  #addTableModal .modal-card{max-height:calc(100dvh - 32px); overflow-y:auto; overscroll-behavior:contain;}
   /* room size form: three equal columns, labels and boxes lined up */
   #floorPlanSetup .fp-setup-row{display:grid !important; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px; align-items:end; margin:14px 0 18px;}
   #floorPlanSetup .fp-setup-row .field-row{margin:0; display:flex; flex-direction:column; gap:6px;}
@@ -2204,7 +2205,7 @@
   <div class="modal-card">
     <h3 id="addTableModalTitle">Add a table</h3>
     <div class="field-row">
-      <label>Table name <span style="font-weight:400; color:var(--ink-soft);">(optional)</span></label>
+      <label id="newTableNameLabel">Table name <span style="font-weight:400; color:var(--ink-soft);">(optional)</span></label>
       <input type="text" id="newTableName" placeholder="e.g. Table 2, Family Table" maxlength="40" style="width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:3px; font-family:'Plus Jakarta Sans',sans-serif; font-size:14px;">
     </div>
     <div class="field-row" id="newTableCountRow">
@@ -2212,6 +2213,9 @@
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
         <input type="number" min="1" max="50" class="custom-num" id="newTableCount" value="1" style="width:80px;">
         <span class="hint" id="newTableCountHint" style="margin:0; font-size:12.5px;">Add several at once, then see how they fit on the floor plan before you seat anyone.</span>
+      </div>
+      <div class="hint hidden" id="newTableNamesPreview" style="margin:8px 0 0; font-size:13px; color:var(--sage-dark);"></div>
+      <div style="display:none;">
       </div>
     </div>
     <div class="field-row">
@@ -6271,6 +6275,7 @@ newTableShapeOptions.querySelectorAll('.shape-opt').forEach(btn=>{
     document.getElementById('newUFields').classList.toggle('hidden', newTableChosenShape !== 'u');
     document.getElementById('newBridalFields').classList.toggle('hidden', newTableChosenShape !== 'bridal');
     document.getElementById('newTableCountRow').classList.toggle('hidden', !!editingTableId || newTableChosenShape === 'bridal');
+    updateMultiNames();
     updateDimFieldVisibility();
   });
 });
@@ -6332,6 +6337,7 @@ function openAddTableModal(){
   document.getElementById('newTableName').value = '';
   document.getElementById('newTableCount').value = 1;
   document.getElementById('newTableCountRow').classList.remove('hidden');
+  setTimeout(updateMultiNames, 0);
 
   const def = loadTableDefaults();
   const shape = def ? def.shape : 'rectangle';
@@ -6378,6 +6384,8 @@ function openEditTableModal(tableId){
   document.getElementById('btnConfirmAddTable').textContent = 'Save changes';
   document.getElementById('newTableName').value = t.name;
   document.getElementById('newTableCountRow').classList.add('hidden');
+  document.getElementById('newTableNamesPreview').classList.add('hidden');
+  document.getElementById('newTableNameLabel').innerHTML = 'Table name';
 
   const shapeKey = t.oneSide ? 'bridal' : t.shape;
   newTableChosenShape = shapeKey;
@@ -6495,17 +6503,38 @@ document.getElementById('newTableCount').addEventListener('input', ()=>{
   const n = Math.max(1, Math.min(50, parseInt(document.getElementById('newTableCount').value, 10) || 1));
   document.getElementById('btnConfirmAddTable').textContent = n > 1 ? 'Add ' + n + ' tables' : 'Add table';
   document.getElementById('addTableModalTitle').textContent = n > 1 ? 'Add ' + n + ' tables' : 'Add a table';
+  updateMultiNames();
 });
 /* names for several new tables: "Table 3, Table 4..." after the highest number in use, or "Family 1, Family 2..." */
 function multiTableNames(base, n){
+  base = String(base || '').trim();
+  let prefix = base, start = null, sep = null;
+  const m = /^(.*?)([\s#-]*)(\d+)$/.exec(base);         // "Tafel 1" / "T5" / "Table #3" -> prefix + starting number
+  if(m){ prefix = m[1].trim(); sep = m[2]; start = +m[3]; }
+  if(!prefix && !m) prefix = 'Table';
+  if(start === null){
+    let hi = 0;
+    const re = new RegExp('^' + prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*(\\d+)$', 'i');
+    state.tables.forEach(t=>{ const r = re.exec(String(t.name || '').trim()); if(r) hi = Math.max(hi, +r[1]); });
+    if(!hi && /^table$/i.test(prefix)) hi = state.tables.length;
+    start = hi + 1;
+  }
   const out = [];
-  if(base){ for(let k = 1; k <= n; k++) out.push(base + ' ' + k); return out; }
-  let hi = 0;
-  state.tables.forEach(t=>{ const m = /^Table\s+(\d+)$/i.exec(String(t.name || '').trim()); if(m) hi = Math.max(hi, +m[1]); });
-  if(!hi) hi = state.tables.length;
-  for(let k = 1; k <= n; k++) out.push('Table ' + (hi + k));
+  if(sep === null) sep = prefix.length === 1 ? '' : ' ';      // "T" -> T1, T2; "Tafel" -> Tafel 1, Tafel 2
+  for(let k = 0; k < n; k++) out.push(prefix + (prefix ? sep : '') + (start + k));
   return out;
 }
+function updateMultiNames(){
+  if(editingTableId) return;
+  const n = Math.max(1, Math.min(50, parseInt(document.getElementById('newTableCount').value, 10) || 1));
+  const multi = n > 1 && newTableChosenShape !== 'bridal';
+  const lab = document.getElementById('newTableNameLabel'), inp = document.getElementById('newTableName'), pv = document.getElementById('newTableNamesPreview');
+  lab.innerHTML = multi ? 'Name before the number <span style="font-weight:400; color:var(--ink-soft);">(optional)</span>' : 'Table name <span style="font-weight:400; color:var(--ink-soft);">(optional)</span>';
+  inp.placeholder = multi ? 'e.g. Table, Tafel, T or Group' : 'e.g. Table 2, Family Table';
+  pv.classList.toggle('hidden', !multi);
+  if(multi){ const nm = multiTableNames(inp.value, n); pv.textContent = 'They’ll be called: ' + (n <= 3 ? nm.join(', ') : nm[0] + ', ' + nm[1] + ' … ' + nm[n - 1]); }
+}
+document.getElementById('newTableName').addEventListener('input', updateMultiNames);
 document.getElementById('btnConfirmAddTable').addEventListener('click', ()=>{
   const newTable = buildTableFromFields(newTableChosenShape, {
     name: document.getElementById('newTableName').value.trim(),
