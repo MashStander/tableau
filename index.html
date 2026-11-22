@@ -72,7 +72,7 @@
   #topbar > div:first-child{padding-left:305px; white-space:nowrap; min-height:60px;}
   #topbar h1{font-size:30px; letter-spacing:.3px; position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
   #topbar .tagline{color:var(--rose); font-size:26px; font-family:'Corinthia',cursive; font-weight:400; margin-top:4px; line-height:1.2;}
-  #topbar .sub{color:var(--ink-soft); font-size:13px; margin-top:2px;}
+  #topbar .sub{color:var(--ink); font-size:15px; font-weight:600; margin-top:4px; letter-spacing:.01em;}
   #topbar .actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end;}
   .ghost-btn{
     background:transparent; border:1px solid var(--line); color:var(--ink);
@@ -103,7 +103,7 @@
     #topbar h1{grid-area:brand; position:static; clip:auto; overflow:hidden; width:190px; height:44px; font-size:0; color:transparent;
       background:var(--logo-url) no-repeat left center; background-size:auto 42px; align-self:end;}
     #topbar .tagline{display:none;}
-    #topbar .sub{grid-area:sub; justify-self:start; align-self:start; margin:0 0 0 2px; padding:0; background:none; min-height:0; font-size:11.5px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px;}
+    #topbar .sub{grid-area:sub; justify-self:start; align-self:start; margin:0 0 0 12px; padding:0; background:none; min-height:0; font-size:11.5px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; font-size:14px; font-weight:600; color:var(--ink);}
     #topbar #topActions{grid-area:nav; background:transparent; justify-content:flex-end; align-items:center; gap:4px 28px; padding:0; min-height:0;}
     #topbar .hist-row{grid-area:hist; position:static; justify-self:end; margin:0;}
     #topbar .hist-row .ghost-btn{padding:3px 9px; font-size:11.5px;}
@@ -1165,8 +1165,11 @@
   .fp-nm-wrap{position:absolute; width:0; height:0; pointer-events:none; z-index:6;}
   .fp-nm{position:absolute; display:block; width:max-content; background:rgba(255,255,255,.82); border-left:3px solid #999; border-radius:3px; padding:0 3px; line-height:1.15; font-weight:400; color:var(--ink); font-family:'Plus Jakarta Sans',sans-serif; text-align:center;}
   .floor-item.dragging-move{opacity:.75; cursor:grabbing; z-index:20;}
-  .floor-item.fp-clash{outline:2px solid var(--danger); outline-offset:3px;}
-  .floor-item.fp-round.fp-clash{outline:none; box-shadow:0 0 0 3px var(--danger);}
+  .floor-item.fp-clash{outline:2px dashed var(--danger); outline-offset:3px;}
+  .floor-item.fp-round.fp-clash{outline:none; box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--danger);}
+  .fp-clash-badge{display:none; position:absolute; left:-9px; top:-9px; width:18px; height:18px; border-radius:50%; background:var(--danger); color:#fff; font:700 12px/18px sans-serif; text-align:center; z-index:8; pointer-events:auto; cursor:help;}
+  .floor-item.fp-clash > .fp-clash-badge{display:block;}
+  .fp-clash-note{font-size:13px; color:#b03a3a; background:#fdeeee; border:1px solid #f3c9c9; border-radius:999px; padding:5px 12px;}
   .floor-item .fp-label{pointer-events:none; font-weight:500; line-height:1.15; overflow-wrap:anywhere;}
   .floor-item .fp-label-input{
     width:90%; text-align:center; border:1px solid var(--sage); border-radius:2px; font-size:12px;
@@ -1510,7 +1513,8 @@
     #topbar{flex-wrap:wrap; padding:10px 12px 8px; background-position:10px 8px; background-size:auto 46px; position:sticky; top:0; align-items:center; gap:6px;}
     #topbar > div:first-child{padding-left:150px; min-height:50px; white-space:normal; flex:1 1 100%;}
     #topbar .tagline{display:none;}
-    #topbar .sub{font-size:12.5px; margin-top:8px; white-space:normal;}
+    #topbar .sub{font-size:15px; margin-top:2px; white-space:normal; padding-left:14px;}
+    #topbar > div:first-child:has(#topSub:not(.hidden)){padding-left:0 !important; padding-top:50px; min-height:0;}
     #topbar > div:first-child{padding-left:158px !important;}
     #tableToolbar{padding-bottom:12px;}
     #tableScaleOuter{margin-top:16px;}
@@ -2090,7 +2094,7 @@
       </div>
 
       <div id="floorPlanBody" class="hidden">
-        <div id="fpToggleRow"><button type="button" class="ghost-btn" id="fpPaletteToggle" aria-expanded="true"><span id="fpPaletteChev">&#9662;</span> <span id="fpPaletteToggleText">Hide menu</span></button><div class="fp-layouts" id="fpLayouts"></div><label class="fp-outside-tog hidden" id="fpOutsideTogWrap"><input type="checkbox" id="fpOutsideTog" checked> Show side rooms &amp; outside areas</label></div>
+        <div id="fpToggleRow"><button type="button" class="ghost-btn" id="fpPaletteToggle" aria-expanded="true"><span id="fpPaletteChev">&#9662;</span> <span id="fpPaletteToggleText">Hide menu</span></button><div class="fp-layouts" id="fpLayouts"></div><span class="fp-clash-note hidden" id="fpClashNote"></span><label class="fp-outside-tog hidden" id="fpOutsideTogWrap"><input type="checkbox" id="fpOutsideTog" checked> Show side rooms &amp; outside areas</label></div>
         <div id="floorCanvasWrap">
           <div id="floorCanvas"></div>
         </div>
@@ -5584,16 +5588,14 @@ document.getElementById('btnGenerate').addEventListener('click', ()=>{
   startTour();
 });
 
+/* under the logo: the name of the project she is working on */
+function projectTitle(){ return (state.projectName || '').trim() || (state.eventName || '').trim() || ''; }
 function updateTopSub(){
-  const t = getActiveTable();
-  if(!t){ document.getElementById('topSub').textContent = projectActive ? (state.eventName || 'Your project') : 'Set up your table to begin'; return; }
-  const total = tableTotalSeats(t);
-  let detail;
-  if(t.shape === 'round') detail = 'round table';
-  else if(t.shape === 'u') detail = `U-shape \u00b7 ${t.baseSeats} on the base, ${t.armSeats} per arm` + (t.seatsInside ? ' \u00b7 seated inside' : '');
-  else if(t.oneSide) detail = 'seated along one side';
-  else detail = `${t.seatsPerSide} per side` + ((endsOf(t,'L') || endsOf(t,'R')) ? ' \u00b7 ' + (endsOf(t,'L') === endsOf(t,'R') && endsOf(t,'L') === 1 ? 'with end seats' : endsOf(t,'L') + ' + ' + endsOf(t,'R') + ' at the ends') : '');
-  document.getElementById('topSub').textContent = `${t.name} \u00b7 ${total} seat${total===1?'':'s'} \u00b7 ${detail}`;
+  const el = document.getElementById('topSub'), nm = projectTitle();
+  if(!projectActive && !nm){ el.textContent = ''; el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  el.textContent = nm || 'Untitled project';
+  el.title = 'You are working on: ' + (nm || 'Untitled project');
 }
 
 /* ===================== GROUPS ===================== */
@@ -5927,7 +5929,7 @@ function setMobileView(v){
   document.getElementById('mnGuests').classList.toggle('active', v === 'guests');
   document.getElementById('mnSeat').classList.toggle('active', v === 'seat');
   document.getElementById('mnTable').classList.toggle('active', v === 'table');
-  if(v === 'seat'){ msRender(); document.getElementById('topSub').textContent = (state.eventName || 'Your project') + ' \u2014 seating'; }
+  if(v === 'seat'){ msRender(); updateTopSub(); }
   else { msSel.clear(); msUpdateBar(); try{ updateTopSub(); }catch(e){} }
   window.scrollTo(0, 0);
   setTimeout(()=>{ try{ applyFitToScreen(); }catch(e){} }, 30);
@@ -7352,7 +7354,10 @@ function fpShape(it, o){
     const ux = px - cx, uy = py - cy; return [cx + ux*c - uy*sn, cy + ux*sn + uy*c]; })};
 }
 function fpShapesHit(A, B){
-  const E = 0.03;
+  /* chairs against a table, dance floor or wall: only the seat itself counts (a chair back may touch the edge);
+     chairs against chairs: they need their full space */
+  if(A.chair !== B.chair){ const sm = (state.floorPlan && state.floorPlan.unit === 'ft') ? 0.25 : 0.08; if(A.chair) A = {...A, r: sm}; else B = {...B, r: sm}; }
+  const E = (A.chair || B.chair) ? 0.05 : 0.03;
   if(A.c && B.c) return Math.hypot(A.cx - B.cx, A.cy - B.cy) < A.r + B.r - E;
   if(A.c || B.c){
     const C = A.c ? A : B, P = (A.c ? B : A).pts;
@@ -7386,8 +7391,8 @@ function fpPrims(it, o){
   if(t && t.shape === 'round') out.push({c:true, cx, cy, r: Math.max(w, h)/2});
   else out.push({c:false, pts: [[x, y], [x + w, y], [x + w, y + h], [x, y + h]].map(q=> turn(q[0], q[1]))});
   if(t){
-    const ft = state.floorPlan && state.floorPlan.unit === 'ft', off = ft ? 1 : 0.3, r = ft ? 0.7 : 0.22;
-    fpSeatSpots(t, w, h, off).forEach(sp=>{ const q = turn(x + sp.x, y + sp.y); out.push({c:true, cx:q[0], cy:q[1], r}); });
+    const ft = state.floorPlan && state.floorPlan.unit === 'ft', off = ft ? 0.8 : 0.24, r = ft ? 0.65 : 0.2;
+    fpSeatSpots(t, w, h, off).forEach(sp=>{ const q = turn(x + sp.x, y + sp.y); out.push({c:true, chair:true, cx:q[0], cy:q[1], r}); });
   }
   return out;
 }
@@ -7823,6 +7828,8 @@ function renderFloorPlan(){
     canvas.style.margin = (o.t*P) + 'px ' + (o.r*P) + 'px ' + (o.b*P) + 'px ' + (o.l*P) + 'px'; }
 
   fpRenderLayoutBar();
+  { const n = fp.items.filter(it=> fpSolid(it) && fpCollides(it)).length, note = document.getElementById('fpClashNote');
+    note.classList.toggle('hidden', !n); note.textContent = n ? '\u26a0 ' + n + (n === 1 ? ' item overlaps' : ' items overlap') + ' (red dashed outline). Move them apart a little.' : ''; }
   const hasOutside = fp.items.some(it=> it.kind === 'room' || it.kind === 'outdoor');
   document.getElementById('fpOutsideTogWrap').classList.toggle('hidden', !hasOutside);
   document.getElementById('fpOutsideTog').checked = !fpHallOnly;
@@ -8854,7 +8861,13 @@ function buildFloorItemEl(item){
   });
 
   fpAddSeatNames(el, item);
-  if(fpSolid(item) && fpCollides(item)) el.classList.add("fp-clash");
+  if(fpSolid(item)){
+    const bd = document.createElement('span'); bd.className = 'fp-clash-badge'; bd.textContent = '!';
+    bd.title = 'This overlaps something next to it. Move it apart a little.';
+    if(rot0) bd.style.transform = 'rotate(' + (-rot0) + 'deg)';
+    el.appendChild(bd);
+    if(fpCollides(item)) el.classList.add('fp-clash');
+  }
   return el;
 }
 
@@ -12583,7 +12596,7 @@ async function renameProject(row){
     const r = await sb.from('charts').update({name: nm, data: d}).eq('id', row.id);
     if(r.error){ toast('Could not rename. Check your internet and try again.'); return; }
   }
-  toast('Renamed to \u201c' + nm + '\u201d.');
+  toast('Renamed to \u201c' + nm + '\u201d.'); updateTopSub();
   openChartsScreen();
 }
 function askDeleteProject(name){
@@ -12782,6 +12795,7 @@ async function openCloudChart(id, silent){
   } else {
     renderGroups(); renderGroupSelect(); renderGuestList(); renderTable();
     showHub(false);
+    updateTopSub();
   }
   isDirty = false;
   document.getElementById('chartsScreen').classList.add('hidden');
@@ -12809,6 +12823,7 @@ function startNewCloudChart(name){
   undoStack = []; redoStack = []; updateUndoRedoButtons();
   state = {groups: JSON.parse(JSON.stringify(DEFAULT_GROUPS)), guests: [], tables: [], activeTableId: null, floorPlan: null, eventName: name, projectName: name};
   projectActive = true;
+  updateTopSub();
   document.getElementById('tableName').value = '';
   clearSearchUI();
   chosenSize = null;
