@@ -1014,7 +1014,18 @@
   #legendNote{color:var(--ink-soft); font-size:12.5px; margin-top:18px; text-align:center; max-width:420px;}
 
   /* ---------- View switcher ---------- */
-  #mainViewSwitch{display:flex; gap:6px; margin-bottom:10px; margin-top:-12px;}
+  #mainViewSwitch{display:flex; align-items:center; gap:6px; margin-top:-18px; margin-bottom:14px;
+    position:sticky; top:-14px; z-index:30; background:#fff; border:1px solid var(--line); border-radius:999px; padding:5px; box-shadow:0 4px 14px rgba(47,42,36,.10);}
+  #mainViewSwitch .view-tab{font-size:14px; padding:7px 18px; border-color:transparent; color:var(--ink);}
+  #mainViewSwitch .view-tab:hover{background:#f2efe8; border-color:transparent;}
+  #mainViewSwitch .view-tab.active{background:var(--btn); color:#fff;}
+  #mainViewSwitch .view-tab-all{margin-left:4px; border:1px dashed var(--line) !important;}
+  #mainViewSwitch .cloud-status{margin:0 10px 0 6px; font-size:12.5px; white-space:nowrap;}
+  #mainViewSwitch .cloud-status:empty{display:none;}
+  @media (max-width:760px){
+    #mainViewSwitch{top:calc(var(--tb-h, 60px) + 6px); margin-top:0; flex-wrap:wrap; justify-content:center; border-radius:18px;}
+    #mainViewSwitch .view-tab{font-size:13px; padding:6px 12px;}
+  }
   .view-tab-all{margin-left:10px; border-style:dashed !important;}
   .view-tab{
     background:transparent; border:1px solid var(--line); color:var(--ink-soft);
@@ -2188,6 +2199,13 @@
     <div class="field-row">
       <label>Table name <span style="font-weight:400; color:var(--ink-soft);">(optional)</span></label>
       <input type="text" id="newTableName" placeholder="e.g. Table 2, Family Table" maxlength="40" style="width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:3px; font-family:'Plus Jakarta Sans',sans-serif; font-size:14px;">
+    </div>
+    <div class="field-row" id="newTableCountRow">
+      <label>How many tables like this?</label>
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <input type="number" min="1" max="50" class="custom-num" id="newTableCount" value="1" style="width:80px;">
+        <span class="hint" id="newTableCountHint" style="margin:0; font-size:12.5px;">Add several at once, then see how they fit on the floor plan before you seat anyone.</span>
+      </div>
     </div>
     <div class="field-row">
       <label>Table shape</label>
@@ -6245,6 +6263,7 @@ newTableShapeOptions.querySelectorAll('.shape-opt').forEach(btn=>{
     document.getElementById('newRoundFields').classList.toggle('hidden', newTableChosenShape !== 'round');
     document.getElementById('newUFields').classList.toggle('hidden', newTableChosenShape !== 'u');
     document.getElementById('newBridalFields').classList.toggle('hidden', newTableChosenShape !== 'bridal');
+    document.getElementById('newTableCountRow').classList.toggle('hidden', !!editingTableId || newTableChosenShape === 'bridal');
     updateDimFieldVisibility();
   });
 });
@@ -6304,6 +6323,8 @@ function openAddTableModal(){
   document.getElementById('addTableModalTitle').textContent = 'Add a table';
   document.getElementById('btnConfirmAddTable').textContent = 'Add table';
   document.getElementById('newTableName').value = '';
+  document.getElementById('newTableCount').value = 1;
+  document.getElementById('newTableCountRow').classList.remove('hidden');
 
   const def = loadTableDefaults();
   const shape = def ? def.shape : 'rectangle';
@@ -6349,6 +6370,7 @@ function openEditTableModal(tableId){
   document.getElementById('addTableModalTitle').textContent = 'Edit table';
   document.getElementById('btnConfirmAddTable').textContent = 'Save changes';
   document.getElementById('newTableName').value = t.name;
+  document.getElementById('newTableCountRow').classList.add('hidden');
 
   const shapeKey = t.oneSide ? 'bridal' : t.shape;
   newTableChosenShape = shapeKey;
@@ -6461,6 +6483,22 @@ document.getElementById('btnCancelAddTable').addEventListener('click', ()=>{
 document.getElementById('addTableModal').addEventListener('click', e=>{
   if(e.target.id === 'addTableModal') document.getElementById('addTableModal').classList.add('hidden');
 });
+document.getElementById('newTableCount').addEventListener('input', ()=>{
+  if(editingTableId) return;
+  const n = Math.max(1, Math.min(50, parseInt(document.getElementById('newTableCount').value, 10) || 1));
+  document.getElementById('btnConfirmAddTable').textContent = n > 1 ? 'Add ' + n + ' tables' : 'Add table';
+  document.getElementById('addTableModalTitle').textContent = n > 1 ? 'Add ' + n + ' tables' : 'Add a table';
+});
+/* names for several new tables: "Table 3, Table 4..." after the highest number in use, or "Family 1, Family 2..." */
+function multiTableNames(base, n){
+  const out = [];
+  if(base){ for(let k = 1; k <= n; k++) out.push(base + ' ' + k); return out; }
+  let hi = 0;
+  state.tables.forEach(t=>{ const m = /^Table\s+(\d+)$/i.exec(String(t.name || '').trim()); if(m) hi = Math.max(hi, +m[1]); });
+  if(!hi) hi = state.tables.length;
+  for(let k = 1; k <= n; k++) out.push('Table ' + (hi + k));
+  return out;
+}
 document.getElementById('btnConfirmAddTable').addEventListener('click', ()=>{
   const newTable = buildTableFromFields(newTableChosenShape, {
     name: document.getElementById('newTableName').value.trim(),
@@ -6502,8 +6540,17 @@ document.getElementById('btnConfirmAddTable').addEventListener('click', ()=>{
     renderTable();
     toast(`"${newTable.name}" updated.`);
   } else {
+    const count = newTableChosenShape === 'bridal' ? 1 : Math.max(1, Math.min(50, parseInt(document.getElementById('newTableCount').value, 10) || 1));
     pushUndo();
-    state.tables.push(newTable);
+    const made = [newTable];
+    if(count > 1){
+      const names = multiTableNames(document.getElementById('newTableName').value.trim(), count);
+      newTable.name = names[0];
+      for(let k = 1; k < count; k++){
+        const t = JSON.parse(JSON.stringify(newTable)); t.id = uid('t'); t.name = names[k]; made.push(t);
+      }
+    }
+    made.forEach(t=> state.tables.push(t));
     state.activeTableId = newTable.id;
     document.getElementById('addTableModal').classList.add('hidden');
     // Save these settings as the new default for next time
@@ -6519,10 +6566,14 @@ document.getElementById('btnConfirmAddTable').addEventListener('click', ()=>{
       readDimFields(newTableChosenShape)
     );
     updateTopSub();
-    if(fpAddAfterModal && state.floorPlan) fpPlaceNewTable(newTable);
+    const onPlan = state.floorPlan && (fpAddAfterModal || !document.getElementById('floorPlanView').classList.contains('hidden'));
+    if(onPlan){ if(made.length > 1 && fpPlaceBatch(made)){} else made.forEach(t=> fpPlaceNewTable(t)); }
+    if(made.length > 1) fpBarFor = null;
     fpAddAfterModal = false;
+    renderTableTabs();
     renderTable();
-    toast(`"${newTable.name}" added.`);
+    if(onPlan && !document.getElementById('floorPlanView').classList.contains('hidden')) renderFloorPlan();
+    toast(made.length > 1 ? (made.length + ' tables added' + (onPlan ? ' to your floor plan. Drag them where you want them.' : '. Place them on the floor plan whenever you\u2019re ready.')) : `"${newTable.name}" added.`);
   }
 });
 
@@ -7586,6 +7637,33 @@ function fpPlaceNewTable(table){
   const nid = uid('fp');
   fp.items.push({id: nid, kind:'table', tableId: table.id, label: table.name, x: round2(pos.x), y: round2(pos.y), w: sz.w, h: sz.h});
   fpBarFor = nid;
+}
+/* several new tables at once: a tidy grid in the first open space big enough, with room for chairs and walking */
+function fpPlaceBatch(tables){
+  const fp = state.floorPlan, ft = fp.unit === 'ft', n = tables.length;
+  const sz = defaultFloorSize('table', tables[0], fp.unit);
+  const gap = ft ? 5 : 1.5, edge = ft ? 3 : 1, step = ft ? 1 : 0.5;
+  const pX = sz.w + gap, pY = sz.h + gap, W = fp.roomWidth, D = fp.roomDepth;
+  const others = fp.items.filter(it=> !isDoorKind(it.kind) && it.kind !== 'outdoor').map(it=> fpBox(it));
+  const free = (x, y, bw, bh)=> !others.some(b=> x < b.r + edge && x + bw + edge > b.l && y < b.b + edge && y + bh + edge > b.t);
+  const ideal = Math.max(1, Math.round(Math.sqrt(n * (W / pX) / Math.max(0.1, D / pY))));
+  const tryCols = [];
+  for(let d = 0; d <= n; d++){ [ideal + d, ideal - d].forEach(c=>{ if(c >= 1 && c <= n && !tryCols.includes(c)) tryCols.push(c); }); }
+  for(const cols of tryCols){
+    const rows = Math.ceil(n / cols), bw = cols * pX - gap, bh = rows * pY - gap;
+    if(bw > W - 2 * edge || bh > D - 2 * edge) continue;
+    for(let y = edge; y + bh <= D - edge + 0.001; y += step){
+      for(let x = edge; x + bw <= W - edge + 0.001; x += step){
+        if(!free(x, y, bw, bh)) continue;
+        tables.forEach((t, i)=>{
+          const c = i % cols, r = Math.floor(i / cols);
+          fp.items.push({id: uid('fp'), kind:'table', tableId: t.id, label: t.name, x: round2(x + c * pX), y: round2(y + r * pY), w: sz.w, h: sz.h});
+        });
+        return true;
+      }
+    }
+  }
+  return false;
 }
 /* ---- a small bar on a clicked table: name, seats - / +, edit, open in seating chart ---- */
 function fpSeatsOf(t){ return t.shape === 'round' ? ['totalSeats', 2, 20] : (t.shape === 'u' ? ['baseSeats', 1, 20] : ['seatsPerSide', 1, 20]); }
