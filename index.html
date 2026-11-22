@@ -6704,10 +6704,8 @@ document.getElementById('btnConfirmAddTable').addEventListener('click', ()=>{
     if(newTable.dim && JSON.stringify(newTable.dim) !== oldDimKey && state.floorPlan){
       const fpItem = state.floorPlan.items.find(it=> it.tableId === newTable.id);
       if(fpItem){ const sz = defaultFloorSize('table', newTable, state.floorPlan.unit); fpItem.w = sz.w; fpItem.h = sz.h; delete fpItem.customSize; }
-    } else if(!newTable.dim && state.floorPlan){
-      const fpItem = state.floorPlan.items.find(it=> it.tableId === newTable.id);
-      if(fpItem && !fpItem.customSize){ const sz = defaultFloorSize('table', newTable, state.floorPlan.unit); fpItem.w = sz.w; fpItem.h = sz.h; }
     }
+    /* changing the number of seats never changes how big the table is on the floor plan */
     document.getElementById('addTableModal').classList.add('hidden');
     updateTopSub();
     renderGuestList();
@@ -7280,7 +7278,6 @@ document.getElementById('bulkApply').addEventListener('click', ()=>{
       else if(nt.oneSide) nt.seatsPerSide = Math.max(1, nt.seatsPerSide + sign*n);
       else nt.seatsPerSide = Math.max(1, nt.seatsPerSide + sign*Math.ceil(n/2));
     }
-    delete nt.dim;
     return {t, nt};
   });
   const lose = [];
@@ -7292,8 +7289,6 @@ document.getElementById('bulkApply').addEventListener('click', ()=>{
   plan.forEach(({t, nt})=>{
     before += tableTotalSeats(t); after += tableTotalSeats(nt);
     const i = state.tables.findIndex(x=> x.id === t.id); state.tables[i] = nt;
-    const it = state.floorPlan && state.floorPlan.items.find(x=> x.tableId === nt.id);
-    if(it && !it.customSize){ const sz = defaultFloorSize('table', nt, state.floorPlan.unit); it.w = sz.w; it.h = sz.h; }
   });
   if(state.floorPlan) plan.forEach(({nt})=>{ const it = state.floorPlan.items.find(x=> x.tableId === nt.id); if(it) fpNudgeFree(it); });
   document.getElementById('bulkTablesModal').classList.add('hidden');
@@ -8073,9 +8068,8 @@ function fpChangeSeats(t, delta){
   pushUndo();
   lose.forEach(g=> g.seat = null);
   t[key] = nv;
-  if(t.dim) delete t.dim;
+  /* keep its real size: only the seats change */
   const it = state.floorPlan && state.floorPlan.items.find(i=> i.tableId === t.id);
-  if(it && !it.customSize){ const sz = defaultFloorSize('table', t, state.floorPlan.unit); it.w = sz.w; it.h = sz.h; }
   if(it && fpCollides(it)){ const ox = it.x, oy = it.y; if(fpNudgeFree(it) && (it.x !== ox || it.y !== oy)) toast('Moved the table a little to make room for the extra chairs.'); }
   fpAfterSeatChange(); updateTopSub();
 }
