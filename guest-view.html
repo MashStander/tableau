@@ -187,6 +187,7 @@
   .floor-item.fp-restroom{background:#e6eef4; color:#3c5a6e; border-color:#a9c2d3;}
   .floor-item.fp-door{background:#fdfbf6; border:none; border-left:1.5px solid #3a342c; border-right:1.5px solid #3a342c; border-radius:0; padding:0; font-size:0; overflow:visible;}
   .fp-door-svg{position:absolute; left:0; top:50%; pointer-events:none; overflow:visible;}
+  .floor-item.fp-door.fp-gap{border-left-width:2px; border-right-width:2px;}
   .floor-item.fp-room{background:#f7f4ee; border:2.5px solid #3a342c; border-radius:0; color:#2f2a24; font-weight:700;}
   .floor-item.fp-outdoor{border:1.5px dashed #6f6556; border-radius:0; color:#3f382f; font-weight:600;}
   .floor-item.fp-out-boards{background:repeating-linear-gradient(90deg, #efe2cc 0 7px, #e3d2b5 7px 8px);}
@@ -1229,7 +1230,7 @@ function renderFloorPlan(guest){
   canvas.style.width = (fp.roomWidth*scale) + 'px';
   canvas.style.height = (fp.roomDepth*scale) + 'px';
   canvas.style.margin = (18 + out.t*scale) + 'px ' + (18 + out.r*scale) + 'px ' + (18 + out.b*scale) + 'px ' + (18 + out.l*scale) + 'px';
-  const isDoor = k=> k === 'door2' || k === 'door4' || k === 'door1' || k === 'dfr' || k === 'dsl';
+  const isDoor = k=> k === 'door2' || k === 'door4' || k === 'door1' || k === 'dfr' || k === 'dsl' || k === 'gap';
 
   const letterOf = {}, keyEls = [], tNum = {};
   (SEAT_DATA.tables || []).forEach((t,i)=>{ tNum[t.id] = 'T' + (i+1); });
@@ -1253,6 +1254,7 @@ function renderFloorPlan(guest){
        item.kind === 'outdoor' ? ('fp-outdoor ' + (/garden|lawn|grass|tuin/i.test(item.label || '') ? 'fp-out-grass' : /patio|terrace|paving|stoep/i.test(item.label || '') ? 'fp-out-paving' : 'fp-out-boards')) :
        item.kind === 'podium' ? 'fp-podium' : item.kind === 'bar' ? 'fp-bar' : 'fp-label');
     el.className = 'floor-item ' + kindClass;
+    if(item.kind === 'gap') el.classList.add('fp-gap');
     if(item.kind === 'table' && item.round) el.classList.add('fp-roundt');
     const mine = item.kind === 'table' && item.tableId === guest.tableId;
     if(mine) el.classList.add('is-mine');
@@ -1267,7 +1269,7 @@ function renderFloorPlan(guest){
       lb.style.transform = 'rotate(' + (-item.rot) + 'deg)';
     }
     el.appendChild(lb);
-    if(isDoor(item.kind)) el.appendChild(gvDoorSvg(item, fp, scale));
+    if(isDoor(item.kind) && item.kind !== 'gap') el.appendChild(gvDoorSvg(item, fp, scale));
     if(mine){
       const star = document.createElement('span');
       star.className = 'star-badge';
