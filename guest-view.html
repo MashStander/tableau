@@ -70,6 +70,7 @@
   .view-title{font-size:26px; color:var(--sage-dark); text-align:center; margin-bottom:16px;}
 
 
+  .floor-item.fp-roundt{border-radius:50%;}
   /* ---- section strip under the names ---- */
   .sec-strip{position:sticky; top:0; z-index:20; display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;
     margin:-8px -16px 18px; padding:10px 16px; background:var(--paper); border-bottom:1px solid var(--line); scroll-behavior:smooth;}
@@ -1201,6 +1202,7 @@ function renderFloorPlan(guest){
        (item.kind === 'door2' || item.kind === 'door4') ? 'fp-door' :
        item.kind === 'podium' ? 'fp-podium' : item.kind === 'bar' ? 'fp-bar' : 'fp-label');
     el.className = 'floor-item ' + kindClass;
+    if(item.kind === 'table' && item.round) el.classList.add('fp-roundt');
     const mine = item.kind === 'table' && item.tableId === guest.tableId;
     if(mine) el.classList.add('is-mine');
     el.style.left = (item.x*scale) + 'px';

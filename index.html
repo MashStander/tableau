@@ -631,6 +631,27 @@
   .ei-sw-text{display:flex; flex-direction:column; font-size:14.5px; color:var(--ink);}
   .ei-sw-text small{font-size:12.5px; color:var(--ink-soft); margin-top:2px;}
   .ls-planning{display:none !important;}
+
+  /* ---- seating on the floor plan ---- */
+  .floor-item.fp-table.fp-round{border-radius:50%;}
+  .floor-item.fp-table:not(.resizing) .fp-dim-tag{display:none !important;}
+  .floor-item.fp-table.fp-round .fp-resize-handle{right:12%; bottom:12%;}
+  .fp-seat{position:absolute; transform:translate(-50%,-50%); border-radius:50%; background:#fff; border:1.5px dashed #b9ad95; box-sizing:border-box; display:flex; align-items:center; justify-content:center; z-index:7; cursor:default; color:#fff; font-weight:700; letter-spacing:.02em; font-family:'Plus Jakarta Sans',sans-serif; line-height:1;}
+  .fp-seat.taken{border:1.5px solid rgba(255,255,255,.9); box-shadow:0 1px 2px rgba(0,0,0,.25); cursor:grab;}
+  .fp-seat.over{outline:3px solid var(--sage-dark); outline-offset:1px; background:#e3efe6;}
+  .fp-seat.taken.over{outline-color:#b0281c;}
+  .fp-seat.dragging{opacity:.35;}
+  .floor-item.fp-table.fp-drop{box-shadow:0 0 0 3px var(--sage-dark); background:#eef6f0;}
+  .fp-label .fp-count{display:block; font-size:.78em; font-weight:400; color:var(--ink-soft); margin-top:1px;}
+  .fp-label .fp-count.full{color:var(--sage-dark); font-weight:600;}
+  .fp-add-table{display:block; width:100%; margin:0 0 8px; padding:9px 10px; border:1.5px dashed var(--sage); border-radius:8px; background:#f4f8f4; color:var(--sage-dark); font:inherit; font-size:14px; font-weight:600; cursor:pointer; text-align:left;}
+  .fp-add-table:hover{background:#e8f1ea;}
+  .fp-tbar{position:absolute; transform:translateX(-50%); z-index:40; display:flex; align-items:center; gap:4px; background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.14); padding:5px 6px; white-space:nowrap; font-size:13px;}
+  .fp-tbar button{border:1px solid transparent; background:none; font:inherit; font-size:13px; padding:5px 8px; border-radius:7px; cursor:pointer; color:var(--ink);}
+  .fp-tbar button:hover{background:#f2efe8; border-color:var(--line);}
+  .fp-tbar .fp-tbar-name{font-weight:600;}
+  .fp-tbar-n{min-width:62px; text-align:center; color:var(--ink-soft);}
+  .fp-tbar-input{font:inherit; font-size:13px; padding:4px 6px; width:130px; border:1px solid var(--sage); border-radius:6px;}
   /* ---- Phase 2: numbered steps, Publish / Live pill, Planning beta ---- */
   .nav-step i{display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; border:1px solid currentColor; font-style:normal; font-size:10.5px; margin-right:6px; vertical-align:1px; opacity:.75;}
   .beta-tag{font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; background:#efe6d6; color:#7a6a4a; border-radius:8px; padding:1px 6px; vertical-align:2px;}
@@ -1973,7 +1994,7 @@
           <div class="fp-palette-section">
             <h4>Room elements</h4>
             <div id="fpShapesPalette"></div>
-            <ul class="steps fp-hint"><li><b>Move:</b> drag an item onto the room.</li><li><b>Resize:</b> drag its bottom-right corner.</li><li><b>Turn:</b> click &#8635; (bottom-left) for a quarter turn, or drag it.</li><li><b>Copy:</b> double-click an item.</li><li><b>Rename:</b> click &#9998; (e.g. Stage, DJ, Buffet).</li></ul>
+            <ul class="steps fp-hint"><li><b>Seat guests:</b> drag a name from the guest list onto a chair, or onto a table for its next free chair. Drag a group to seat them together.</li><li><b>Move:</b> drag an item onto the room.</li><li><b>Resize:</b> drag its bottom-right corner.</li><li><b>Turn:</b> click &#8635; (bottom-left) for a quarter turn, or drag it.</li><li><b>Copy:</b> double-click an item.</li><li><b>Rename:</b> click &#9998; (e.g. Stage, DJ, Buffet).</li></ul>
           </div>
         </div>
         <div id="fpPaletteRight" class="fp-side-panel">
@@ -6466,6 +6487,8 @@ document.getElementById('btnConfirmAddTable').addEventListener('click', ()=>{
       readDimFields(newTableChosenShape)
     );
     updateTopSub();
+    if(fpAddAfterModal && state.floorPlan) fpPlaceNewTable(newTable);
+    fpAddAfterModal = false;
     renderTable();
     toast(`"${newTable.name}" added.`);
   }
@@ -7323,7 +7346,7 @@ function renderFloorPlan(){
   canvas.querySelectorAll('.floor-item').forEach(fitFloorLabel);
   fpApplyGridLook();
   fpRefreshSelUI();
-  canvas.onmousedown = e=>{ if(e.target === canvas && fpSelected.size){ fpSelected.clear(); fpRefreshSelUI(); } };
+  canvas.onmousedown = e=>{ if(e.target !== canvas) return; if(fpSelected.size){ fpSelected.clear(); fpRefreshSelUI(); } fpBarFor = null; canvas.querySelectorAll('.fp-tbar').forEach(b=> b.remove()); canvas.querySelectorAll('.floor-item.show-ctrl').forEach(o=> o.classList.remove('show-ctrl')); };
 
   canvas.ondragover = e=> e.preventDefault();
   canvas.ondrop = e=>{
@@ -7365,8 +7388,11 @@ function renderFloorPalette(){
   const tablesWrap = document.getElementById('fpTablesPalette');
   tablesWrap.innerHTML = '';
   const unplaced = state.tables.filter(t=> !fp.items.some(it=>it.tableId===t.id));
+  const addT = document.createElement('button'); addT.type = 'button'; addT.className = 'fp-add-table'; addT.textContent = '+ Add a table';
+  addT.addEventListener('click', ()=>{ fpAddAfterModal = true; openAddTableModal(); });
+  tablesWrap.appendChild(addT);
   if(unplaced.length === 0){
-    tablesWrap.innerHTML = '<div class="empty-note">All tables placed</div>';
+    tablesWrap.insertAdjacentHTML('beforeend', '<div class="empty-note">All tables placed</div>');
   } else {
     unplaced.forEach(t=>{
       const item = document.createElement('div');
@@ -7477,80 +7503,231 @@ function fitFloorLabel(el){
   lab.style.fontSize = fs + 'px';
   while(fs > 6.5 && (lab.scrollWidth > availW + 1 || lab.offsetHeight > availH + 1)){ fs -= 0.5; lab.style.fontSize = fs + 'px'; }
 }
-/* Guest names around each table on the floor plan (looks only; they never get in the way of dragging) */
-function fpHidePeoplePop(){ const o = document.getElementById('fpPeoplePop'); if(o) o.remove(); document.removeEventListener('mousedown', fpHidePeoplePop, true); document.removeEventListener('keydown', fpPeopleKey, true); }
-function fpPeopleKey(e){ if(e.key === 'Escape') fpHidePeoplePop(); }
-function fpShowTablePeople(item, x, y){
-  fpHidePeoplePop();
-  const table = state.tables.find(t=> t.id === item.tableId); if(!table) return;
-  const guests = state.guests.filter(g=> g.seat && g.seat.tableId === table.id);
-  const pop = document.createElement('div'); pop.id = 'fpPeoplePop';
-  pop.style.cssText = 'position:fixed;z-index:9999;background:#fff;color:#2b2b2b;border:1px solid #d8d2c8;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.2);padding:10px 14px;max-width:260px;max-height:70vh;overflow:auto;font-size:14px;line-height:1.5';
-  const h = document.createElement('div'); h.style.cssText = 'font-weight:600;margin-bottom:4px'; h.textContent = (item.label || table.name || 'Table') + ' \u00b7 ' + guests.length + ' seated'; pop.appendChild(h);
-  if(!guests.length){ const d = document.createElement('div'); d.style.color = '#888'; d.textContent = 'No one is seated here yet.'; pop.appendChild(d); }
-  guests.sort((a,b)=> a.name.localeCompare(b.name)).forEach(g=>{
-    const r = document.createElement('div'); r.style.cssText = 'display:flex;align-items:center;gap:8px';
-    const dot = document.createElement('span'); dot.style.cssText = 'width:10px;height:10px;border-radius:50%;flex:none;background:' + groupOf(g).color;
-    const nm = document.createElement('span'); nm.textContent = g.name; r.append(dot, nm); pop.appendChild(r);
-  });
-  document.body.appendChild(pop);
-  const w = pop.offsetWidth, hh = pop.offsetHeight;
-  pop.style.left = Math.max(8, Math.min(x + 12, window.innerWidth - w - 8)) + 'px';
-  pop.style.top = Math.max(8, Math.min(y + 12, window.innerHeight - hh - 8)) + 'px';
-  setTimeout(()=>{ document.addEventListener('mousedown', fpHidePeoplePop, true); document.addEventListener('keydown', fpPeopleKey, true); }, 0);
+
+/* ---- adding a table straight from the floor plan ---- */
+let fpAddAfterModal = false, fpBarFor = null;
+document.getElementById('addTableModal').addEventListener('click', e=>{ if(e.target.closest('.modal-close, [data-close], #btnCancelAddTable')) fpAddAfterModal = false; });
+function fpPlaceNewTable(table){
+  const fp = state.floorPlan;
+  const sz = defaultFloorSize('table', table, fp.unit);
+  const m = fp.unit === 'ft' ? 3 : 1, step = fp.unit === 'ft' ? 1 : 0.5;     // keep a chair's width clear around it
+  const hits = (x, y)=> fp.items.some(it=>{ if(isDoorKind(it.kind)) return false; const b = fpBox(it); return x < b.r + m && x + sz.w + m > b.l && y < b.b + m && y + sz.h + m > b.t; });
+  let pos = null;
+  for(let y = m; y + sz.h <= fp.roomDepth - m / 2 && !pos; y += step)
+    for(let x = m; x + sz.w <= fp.roomWidth - m / 2; x += step) if(!hits(x, y)){ pos = {x, y}; break; }
+  if(!pos) pos = {x: Math.max(0, (fp.roomWidth - sz.w) / 2), y: Math.max(0, (fp.roomDepth - sz.h) / 2)};
+  const nid = uid('fp');
+  fp.items.push({id: nid, kind:'table', tableId: table.id, label: table.name, x: round2(pos.x), y: round2(pos.y), w: sz.w, h: sz.h});
+  fpBarFor = nid;
 }
-function fpAddSeatNames(el, item){
-  if(!fpShowNames || item.kind !== 'table') return;
-  const table = state.tables.find(t=> t.id === item.tableId); if(!table) return;
-  const guests = state.guests.filter(g=> g.seat && g.seat.tableId === table.id);
-  if(!guests.length) return;
-  const W = item.w * FP_PX_PER_UNIT, H = item.h * FP_PX_PER_UNIT, rot = item.rot || 0;
-  const fs = Math.max(8, Math.min(12, FP_PX_PER_UNIT * 0.14));
-  const at = (side, idx)=> guests.find(g=> g.seat.side === side && (g.seat.index === idx || (idx === undefined && g.seat.index === undefined)));
-  const rr = rot * Math.PI / 180, cr = Math.cos(rr), sr = Math.sin(rr);
-  const put = (g, cx, cy, ox, oy, maxw)=>{
-    if(!g) return;
-    const rx = ox * cr - oy * sr, ry = ox * sr + oy * cr;           // which way is 'outwards' on screen after turning
-    const ax = rx > 0.35 ? 1 : (rx < -0.35 ? -1 : 0), ay = ax !== 0 ? -0.5 : (ry < 0 ? -1 : 0);
-    const wrap = document.createElement('div'); wrap.className = 'fp-nm-wrap';
-    wrap.style.left = cx + 'px'; wrap.style.top = cy + 'px';
-    if(rot) wrap.style.transform = 'rotate(' + (-rot) + 'deg)';
-    const sp = document.createElement('span'); sp.className = 'fp-nm';
-    sp.textContent = g.name; sp.style.fontSize = fs + 'px'; sp.style.maxWidth = Math.max(40, maxw) + 'px';
-    sp.style.textAlign = ax < 0 ? 'right' : (ax > 0 ? 'left' : 'center');
-    sp.style.transform = 'translate(' + (ax < 0 ? '-100%' : ax > 0 ? '0' : '-50%') + ',' + (ay < -0.7 ? '-100%' : ay > -0.3 ? '0' : '-50%') + ')';
-    sp.style.borderLeftColor = groupOf(g).color;
-    wrap.appendChild(sp); el.appendChild(wrap);
-  };
-  const gap = 5;
+/* ---- a small bar on a clicked table: name, seats - / +, edit, open in seating chart ---- */
+function fpSeatsOf(t){ return t.shape === 'round' ? ['totalSeats', 2, 20] : (t.shape === 'u' ? ['baseSeats', 1, 20] : ['seatsPerSide', 1, 20]); }
+function fpChangeSeats(t, delta){
+  const [key, lo, hi] = fpSeatsOf(t);
+  const nv = Math.max(lo, Math.min(hi, (t[key] || 0) + delta));
+  if(nv === t[key]) return;
+  const after = {...t, [key]: nv};
+  const keep = tableSlots(after);
+  const lose = state.guests.filter(g=> g.seat && g.seat.tableId === t.id && !keep.some(sl=> sl.side === g.seat.side && (sl.index === undefined ? g.seat.index === undefined : sl.index === g.seat.index)));
+  if(lose.length && !confirm(lose.map(g=> g.name).join(', ') + (lose.length === 1 ? ' sits' : ' sit') + ' in the seat you are removing and will go back to the guest list. Continue?')) return;
+  pushUndo();
+  lose.forEach(g=> g.seat = null);
+  t[key] = nv;
+  if(t.dim) delete t.dim;
+  const it = state.floorPlan && state.floorPlan.items.find(i=> i.tableId === t.id);
+  if(it && !it.customSize){ const sz = defaultFloorSize('table', t, state.floorPlan.unit); it.w = sz.w; it.h = sz.h; }
+  fpAfterSeatChange(); updateTopSub();
+}
+function fpShowTableBar(el, item){
+  document.querySelectorAll('#floorCanvas .fp-tbar').forEach(b=> b.remove());
+  const t = state.tables.find(x=> x.id === item.tableId); if(!t) return;
+  const P = FP_PX_PER_UNIT, b = fpBox(item);
+  const bar = document.createElement('div'); bar.className = 'fp-tbar';
+  const nm = document.createElement('button'); nm.type = 'button'; nm.className = 'fp-tbar-name'; nm.textContent = t.name + ' ✎'; nm.title = 'Rename';
+  nm.addEventListener('click', ()=>{
+    const inp = document.createElement('input'); inp.type = 'text'; inp.value = t.name; inp.maxLength = 40; inp.className = 'fp-tbar-input';
+    nm.replaceWith(inp); inp.focus(); inp.select();
+    let done = false;
+    const save = ()=>{ if(done) return; done = true; const v = inp.value.trim(); if(v && v !== t.name){ pushUndo(); t.name = v; item.label = v; renderTableTabs(); updateTopSub(); } renderFloorPlan(); };
+    inp.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); save(); } else if(e.key === 'Escape'){ done = true; renderFloorPlan(); } });
+    inp.addEventListener('blur', save);
+  });
+  const [key] = fpSeatsOf(t);
+  const lab = t.shape === 'round' ? 'seats' : (t.shape === 'u' ? 'at the front' : (t.oneSide ? 'seats' : 'per side'));
+  const minus = document.createElement('button'); minus.type = 'button'; minus.textContent = '−'; minus.title = 'One seat fewer';
+  const cnt = document.createElement('span'); cnt.className = 'fp-tbar-n'; cnt.textContent = t[key] + ' ' + lab;
+  const plus = document.createElement('button'); plus.type = 'button'; plus.textContent = '+'; plus.title = 'One seat more';
+  minus.addEventListener('click', ()=> fpChangeSeats(t, -1));
+  plus.addEventListener('click', ()=> fpChangeSeats(t, 1));
+  const edit = document.createElement('button'); edit.type = 'button'; edit.textContent = 'Edit table…'; edit.addEventListener('click', ()=> openEditTableModal(t.id));
+  const open = document.createElement('button'); open.type = 'button'; open.textContent = 'Open in seating chart';
+  open.addEventListener('click', ()=>{ state.activeTableId = t.id; switchMainView('seating'); renderTableTabs(); renderTable(); updateTopSub(); });
+  bar.append(nm, minus, cnt, plus, edit, open);
+  fpBarFor = item.id;
+  bar.addEventListener('mousedown', e=> e.stopPropagation());
+  bar.addEventListener('dblclick', e=> e.stopPropagation());
+  const D = Math.round(Math.max(15, Math.min(24, P * 0.42)));
+  bar.style.left = ((b.l + b.r) / 2 * P) + 'px';
+  const above = b.t * P - D - (fpShowNames ? 62 : 48);
+  if(above > 0){ bar.style.top = above + 'px'; } else { bar.style.top = (b.b * P + D + 12) + 'px'; }
+  const cv = document.getElementById('floorCanvas'); cv.appendChild(bar);
+  const half = bar.offsetWidth / 2, cx = (b.l + b.r) / 2 * P, maxX = cv.offsetWidth;
+  bar.style.left = Math.max(half + 4, Math.min(maxX - half - 4, cx)) + 'px';
+}
+/* ===================== Seating on the floor plan =====================
+   Every chair shows as a small dot around its table: empty, or the guest's initials in their group colour.
+   Drag a name from the guest list onto a dot (or onto the table for its next free seat).
+   With "Show guest names" on, "John S." sits beside each dot; the full name always shows on hover. */
+function fpInitials(n){ const p = String(n || '').trim().split(/\s+/).filter(Boolean); if(!p.length) return '?'; return (p[0][0] + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase(); }
+function fpShortName(n){ const p = String(n || '').trim().split(/\s+/).filter(Boolean); if(p.length < 2) return p[0] || ''; return p[0] + ' ' + p[p.length - 1][0].toUpperCase() + '.'; }
+function fpGuestAt(tableId, side, index){
+  return state.guests.find(g=> g.seat && g.seat.tableId === tableId && g.seat.side === side && (index === undefined ? g.seat.index === undefined : g.seat.index === index));
+}
+/* seat a guest at a given chair of any table (swaps if someone sits there) */
+function fpSeatGuest(guestId, tableId, side, index){
+  const moving = state.guests.find(x=> x.id === guestId); if(!moving) return;
+  const occ = fpGuestAt(tableId, side, index);
+  if(occ && occ.id === guestId) return;
+  pushUndo();
+  if(occ) occ.seat = moving.seat ? {...moving.seat} : null;
+  moving.seat = index === undefined ? {tableId, side} : {tableId, side, index};
+  fpAfterSeatChange();
+}
+function fpSeatOnTable(guestId, table){
+  const g = state.guests.find(x=> x.id === guestId); if(!g) return;
+  if(g.seat && g.seat.tableId === table.id) return;
+  const free = freeSlots(table);
+  if(!free.length){ toast(table.name + ' is full.'); return; }
+  fpSeatGuest(guestId, table.id, free[0].side, free[0].index);
+}
+function fpSeatGroupOnTable(groupId, table){
+  const waiting = state.guests.filter(g=> g.groupId === groupId && !g.seat);
+  if(!waiting.length){ toast('Everyone in that group already has a seat.'); return; }
+  const free = freeSlots(table);
+  if(!free.length){ toast(table.name + ' is full.'); return; }
+  pushUndo();
+  const n = Math.min(waiting.length, free.length);
+  for(let k = 0; k < n; k++) waiting[k].seat = free[k].index === undefined ? {tableId:table.id, side:free[k].side} : {tableId:table.id, side:free[k].side, index:free[k].index};
+  fpAfterSeatChange();
+  toast(n < waiting.length ? ('Seated ' + n + ' of ' + waiting.length + '. ' + table.name + ' is now full.') : ('Seated ' + n + ' at ' + table.name + '.'));
+}
+function fpAfterSeatChange(){ renderGuestList(); renderGroups(); renderTable(); }
+function fpDropData(e){
+  const grp = e.dataTransfer.getData('text/group');
+  if(grp) return {groupId: grp};
+  try{ const d = JSON.parse(e.dataTransfer.getData('text/plain')); if(d && d.guestId) return d; }catch(err){}
+  return null;
+}
+/* where each chair sits around a table, in pixels inside the table box (before turning) */
+function fpSeatSpots(table, W, H, off){
+  const out = [];
   if(table.shape === 'round'){
-    const n = table.totalSeats, R = W / 2 + gap;
-    for(let i = 0; i < n; i++){
-      const a = -Math.PI / 2 + i * 2 * Math.PI / n, c = Math.cos(a), sn = Math.sin(a);
-      put(at('round', i), W / 2 + R * c, H / 2 + R * sn, c, sn, 80);
-    }
+    const n = table.totalSeats, R = W / 2 + off;
+    for(let i = 0; i < n; i++){ const a = -Math.PI / 2 + i * 2 * Math.PI / n, c = Math.cos(a), sn = Math.sin(a); out.push({side:'round', index:i, x:W / 2 + R * c, y:H / 2 + R * sn, ox:c, oy:sn, room:80}); }
   } else if(table.shape === 'u'){
     const nb = table.baseSeats, na = table.armSeats;
     for(let i = 0; i < na; i++){
       const y = (i + 0.5) / na * H * 0.9;
-      put(at('armL', i), -gap, y, -1, 0, 80);
-      put(at('armR', i), W + gap, y, 1, 0, 80);
+      out.push({side:'armL', index:i, x:-off, y, ox:-1, oy:0, room:80});
+      out.push({side:'armR', index:i, x:W + off, y, ox:1, oy:0, room:80});
     }
-    for(let i = 0; i < nb; i++) put(at('base', i), (i + 0.5) / nb * W, H + gap, 0, 1, W / nb * 1.1);
+    for(let i = 0; i < nb; i++) out.push({side:'base', index:i, x:(i + 0.5) / nb * W, y:H + off, ox:0, oy:1, room:W / nb * 1.1});
   } else {
     const n = table.seatsPerSide, total = n * 0.65 + (table.hasEnds ? 1 : 0) + (table.oneSide ? 0.3 : 0);
     const pad = table.hasEnds ? W * 0.5 / total : 0, pitch = (W - 2 * pad) / n;
     for(let i = 0; i < n; i++){
-      put(at('top', i), pad + (i + 0.5) * pitch, -gap, 0, -1, pitch * 1.1);
-      if(!table.oneSide) put(at('bottom', i), pad + (i + 0.5) * pitch, H + gap, 0, 1, pitch * 1.1);
+      out.push({side:'top', index:i, x:pad + (i + 0.5) * pitch, y:-off, ox:0, oy:-1, room:pitch * 1.1});
+      if(!table.oneSide) out.push({side:'bottom', index:i, x:pad + (i + 0.5) * pitch, y:H + off, ox:0, oy:1, room:pitch * 1.1});
     }
-    if(table.hasEnds){ put(at('endL'), -gap, H / 2, -1, 0, 80); put(at('endR'), W + gap, H / 2, 1, 0, 80); }
+    if(table.hasEnds){ out.push({side:'endL', x:-off, y:H / 2, ox:-1, oy:0, room:80}); out.push({side:'endR', x:W + off, y:H / 2, ox:1, oy:0, room:80}); }
   }
+  return out;
 }
+function fpAddSeatNames(el, item){
+  if(item.kind !== 'table') return;
+  const table = state.tables.find(t=> t.id === item.tableId); if(!table) return;
+  const W = item.w * FP_PX_PER_UNIT, H = item.h * FP_PX_PER_UNIT, rot = item.rot || 0;
+  const D = Math.round(Math.max(15, Math.min(24, FP_PX_PER_UNIT * 0.42)));   // dot size
+  const fs = Math.max(8, Math.min(12, FP_PX_PER_UNIT * 0.14));
+  const rr = rot * Math.PI / 180, cr = Math.cos(rr), sr = Math.sin(rr);
+  fpSeatSpots(table, W, H, 2 + D / 2).forEach(sp=>{
+    const g = fpGuestAt(table.id, sp.side, sp.index);
+    const dot = document.createElement('div');
+    dot.className = 'fp-seat' + (g ? ' taken' : '');
+    dot.style.left = sp.x + 'px'; dot.style.top = sp.y + 'px';
+    dot.style.width = dot.style.height = D + 'px';
+    dot.style.fontSize = Math.max(7, D * 0.42) + 'px';
+    if(g){
+      dot.style.background = groupOf(g).color || '#8a8a8a';
+      const t = document.createElement('span'); t.textContent = fpInitials(g.name);
+      if(rot) t.style.transform = 'rotate(' + (-rot) + 'deg)';
+      dot.appendChild(t);
+      dot.title = g.name + ' – drag to move, double-click to send back to the list';
+      dot.draggable = true;
+      dot.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', JSON.stringify({guestId:g.id, from:'seat'})); dot.classList.add('dragging'); });
+      dot.addEventListener('dragend', ()=> dot.classList.remove('dragging'));
+      dot.addEventListener('dblclick', e=>{ e.stopPropagation(); pushUndo(); unseatGuest(g.id); fpAfterSeatChange(); toast(g.name + ' sent back to the guest list.'); });
+    } else {
+      dot.title = 'Empty seat – drag a guest here';
+    }
+    dot.addEventListener('mousedown', e=> e.stopPropagation());       // never moves the table
+    dot.addEventListener('click', e=>{
+      e.stopPropagation();
+      if(tapSel && tapSel.id){ const id = tapSel.id; clearTapSel(); fpSeatGuest(id, table.id, sp.side, sp.index); }
+    });
+    dot.addEventListener('dragover', e=>{ e.preventDefault(); e.stopPropagation(); dot.classList.add('over'); });
+    dot.addEventListener('dragleave', ()=> dot.classList.remove('over'));
+    dot.addEventListener('drop', e=>{
+      const d = fpDropData(e); dot.classList.remove('over');
+      if(!d) return;
+      e.preventDefault(); e.stopPropagation();
+      if(d.groupId) fpSeatGroupOnTable(d.groupId, table); else fpSeatGuest(d.guestId, table.id, sp.side, sp.index);
+    });
+    el.appendChild(dot);
+    /* "John S." beside the dot */
+    const roomy = sp.oy !== 0 && sp.ox === 0 ? sp.room >= 46 : FP_PX_PER_UNIT >= 28;
+    if(g && fpShowNames && roomy){
+      const rx = sp.ox * cr - sp.oy * sr, ry = sp.ox * sr + sp.oy * cr;
+      const ax = rx > 0.35 ? 1 : (rx < -0.35 ? -1 : 0), ay = ax !== 0 ? -0.5 : (ry < 0 ? -1 : 0);
+      const wrap = document.createElement('div'); wrap.className = 'fp-nm-wrap';
+      wrap.style.left = (sp.x + sp.ox * (D / 2 + 2)) + 'px'; wrap.style.top = (sp.y + sp.oy * (D / 2 + 2)) + 'px';
+      if(rot) wrap.style.transform = 'rotate(' + (-rot) + 'deg)';
+      const nm = document.createElement('span'); nm.className = 'fp-nm';
+      nm.textContent = fpShortName(g.name); nm.style.fontSize = fs + 'px'; nm.style.maxWidth = Math.max(40, sp.room) + 'px';
+      nm.style.textAlign = ax < 0 ? 'right' : (ax > 0 ? 'left' : 'center');
+      nm.style.transform = 'translate(' + (ax < 0 ? '-100%' : ax > 0 ? '0' : '-50%') + ',' + (ay < -0.7 ? '-100%' : ay > -0.3 ? '0' : '-50%') + ')';
+      nm.style.borderLeftColor = groupOf(g).color;
+      wrap.appendChild(nm); el.appendChild(wrap);
+    }
+  });
+  /* drop on the table itself = its next free seat (or a whole group) */
+  el.addEventListener('dragover', e=>{ if(e.dataTransfer.types.includes('text/group') || fpDragGuest){ e.preventDefault(); el.classList.add('fp-drop'); } });
+  el.addEventListener('dragleave', e=>{ if(!el.contains(e.relatedTarget)) el.classList.remove('fp-drop'); });
+  el.addEventListener('drop', e=>{
+    el.classList.remove('fp-drop');
+    const d = fpDropData(e); if(!d) return;
+    e.preventDefault(); e.stopPropagation();
+    if(d.groupId) fpSeatGroupOnTable(d.groupId, table); else fpSeatOnTable(d.guestId, table);
+  });
+}
+/* is a guest (not a floor plan item) being dragged? */
+let fpDragGuest = false;
+document.addEventListener('dragstart', e=>{ fpDragGuest = !!(e.target && e.target.closest && e.target.closest('.guest-chip, .fp-seat.taken, .seat.occupied')); }, true);
+document.addEventListener('dragend', ()=>{ fpDragGuest = false; document.querySelectorAll('.fp-drop').forEach(x=> x.classList.remove('fp-drop')); }, true);
+/* after any seating change on the hidden seating chart, refresh the floor plan if it's showing */
+(function(){
+  const orig = renderTable; let busy = false;
+  renderTable = function(){
+    const r = orig.apply(this, arguments);
+    if(!busy && state.floorPlan && !document.getElementById('floorPlanView').classList.contains('hidden')){ busy = true; try{ renderFloorPlan(); } finally { busy = false; } }
+    return r;
+  };
+})();
 function buildFloorItemEl(item){
   const fp = state.floorPlan;
   const el = document.createElement('div');
   el.className = 'floor-item ' + (item.kind==='table' ? 'fp-table' : (FP_KIND_CLASS[item.kind] || 'fp-label'));
+  if(item.kind === 'table'){ const tt = state.tables.find(t=> t.id === item.tableId); if(tt && tt.shape === 'round') el.classList.add('fp-round'); }
   el.dataset.fpid = item.id;
   if(fpSelected.has(item.id)) el.classList.add('fp-selected');
   el.style.left = (item.x*FP_PX_PER_UNIT) + 'px';
@@ -7569,6 +7746,10 @@ function buildFloorItemEl(item){
     displayLabel = table ? table.name : '(deleted table)';
   }
   labelSpan.textContent = isDoorKind(item.kind) ? '' : displayLabel;
+  if(item.kind === 'table'){
+    const tb = state.tables.find(t=> t.id === item.tableId);
+    if(tb){ const c = document.createElement('small'); c.className = 'fp-count'; const n = state.guests.filter(g=> g.seat && g.seat.tableId === tb.id).length, tot = tableTotalSeats(tb); c.textContent = n + '/' + tot; if(n >= tot) c.classList.add('full'); labelSpan.appendChild(c); }
+  }
   if(rot0){ labelSpan.style.transform = 'rotate(' + (-rot0) + 'deg)'; }
   el.appendChild(labelSpan);
 
@@ -7616,7 +7797,14 @@ function buildFloorItemEl(item){
       toast('Copy made \u2014 drag it where you want it.');
     });
   } else {
-    el.title = 'Drag to move, or double-click to send back to the side list';
+    el.title = 'Click for table options. Drag to move. Drop guests on the seats.';
+    el.addEventListener('ctrltoggle', ()=>{
+      if(el.classList.contains('show-ctrl')){
+        document.querySelectorAll('#floorCanvas .floor-item.fp-table.show-ctrl').forEach(o=>{ if(o !== el) o.classList.remove('show-ctrl'); });
+        fpShowTableBar(el, item);
+      } else { fpBarFor = null; document.querySelectorAll('#floorCanvas .fp-tbar').forEach(b=> b.remove()); }
+    });
+    if(fpBarFor === item.id) setTimeout(()=>{ if(el.isConnected){ el.classList.add('show-ctrl'); fpShowTableBar(el, item); } }, 0);
     el.addEventListener('dblclick', e=>{
       if(e.target.closest('button') || e.target.tagName === 'INPUT') return;
       e.stopPropagation();
@@ -9225,7 +9413,8 @@ function buildGuestViewData(){
       unit: state.floorPlan.unit, roomWidth: state.floorPlan.roomWidth, roomDepth: state.floorPlan.roomDepth,
       items: state.floorPlan.items.map(it=>({
         id: it.id, kind: it.kind, tableId: it.tableId || null, label: it.label,
-        x: it.x, y: it.y, w: it.w, h: it.h, rot: it.rot || 0
+        x: it.x, y: it.y, w: it.w, h: it.h, rot: it.rot || 0,
+        ...((it.kind === 'table' && tableById[it.tableId] && tableById[it.tableId].shape === 'round') ? {round: true} : {})
       }))
     } : null,
     tables: state.tables.map(t=>({id:t.id, name:t.name})),
@@ -9238,7 +9427,15 @@ function buildGuestViewData(){
 /* ---------- Plans: Free, Guest page, Full planner ---------- */
 // PayFast buy flow — calls the Netlify function to create a signed payment
 async function buyPlan(tier){
-  if(!(sb && cloudUser)){ openAuthModal(); return; }
+  if(!(sb && cloudUser)){
+    /* not signed in yet: account first, then straight back to buying */
+    try{ sessionStorage.setItem('tableauBuyAfter', String(tier)); }catch(e){}
+    ['planInfoModal','accessModal'].forEach(id=>{ const m = document.getElementById(id); if(m) m.classList.add('hidden'); });
+    if(typeof hideLanding === 'function') hideLanding();
+    showAuthScreen('signup');
+    document.getElementById('authSub').textContent = 'Create your free account first (or sign in if you have one). Then you can buy Premium.';
+    return;
+  }
   const btn = document.getElementById('accessBuyBtn' + tier);
   if(btn){ btn.disabled = true; btn.textContent = 'Redirecting…'; }
   try{
@@ -9319,6 +9516,11 @@ function updateAccessUI(){
   document.querySelectorAll('[data-plan-need]').forEach(el=> el.classList.toggle('plan-locked', accessTier < +el.dataset.planNeed));
   document.getElementById('finderBpNote').classList.toggle('plan-hide', accessTier < 2);
   const m = document.getElementById('btnAccessMenu'); if(m) m.textContent = 'Plan & payment…';
+  /* came here by tapping Buy before signing in: show the plan window again once signed in */
+  try{
+    const want = +sessionStorage.getItem('tableauBuyAfter');
+    if(want && sb && cloudUser){ sessionStorage.removeItem('tableauBuyAfter'); if(accessTier < want) setTimeout(()=> openAccessModal(want, 'The full guest page'), 600); }
+  }catch(e){}
   /* Planning is in beta: only couples who already have the Full Planner see it */
   document.body.classList.toggle('no-planning', accessTier < 2);
   updateLandingPlan();
