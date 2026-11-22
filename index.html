@@ -658,6 +658,14 @@
   .fp-outside-tog{font-size:13px; color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; gap:6px;}
   .fp-grid-size{display:flex; align-items:center; gap:6px; margin:8px 0 0 20px; font-size:12.5px; color:var(--ink-soft); white-space:nowrap;}
   .fp-grid-size input{width:64px; padding:4px 6px; border:1px solid var(--line); border-radius:6px; font:inherit; font-size:13px;}
+
+  .fp-layouts{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+  .fp-lay{border:1px solid var(--line); background:#fff; border-radius:999px; padding:6px 13px; font:inherit; font-size:13px; cursor:pointer; color:var(--ink);}
+  .fp-lay.on{background:var(--btn); border-color:var(--btn); color:#fff;}
+  .fp-lay em{font-style:normal; font-size:10.5px; margin-left:6px; opacity:.85;}
+  .fp-lay-act{border:0; background:none; color:var(--sage-dark); font:inherit; font-size:13px; font-weight:600; cursor:pointer; padding:6px 6px;}
+  .fp-lay-act:hover{text-decoration:underline;}
+  .fp-lay-live{border:1px solid var(--sage-dark); background:#eef6f0; color:var(--sage-dark); border-radius:999px; padding:5px 12px; font:inherit; font-size:12.5px; font-weight:600; cursor:pointer;}
   .fp-ml-where{width:100%; padding:6px 8px; border:1px solid var(--line); border-radius:8px; font:inherit; font-size:13px; background:#fff;}
   .fp-ml-tag{font-style:normal; font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin-left:auto; padding:0 4px;}
   #fpMinePalette .fp-mylabels{margin-top:0; padding-top:0; border-top:0;}
@@ -1634,7 +1642,8 @@
     <div class="menu-wrap">
       <button class="ghost-btn menu-trigger solid-btn" id="guestFinderMenuBtn">Account <span class="menu-caret">&#9662;</span></button>
       <div class="dropdown-menu" id="guestFinderMenu">
-        <button class="dropdown-item hidden" id="btnMyCharts">My weddings&hellip;</button>
+        <button class="dropdown-item hidden" id="btnMyCharts">My projects&hellip;</button>
+        <button class="dropdown-item hidden" id="btnCopyProject">Copy this project&hellip;</button>
         <button class="dropdown-item hidden" id="btnAccessMenu">Plan &amp; payment&hellip;</button>
         <button class="dropdown-item" id="btnSave">Download backup</button>
         <button class="dropdown-item" id="btnLoad">Load from backup file</button>
@@ -2058,7 +2067,7 @@
       </div>
 
       <div id="floorPlanBody" class="hidden">
-        <div id="fpToggleRow"><button type="button" class="ghost-btn" id="fpPaletteToggle" aria-expanded="true"><span id="fpPaletteChev">&#9662;</span> <span id="fpPaletteToggleText">Hide menu</span></button><label class="fp-outside-tog hidden" id="fpOutsideTogWrap"><input type="checkbox" id="fpOutsideTog" checked> Show side rooms &amp; outside areas</label></div>
+        <div id="fpToggleRow"><button type="button" class="ghost-btn" id="fpPaletteToggle" aria-expanded="true"><span id="fpPaletteChev">&#9662;</span> <span id="fpPaletteToggleText">Hide menu</span></button><div class="fp-layouts" id="fpLayouts"></div><label class="fp-outside-tog hidden" id="fpOutsideTogWrap"><input type="checkbox" id="fpOutsideTog" checked> Show side rooms &amp; outside areas</label></div>
         <div id="floorCanvasWrap">
           <div id="floorCanvas"></div>
         </div>
@@ -7393,10 +7402,11 @@ document.getElementById('fpSetRoomBtn').addEventListener('click', ()=>{
     const oldUnit = state.floorPlan.unit;
     if(oldUnit !== unit){
       const factor = oldUnit==='m' && unit==='ft' ? 3.28084 : (oldUnit==='ft' && unit==='m' ? 1/3.28084 : 1);
-      state.floorPlan.items.forEach(it=>{
+      fpAllLayoutItems(state.floorPlan).forEach(it=>{
         it.x = round2(it.x*factor); it.y = round2(it.y*factor);
         it.w = round2(it.w*factor); it.h = round2(it.h*factor);
       });
+      if(state.floorPlan.gridStep) state.floorPlan.gridStep = round2(state.floorPlan.gridStep*factor);
     }
     state.floorPlan.unit = unit;
     state.floorPlan.roomWidth = width;
@@ -7434,7 +7444,7 @@ document.getElementById('fpTurnRoomBtn').addEventListener('click', ()=>{
   const fp = state.floorPlan; if(!fp) return;
   pushUndo();
   const W = fp.roomWidth, D = fp.roomDepth;
-  fp.items.forEach(it=>{
+  fpAllLayoutItems(fp).forEach(it=>{
     const cx = it.x + it.w/2, cy = it.y + it.h/2;
     const ncx = D - cy, ncy = cx;
     it.x = round2(ncx - it.w/2); it.y = round2(ncy - it.h/2);
@@ -7519,6 +7529,7 @@ function renderFloorPlan(){
   { const o = fpOutside(fp), P = FP_PX_PER_UNIT;
     canvas.style.margin = (o.t*P) + 'px ' + (o.r*P) + 'px ' + (o.b*P) + 'px ' + (o.l*P) + 'px'; }
 
+  fpRenderLayoutBar();
   const hasOutside = fp.items.some(it=> it.kind === 'room' || it.kind === 'outdoor');
   document.getElementById('fpOutsideTogWrap').classList.toggle('hidden', !hasOutside);
   document.getElementById('fpOutsideTog').checked = !fpHallOnly;
@@ -7820,6 +7831,93 @@ function fpShowTableBar(el, item){
 }
 
 
+
+/* ===================== Floor plan layouts =====================
+   Several arrangements of the same room in one project. Tables, guests and seating are shared;
+   each layout only remembers where things stand. fp.items is always the layout on screen. */
+function fpLayoutsEnsure(fp){
+  if(!fp) return;
+  if(!Array.isArray(fp.layouts) || !fp.layouts.length){ fp.layouts = [{id:'L1', name:'Layout 1'}]; fp.activeLayout = 'L1'; fp.liveLayout = 'L1'; }
+  if(!fp.layouts.some(l=> l.id === fp.activeLayout)) fp.activeLayout = fp.layouts[0].id;
+  if(!fp.layouts.some(l=> l.id === fp.liveLayout)) fp.liveLayout = fp.activeLayout;
+}
+function fpCleanItems(items){ return (items || []).filter(it=> it.kind !== 'table' || state.tables.some(t=> t.id === it.tableId)); }
+function fpAllLayoutItems(fp){
+  const out = [].concat(fp.items || []);
+  (fp.layouts || []).forEach(l=>{ if(l.id !== fp.activeLayout && Array.isArray(l.items)) out.push(...l.items); });
+  return out;
+}
+function fpLiveItems(fp){
+  if(!fp.layouts || !fp.liveLayout || fp.liveLayout === fp.activeLayout) return fpCleanItems(fp.items);
+  const l = fp.layouts.find(x=> x.id === fp.liveLayout);
+  return fpCleanItems(l && l.items ? l.items : fp.items);
+}
+function fpSwitchLayout(id){
+  const fp = state.floorPlan; fpLayoutsEnsure(fp);
+  if(id === fp.activeLayout) return;
+  const cur = fp.layouts.find(l=> l.id === fp.activeLayout), nx = fp.layouts.find(l=> l.id === id); if(!nx) return;
+  cur.items = JSON.parse(JSON.stringify(fp.items));
+  fp.items = fpCleanItems(JSON.parse(JSON.stringify(nx.items || [])));
+  delete nx.items;
+  fp.activeLayout = id;
+  fpSelected.clear(); fpBarFor = null;
+  renderFloorPlan();
+}
+function fpCopyLayout(){
+  const fp = state.floorPlan; fpLayoutsEnsure(fp);
+  pushUndo();
+  let n = fp.layouts.length + 1; while(fp.layouts.some(l=> l.name === 'Layout ' + n)) n++;
+  const id = uid('L');
+  fp.layouts.push({id, name:'Layout ' + n, items: JSON.parse(JSON.stringify(fp.items))});
+  fpSwitchLayout(id);
+  toast('Copied to “Layout ' + n + '”. Move things around here; the other layout stays as it was.', 6000);
+}
+function fpRenameLayout(){
+  const fp = state.floorPlan, l = fp.layouts.find(x=> x.id === fp.activeLayout);
+  const v = prompt('Name for this layout (e.g. Rounds, Long tables):', l.name); if(v === null) return;
+  const t = v.trim().slice(0, 30); if(!t || t === l.name) return;
+  pushUndo(); l.name = t; fpRenderLayoutBar();
+}
+function fpDeleteLayout(){
+  const fp = state.floorPlan; if(fp.layouts.length < 2) return;
+  const l = fp.layouts.find(x=> x.id === fp.activeLayout);
+  if(!confirm('Delete “' + l.name + '”? Your tables and seating stay; only this arrangement goes.')) return;
+  pushUndo();
+  const other = fp.layouts.find(x=> x.id !== l.id);
+  fp.items = fpCleanItems(JSON.parse(JSON.stringify(other.items || [])));
+  delete other.items;
+  fp.layouts = fp.layouts.filter(x=> x.id !== l.id);
+  fp.activeLayout = other.id;
+  if(fp.liveLayout === l.id) fp.liveLayout = other.id;
+  renderFloorPlan();
+}
+function fpRenderLayoutBar(){
+  const fp = state.floorPlan, bar = document.getElementById('fpLayouts'); if(!fp || !bar) return;
+  fpLayoutsEnsure(fp);
+  bar.innerHTML = '';
+  const many = fp.layouts.length > 1;
+  if(many){
+    fp.layouts.forEach(l=>{
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'fp-lay' + (l.id === fp.activeLayout ? ' on' : '');
+      b.textContent = l.name; if(l.id === fp.liveLayout){ const t = document.createElement('em'); t.textContent = '✓ guests'; b.appendChild(t); }
+      b.title = l.id === fp.liveLayout ? 'Guests see this layout' : 'Switch to this layout';
+      b.addEventListener('click', ()=> fpSwitchLayout(l.id));
+      bar.appendChild(b);
+    });
+  }
+  const cp = document.createElement('button'); cp.type = 'button'; cp.className = 'fp-lay-act'; cp.textContent = many ? '+ Copy layout' : '+ Try another layout';
+  cp.title = 'Copy this arrangement and change the copy, without losing this one'; cp.addEventListener('click', fpCopyLayout); bar.appendChild(cp);
+  if(many){
+    const mk = (txt, fn, ttl)=>{ const b = document.createElement('button'); b.type = 'button'; b.className = 'fp-lay-act'; b.textContent = txt; b.title = ttl; b.addEventListener('click', fn); bar.appendChild(b); };
+    mk('Rename', fpRenameLayout, 'Rename this layout');
+    mk('Delete', fpDeleteLayout, 'Delete this layout');
+    if(fp.activeLayout !== fp.liveLayout){
+      const live = document.createElement('button'); live.type = 'button'; live.className = 'fp-lay-live'; live.textContent = 'Show this one to guests';
+      live.title = 'Guests’ map will use this layout'; live.addEventListener('click', ()=>{ pushUndo(); fp.liveLayout = fp.activeLayout; fpRenderLayoutBar(); toast('Guests now see this layout.'); });
+      bar.appendChild(live);
+    }
+  }
+}
 /* ---- floor plan side panels: every section folds open and shut (remembered) ---- */
 let fpFoldAll = true, fpOpenCols = {};      /* every heading starts folded when the floor plan opens */
 function fpInitCollapsibles(){
@@ -9903,7 +10001,7 @@ function buildGuestViewData(){
     eventName: state.eventName || '',
     floorPlan: state.floorPlan ? {
       unit: state.floorPlan.unit, roomWidth: state.floorPlan.roomWidth, roomDepth: state.floorPlan.roomDepth,
-      items: state.floorPlan.items.map(it=>({
+      items: fpLiveItems(state.floorPlan).map(it=>({
         id: it.id, kind: it.kind, tableId: it.tableId || null, label: it.label,
         x: it.x, y: it.y, w: it.w, h: it.h, rot: it.rot || 0,
         ...((it.kind === 'table' && tableById[it.tableId] && tableById[it.tableId].shape === 'round') ? {round: true} : {})
@@ -11885,6 +11983,7 @@ function setCloudStatus(kind){
 function updateAccountMenu(){
   const signedIn = !!(sb && cloudUser);
   document.getElementById('btnMyCharts').classList.toggle('hidden', !signedIn);
+  document.getElementById('btnCopyProject').classList.toggle('hidden', !signedIn);
   document.getElementById('btnSignOut').classList.toggle('hidden', !signedIn);
   document.getElementById('btnAccessMenu').classList.toggle('hidden', !signedIn);
   document.getElementById('btnSignInMenu').classList.toggle('hidden', signedIn || !sb);
@@ -12099,6 +12198,13 @@ async function openChartsScreen(){
           Object.keys(im).forEach(k=> (im[k]||[]).forEach(x=>{ if(x && x.path) paths.push(x.path); }));
         }
       }catch(e){}
+      /* a copied project shares its pictures with the original: only remove pictures nothing else uses */
+      try{
+        const others = await sb.from('charts').select('id,data').neq('id', row.id);
+        const used = new Set();
+        (others.data || []).forEach(o=>{ const im = (o.data && o.data.eventInfo && o.data.eventInfo.images) || {}; Object.keys(im).forEach(k=> (im[k]||[]).forEach(x=>{ if(x && x.path) used.add(x.path); })); });
+        paths = paths.filter(pth=> !used.has(pth));
+      }catch(e){ paths = []; }
       const r = await sb.from('charts').delete().eq('id', row.id);
       if(r.error){ toast('Could not delete that project.'); return; }
       if(slug){ try{ await sb.from('published').delete().eq('slug', slug); }catch(e){} }
@@ -12111,10 +12217,39 @@ async function openChartsScreen(){
     });
     const ren = document.createElement('button'); ren.className = 'ghost-btn'; ren.textContent = 'Rename'; ren.title = 'Change the name of this project';
     ren.addEventListener('click', ()=> renameProject(row));
-    el.append(nm, dt, open, ren, del);
+    const cp = document.createElement('button'); cp.className = 'ghost-btn'; cp.textContent = 'Copy'; cp.title = 'Make a full copy to try something different';
+    cp.addEventListener('click', ()=> copyProject(row.id, row.name));
+    el.append(nm, dt, open, ren, cp, del);
     list.appendChild(el);
   });
 }
+
+/* ===================== Copy a whole project ===================== */
+async function copyProject(id, name){
+  if(!(sb && cloudUser)){ toast('Sign in to copy a project.'); return; }
+  if(id === currentChartId && cloudEnabled) await saveCloudNow();
+  const full = await sb.from('charts').select('name,data').eq('id', id).single();
+  if(full.error || !full.data){ toast('Could not copy. Check your internet and try again.'); return; }
+  const base = String(full.data.name || name || 'Project').replace(/\s+\d+$/, '').trim() || 'Project';
+  let names = [];
+  try{ const all = await sb.from('charts').select('name'); names = (all.data || []).map(r=> String(r.name || '').trim().toLowerCase()); }catch(e){}
+  let n = 2; while(names.includes((base + ' ' + n).toLowerCase())) n++;
+  const suggest = base + ' ' + n;
+  const v = prompt('Name for the copy:', suggest);
+  if(v === null) return;
+  const newName = (v.trim() || suggest).slice(0, 50);
+  const d = JSON.parse(JSON.stringify(full.data.data || {}));
+  d.projectName = newName;
+  /* the copy is a separate project: its own guest page address (not live yet), no bridal party page, a new DJ link */
+  delete d.publishSlug;
+  if(d.bridal){ delete d.bridal.slug; delete d.bridal.codeKey; delete d.bridal.published; }
+  if(d.eventInfo){ delete d.eventInfo.songsDjKey; }
+  const r = await sb.from('charts').insert({name: newName, data: d}).select('id').single();
+  if(r.error){ toast('Could not copy. Check your internet and try again.'); return; }
+  toast('Copied as “' + newName + '”. Its guest page isn’t live until you publish it.', 7000);
+  if(confirm('Open “' + newName + '” now?')) openCloudChart(r.data.id); else if(!document.getElementById('chartsScreen').classList.contains('hidden')) openChartsScreen();
+}
+document.getElementById('btnCopyProject').addEventListener('click', ()=>{ if(currentChartId) copyProject(currentChartId, state.projectName || ''); else toast('Save your project first.'); });
 async function renameProject(row){
   const v = prompt('New name for this project (only you see this name):', row.name === 'Untitled chart' ? '' : row.name);
   if(v === null) return;
