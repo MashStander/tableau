@@ -8398,8 +8398,8 @@ function fpSeatSpots(table, W, H, off){
     }
     for(let i = 0; i < nb; i++) out.push({side:'base', index:i, x:(i + 0.5) / nb * W, y:H + off, ox:0, oy:1, room:W / nb * 1.1});
   } else {
-    const n = table.seatsPerSide, total = n * 0.65 + (table.hasEnds ? 1 : 0) + (table.oneSide ? 0.3 : 0);
-    const pad = table.hasEnds ? W * 0.5 / total : 0, pitch = (W - 2 * pad) / n;
+    const n = table.seatsPerSide;
+    const pad = 0, pitch = W / n;   /* spread evenly along the whole side */
     for(let i = 0; i < n; i++){
       out.push({side:'top', index:i, x:pad + (i + 0.5) * pitch, y:-off, ox:0, oy:-1, room:pitch * 1.1});
       if(!table.oneSide) out.push({side:'bottom', index:i, x:pad + (i + 0.5) * pitch, y:H + off, ox:0, oy:1, room:pitch * 1.1});
