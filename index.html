@@ -1068,6 +1068,11 @@
   #floorCanvasWrap{grid-area:canvas; min-width:0; overflow:auto;}
   #fpPaletteRight{grid-area:right; position:sticky; top:0;}
   #floorCanvasWrap{display:flex; justify-content:center;}
+  /* computers: the side lists scroll normally while the floor plan stays in view (just under the Seating chart / Floor plan bar) */
+  @media (min-width:761px){
+    #fpPaletteLeft, #fpPaletteRight{position:static !important;}
+    #floorCanvasWrap{position:sticky; top:52px; z-index:5; max-height:calc(100vh - var(--tb-h, 74px) - 70px);}
+  }
   #fpPaletteToggle{padding:7px 14px; font-size:13px;}
   #floorPlanBody.palette-collapsed{
     grid-template-columns:1fr;
