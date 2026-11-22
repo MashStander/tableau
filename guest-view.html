@@ -104,7 +104,7 @@
   .cover-frame{position:relative; width:100%; aspect-ratio:2/1; overflow:hidden; border-radius:14px; margin:0 0 16px; box-shadow:0 2px 10px rgba(0,0,0,.08); background:var(--linen);}
   .cover-frame img{display:block; user-select:none;}
   .header .welcome{font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 4px;}
-  .header .date-line{margin-top:6px; font-size:15px; color:var(--wood-dark); letter-spacing:.04em;}
+  .header .date-line{margin-top:6px; font-size:15px; color:var(--sage-mid, #6b7a60); letter-spacing:.04em;}
   .header .countdown{margin-top:3px; font-size:13px; color:var(--rose); font-weight:500;}
   .cal-link{display:inline-block; margin-top:8px; font-size:12.5px; color:var(--sage-dark); text-decoration:underline; cursor:pointer;}
   body.font-dynalight .header h1{font-family:'Dynalight',cursive; font-weight:400; font-size:50px; line-height:1.1;}
@@ -757,6 +757,7 @@ function applyTheme(info){
   const accent = /^#[0-9a-f]{6}$/i.test(info.accent || '') ? info.accent : '#7c8a70';
   root.setProperty('--sage', accent);
   root.setProperty('--sage-dark', shade(accent, 0.72));
+  root.setProperty('--sage-mid', shade(accent, 0.9));   /* the date: a shade lighter than the names */
   const fk = ['dynalight','windsong','bodoni','italiana','raleway','ephesis'].indexOf(info.fontStyle) >= 0 ? info.fontStyle : (info.fontStyle === 'script' ? 'dynalight' : 'bodoni');
   ['dynalight','windsong','bodoni','italiana','raleway','ephesis'].forEach(k=> document.body.classList.toggle('font-' + k, k === fk));
   // load only the font the couple chose for their names
@@ -814,6 +815,8 @@ function renderHeader(info){
   if(!d){ dl.classList.add('hidden'); cd.classList.add('hidden'); cal.classList.add('hidden'); return; }
   dl.textContent = (lang() === 'en' ? ordinal(d.getDate()) : d.getDate()) + ' ' + tr('months')[d.getMonth()] + ' ' + d.getFullYear();
   dl.classList.remove('hidden');
+  /* no countdown or calendar button: guests mostly open this page on the day itself */
+  cd.classList.add('hidden'); cal.classList.add('hidden'); return;
   const today = new Date(); today.setHours(0,0,0,0);
   const days = Math.round((d - today) / 86400000);
   if(days > 0){ cd.textContent = days === 1 ? tr('tomorrow') : tr('daysToGo', {n: days}); cd.classList.remove('hidden'); }
@@ -1179,10 +1182,29 @@ function showSeat(guest, from){
 }
 
 
+/* "Table 7" / "Tafel 7" shows as 7 on the map; any other name (e.g. "Bridal", "Marli & Liam") as it is */
+function gvTableLabel(item){
+  const t = (SEAT_DATA.tables || []).find(x=> x.id === item.tableId);
+  const nm = String((t && t.name) || item.label || '').trim();
+  const m = /^(?:table|tafel|t)\s*(\d+)$/i.exec(nm);
+  return m ? m[1] : nm;
+}
+/* the same plan turned a quarter turn clockwise */
+function gvTurnPlan(fp){
+  const W = fp.roomWidth, D = fp.roomDepth;
+  const items = (fp.items || []).map(it=>{
+    const n = Object.assign({}, it), cx = it.x + it.w/2, cy = it.y + it.h/2, ncx = D - cy, ncy = cx;
+    n.x = ncx - it.w/2; n.y = ncy - it.h/2; n.rot = (((it.rot || 0) + 90) % 360 + 360) % 360;
+    return n;
+  });
+  return Object.assign({}, fp, {roomWidth: D, roomDepth: W, items});
+}
 function fitFloorLabel(el){
   const lab = el.querySelector('.fp-label');
   if(!lab) return;
-  const availW = el.clientWidth - 8, availH = el.clientHeight - 6;
+  const rm = /rotate\((-?[\d.]+)deg\)/.exec(el.style.transform || ''), r = rm ? ((+rm[1] % 180) + 180) % 180 : 0;
+  const side = r > 45 && r < 135;   /* turned on its side: the upright text gets the other way round */
+  const availW = (side ? el.clientHeight : el.clientWidth) - 8, availH = (side ? el.clientWidth : el.clientHeight) - 6;
   if(availW <= 0 || availH <= 0) return;
   lab.style.display = 'block'; lab.style.maxWidth = '100%'; lab.style.overflowWrap = 'anywhere'; lab.style.lineHeight = '1.15';
   let fs = 14;
@@ -1214,10 +1236,12 @@ function gvDoorSvg(item, fp, scale){
 function renderFloorPlan(guest){
   const canvas = document.getElementById('fpCanvas');
   canvas.innerHTML = '';
-  const fp = SEAT_DATA.floorPlan;
+  let fp = SEAT_DATA.floorPlan;
   if(!fp || !guest.tableId) return;
 
   const frameW = (canvas.parentElement && canvas.parentElement.clientWidth) ? canvas.parentElement.clientWidth - 38 : window.innerWidth - 80;
+  /* on a phone held upright, a wide hall is turned on its side so it fills the screen instead of being a thin strip */
+  if(frameW < 600 && fp.roomWidth > fp.roomDepth * 1.15) fp = gvTurnPlan(fp);
   const containerW = Math.min(FP_MAX_PX_WIDTH, frameW) * fpZoom;
   /* outside areas (deck, patio...) may sit beyond the walls: leave room for them */
   const out = {t:0, r:0, b:0, l:0}, pad = fp.unit === 'ft' ? 2 : 0.6;
@@ -1228,7 +1252,8 @@ function renderFloorPlan(guest){
     if(l < 0) out.l = Math.max(out.l, -l + pad); if(t < 0) out.t = Math.max(out.t, -t + pad);
     if(r > fp.roomWidth) out.r = Math.max(out.r, r - fp.roomWidth + pad); if(b > fp.roomDepth) out.b = Math.max(out.b, b - fp.roomDepth + pad);
   });
-  const scale = containerW / (fp.roomWidth + out.l + out.r);
+  let scale = containerW / (fp.roomWidth + out.l + out.r);
+  if(fpZoom === 1){ const maxH = Math.max(420, window.innerHeight * 0.9); scale = Math.min(scale, maxH / (fp.roomDepth + out.t + out.b)); }
   canvas.style.width = (fp.roomWidth*scale) + 'px';
   canvas.style.height = (fp.roomDepth*scale) + 'px';
   canvas.style.margin = (18 + out.t*scale) + 'px ' + (18 + out.r*scale) + 'px ' + (18 + out.b*scale) + 'px ' + (18 + out.l*scale) + 'px';
@@ -1238,15 +1263,11 @@ function renderFloorPlan(guest){
   (SEAT_DATA.tables || []).forEach((t,i)=>{ tNum[t.id] = 'T' + (i+1); });
   const LET = 'ABCDEFGHIJKLMNOPQRSUVWXYZ';
   let nextL = 0;
-  (fp.items || []).forEach(item=>{
-    if(isDoor(item.kind) || item.kind === 'table' || item.kind === 'room' || item.kind === 'outdoor' || item.kind === 'wall') return;   /* rooms and outside areas show their own names */
-    const nm = (item.label || '').trim(); if(!nm) return;
+  const letterFor = nm=>{
     const k = nm.toLowerCase();
-    if(!(k in letterOf)){
-      let c = nextL < LET.length ? LET[nextL] : LET[Math.floor(nextL/LET.length)-1] + LET[nextL%LET.length];
-      nextL++; letterOf[k] = c; keyEls.push([c, nm, false]);
-    }
-  });
+    if(!(k in letterOf)){ const c = nextL < LET.length ? LET[nextL] : LET[Math.floor(nextL/LET.length)-1] + LET[nextL%LET.length]; nextL++; letterOf[k] = c; keyEls.push([c, nm, false]); }
+    return letterOf[k];
+  };
   (fp.items || []).forEach(item=>{
     const el = document.createElement('div');
     const kindClass = item.kind === 'table' ? '' :
@@ -1264,13 +1285,14 @@ function renderFloorPlan(guest){
     el.style.top = (item.y*scale) + 'px';
     el.style.width = (item.w*scale) + 'px';
     el.style.height = (isDoor(item.kind) ? Math.max(4, 0.13*scale) : item.h*scale) + 'px';
-    const lb = document.createElement('span'); lb.className = 'fp-label'; lb.textContent = item.kind === 'table' ? (tNum[item.tableId] || item.label || '') :
-      (isDoor(item.kind) || item.kind === 'wall') ? '' : (item.kind === 'room' || item.kind === 'outdoor') ? (item.label || '') : (letterOf[(item.label||'').trim().toLowerCase()] || item.label || '');
+    const lb = document.createElement('span'); lb.className = 'fp-label'; lb.textContent = item.kind === 'table' ? gvTableLabel(item) :
+      (isDoor(item.kind) || item.kind === 'wall') ? '' : (item.label || '');
     if(item.rot){
       el.style.transform = 'rotate(' + item.rot + 'deg)';
       lb.style.transform = 'rotate(' + (-item.rot) + 'deg)';
     }
     el.appendChild(lb);
+    if(!isDoor(item.kind) && !['table', 'room', 'outdoor', 'wall'].includes(item.kind)) el.dataset.keyable = '1';
     if(isDoor(item.kind) && item.kind !== 'gap') el.appendChild(gvDoorSvg(item, fp, scale));
     if(mine){
       const star = document.createElement('span');
@@ -1281,6 +1303,11 @@ function renderFloorPlan(guest){
     canvas.appendChild(el);
   });
   canvas.querySelectorAll('.floor-item').forEach(fitFloorLabel);
+  /* a name too small to read is swapped for a letter, explained in the key underneath */
+  canvas.querySelectorAll('.floor-item[data-keyable]').forEach(el=>{
+    const lab = el.querySelector('.fp-label'); if(!lab || !lab.textContent) return;
+    if(parseFloat(lab.style.fontSize || '14') < 9){ lab.textContent = letterFor(lab.textContent.trim()); fitFloorLabel(el); }
+  });
 
   // Map key
   const key = document.getElementById('fpKey'); key.innerHTML = '';
@@ -1294,8 +1321,7 @@ function renderFloorPlan(guest){
     key.appendChild(g);
   }
   addSec(tr('mapKey'), keyEls);
-  addSec(tr('tables'), (SEAT_DATA.tables || []).filter(t=> (fp.items||[]).some(i=> i.kind==='table' && i.tableId===t.id))
-    .map(t=> [tNum[t.id], t.name, t.id === guest.tableId]));
+  /* tables carry their own names on the map, so they are not repeated in the key */
 
   // Bring the guest's table into view when zoomed in.
   const mineEl = canvas.querySelector('.is-mine');

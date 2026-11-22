@@ -72,6 +72,7 @@
   #topbar > div:first-child{padding-left:305px; white-space:nowrap; min-height:60px;}
   #topbar h1{font-size:30px; letter-spacing:.3px; position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
   #topbar .tagline{color:var(--rose); font-size:26px; font-family:'Corinthia',cursive; font-weight:400; margin-top:4px; line-height:1.2;}
+  .top-countdown{display:inline-block; margin-left:10px; padding:1px 9px; border-radius:999px; background:#f6e9e5; color:#b0675a; font-size:11.5px; font-weight:600; letter-spacing:.02em; vertical-align:1px; white-space:nowrap;}
   #topbar .sub{color:var(--ink); font-size:15px; font-weight:600; margin-top:4px; letter-spacing:.01em;}
   #topbar .actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end;}
   .ghost-btn{
@@ -103,7 +104,7 @@
     #topbar h1{grid-area:brand; position:static; clip:auto; overflow:hidden; width:190px; height:44px; font-size:0; color:transparent;
       background:var(--logo-url) no-repeat left center; background-size:auto 42px; align-self:end;}
     #topbar .tagline{display:none;}
-    #topbar .sub{grid-area:sub; justify-self:start; align-self:start; margin:0 0 0 12px; padding:0; background:none; min-height:0; font-size:11.5px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; font-size:14px; font-weight:600; color:var(--ink);}
+    #topbar .sub{grid-area:sub; justify-self:start; align-self:start; margin:0 0 0 12px; padding:0; background:none; min-height:0; font-size:11.5px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:380px; font-size:14px; font-weight:600; color:var(--ink);}
     #topbar #topActions{grid-area:nav; background:transparent; justify-content:flex-end; align-items:center; gap:4px 28px; padding:0; min-height:0;}
     #topbar .hist-row{grid-area:hist; position:static; justify-self:end; margin:0;}
     #topbar .hist-row .ghost-btn{padding:3px 9px; font-size:11.5px;}
@@ -2484,7 +2485,7 @@
       <input type="text" id="eiWelcome" class="custom-num" maxlength="80" placeholder="e.g. Welcome to our wedding" style="width:100%; margin-bottom:10px;">
       <label>Your favourite verse or quote (shown in small print on your guest page — leave blank for the default)</label>
       <textarea id="eiVerse" class="custom-num" rows="3" style="width:100%; margin-bottom:10px;" placeholder="e.g. Now all glory to God, who is able, through his mighty power at work within us, to accomplish infinitely more than we might ask or think."></textarea>
-      <label>Date of the event (guests also get an &ldquo;Add to calendar&rdquo; link and a countdown)</label>
+      <label>Date of the event</label>
       <input type="date" id="eiDate" class="custom-num" style="margin-bottom:10px;">
       <label>Cover photo or logo (best shape: wide, about 1200 &times; 600 px)</label>
       <div class="ei-imgs" id="eiImgs-cover"></div>
@@ -5596,7 +5597,21 @@ function updateTopSub(){
   el.classList.remove('hidden');
   el.textContent = nm || 'Untitled project';
   el.title = 'You are working on: ' + (nm || 'Untitled project');
+  const cd = eventCountdown();
+  if(cd){ const sp = document.createElement('span'); sp.className = 'top-countdown'; sp.textContent = cd; el.appendChild(sp); }
 }
+/* days to go, from the date on the guest page */
+function eventCountdown(){
+  const raw = (state.eventInfo && state.eventInfo.date) || '';
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw); if(!m) return '';
+  const now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const days = Math.round((new Date(+m[1], +m[2]-1, +m[3]) - today) / 86400000);
+  if(days < 0) return '';
+  if(days === 0) return 'Today!';
+  if(days === 1) return 'Tomorrow!';
+  return days + ' days to go';
+}
+
 
 /* ===================== GROUPS ===================== */
 document.getElementById('toggleAddGroup').addEventListener('click', ()=>{
@@ -10250,6 +10265,7 @@ function eiCommit(leaving){
   eiLastSig = sig;
   state.eventInfo = collectEiInfo();
   state.eventName = document.getElementById('eiEventName').value.trim();
+  updateTopSub();
   document.getElementById('finderEventName').value = state.eventName;
   removeFromStorage(eiRemoved); eiRemoved = []; eiNewPaths = [];
   isDirty = true;
