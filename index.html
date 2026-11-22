@@ -38,6 +38,7 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;height:100%;}
+  html{scrollbar-gutter:stable;}   /* keep room for the scrollbar, so the page width never jumps when it appears */
   body{
     font-family:'Plus Jakarta Sans',sans-serif;
     font-weight:500;
@@ -381,7 +382,7 @@
   .empty-note{color:var(--ink-soft); font-size:12.5px; font-style:italic; padding:6px 2px;}
 
   /* ---------- Table area ---------- */
-  #tableArea{flex:1; overflow:auto; padding:24px 30px 40px; display:flex; flex-direction:column; align-items:center;}
+  #tableArea{flex:1; overflow:auto; scrollbar-gutter:stable; padding:24px 30px 40px; display:flex; flex-direction:column; align-items:center;}
   #tableTabs{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:16px; justify-content:center; max-width:100%;}
   .table-tab{
     display:flex; align-items:center; gap:8px; background:var(--white); border:1px solid var(--line);
@@ -7778,11 +7779,20 @@ function fpFitToggle(on){
 try{ if(localStorage.getItem('tableauFpFit') === '0'){ fpFitToScreen = false; document.getElementById('fpFitToggle').checked = false; } }catch(e){}
 (function(){
   const wrap = document.getElementById('floorCanvasWrap');
-  let lastW = 0;
+  let lastW = 0, lastAt = 0, prevW = 0, timer = null;
+  /* re-fit when the space really changes. A redraw can make a page scrollbar appear or vanish, which changes the
+     width by a few pixels, which caused another redraw: the plan shook. Small, quick back-and-forth changes are ignored. */
   const check = ()=>{
-    if(!state.floorPlan || wrap.offsetWidth < 100 || wrap.offsetWidth === lastW) return;
-    lastW = wrap.offsetWidth;
-    if(fpFitToScreen && fpUpdateScale()) renderFloorPlan();
+    clearTimeout(timer);
+    timer = setTimeout(()=>{
+      const w = wrap.offsetWidth;
+      if(!state.floorPlan || w < 100 || w === lastW) return;
+      const now = Date.now();
+      if(Math.abs(w - lastW) < 24 && now - lastAt < 1500) return;
+      if(w === prevW && now - lastAt < 3000) return;   /* flipping between two widths */
+      prevW = lastW; lastW = w; lastAt = now;
+      if(fpFitToScreen && fpUpdateScale()) renderFloorPlan();
+    }, 120);
   };
   if('ResizeObserver' in window) new ResizeObserver(check).observe(wrap);
   window.addEventListener('resize', check);
