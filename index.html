@@ -962,7 +962,18 @@
     color:rgba(255,255,255,.55); font-family:'Lora',serif; font-size:15px; letter-spacing:.5px;
     flex-shrink:0; padding:0 12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
-  .end-seat-wrap{flex-shrink:0;}
+  .bulk-quick{display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap;}
+  .bulk-quick button{border:1px solid var(--line); background:#fff; border-radius:999px; padding:4px 12px; font:inherit; font-size:13px; cursor:pointer;}
+  .bulk-quick button:hover{border-color:var(--sage-dark); color:var(--sage-dark);}
+  .bulk-list{display:grid; grid-template-columns:1fr 1fr; gap:4px 14px; max-height:260px; overflow:auto; border:1px solid var(--line); border-radius:8px; padding:8px 10px;}
+  .bulk-list label{display:flex; align-items:center; gap:7px; font-size:14px; cursor:pointer;}
+  .bulk-list label small{color:var(--ink-soft);}
+  .fp-bulk-link{display:block; width:100%; margin:-2px 0 8px; border:none; background:none; color:var(--sage-dark); font:inherit; font-size:13px; font-weight:600; cursor:pointer; text-align:left; padding:2px 0;}
+  .fp-bulk-link:hover{text-decoration:underline;}
+  @media (max-width:600px){ .bulk-list{grid-template-columns:1fr;} }
+  .ends-row{display:flex; gap:18px; flex-wrap:wrap; font-size:14px;}
+  .ends-row select{margin-left:6px; padding:5px 8px; border:1px solid var(--line); border-radius:6px; font:inherit;}
+  .end-seat-wrap{flex-shrink:0; display:flex; flex-direction:column; justify-content:center; gap:8px; align-self:center;}
 
   .round-table-bar{
     position:absolute; transform:translate(-50%,-50%); border-radius:50%; box-sizing:border-box;
@@ -2037,6 +2048,7 @@
         <span id="seatViewToggle" title="How the seats look"><button type="button" class="sv-btn" data-sv="chairs">Chairs view</button><button type="button" class="sv-btn" data-sv="cards">Cards view</button></span>
         <span id="zoomLabel"></span>
         <button id="btnClearTable" title="Send all seated guests at this table back to the side panel">Clear names from table</button>
+        <button id="btnBulkTables" title="Add or remove seats, or end seats, on several tables at once">Change several tables</button>
         <div class="toolbar-divider"></div>
         <button class="ghost-btn" id="btnExportChartPng">Download as image</button>
         <button class="ghost-btn" id="btnExportChartPdf">Download as PDF</button>
@@ -2248,6 +2260,35 @@
   </div>
 </div>
 
+<div id="bulkTablesModal" class="modal-overlay hidden">
+  <div class="modal-card" style="width:520px; max-height:90vh; overflow:auto;">
+    <h3>Change several tables at once</h3>
+    <p class="hint" style="margin-top:-4px;">Guests already seated stay where they are.</p>
+    <div class="field-row">
+      <label>What do you want to do?</label>
+      <select id="bulkAction" style="width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:6px; font:inherit;">
+        <option value="add">Add seats</option>
+        <option value="remove">Remove seats</option>
+        <option value="endsOn">Add a seat at each end (long tables)</option>
+        <option value="endsOff">Remove the end seats (long tables)</option>
+      </select>
+    </div>
+    <div class="field-row" id="bulkCountRow">
+      <label>How many per table?</label>
+      <input type="number" class="custom-num" id="bulkCount" min="1" max="10" value="2" style="width:80px;">
+      <div class="hint" id="bulkCountHint" style="margin-top:6px;">Round tables get this many more seats. Long tables get them shared between both sides.</div>
+    </div>
+    <div class="field-row">
+      <label>Which tables?</label>
+      <div class="bulk-quick"><button type="button" data-pick="all">All</button><button type="button" data-pick="round">Round</button><button type="button" data-pick="long">Long</button><button type="button" data-pick="none">None</button></div>
+      <div id="bulkList" class="bulk-list"></div>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:14px;">
+      <button type="button" class="ghost-btn" id="bulkCancel">Cancel</button>
+      <button type="button" class="primary-btn" id="bulkApply">Apply</button>
+    </div>
+  </div>
+</div>
 <div id="addTableModal" class="modal-overlay hidden">
   <div class="modal-card">
     <h3 id="addTableModalTitle">Add a table</h3>
@@ -2289,9 +2330,10 @@
         </div>
       </div>
       <div class="field-row" style="margin-bottom:8px;">
-        <div class="toggle-row">
-          <input type="checkbox" id="newTableChkEnds">
-          <span>Include a seat at each end of the table</span>
+        <label>Seats at the ends <span style="font-weight:400; color:var(--ink-soft);">(e.g. 2 kids at the head)</span></label>
+        <div class="ends-row">
+          <span>Left end <select id="newTableEndsL"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></span>
+          <span>Right end <select id="newTableEndsR"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></span>
         </div>
       </div>
     </div>
@@ -5439,14 +5481,25 @@ function buildTableFromFields(shape, opts, existingId){
     total = parseInt(opts.size, 10);
   }
   const perSide = Math.ceil(total/2);
-  return {id, name, shape:'rectangle', seatsPerSide: perSide, hasEnds: !!opts.hasEnds};
+  const out = {id, name, shape:'rectangle', seatsPerSide: perSide, hasEnds: !!opts.hasEnds};
+  if(opts.ends) setEnds(out, opts.ends.L, opts.ends.R);
+  return out;
 }
 
+function setEndsUI(L, R){ document.getElementById('newTableEndsL').value = String(Math.min(4, L|0)); document.getElementById('newTableEndsR').value = String(Math.min(4, R|0)); }
+function getEndsUI(){ return {L: +document.getElementById('newTableEndsL').value || 0, R: +document.getElementById('newTableEndsR').value || 0}; }
+/* seats at the ends of a long table: any number per end (older charts: hasEnds = one at each end) */
+function endsOf(t, s){
+  if(!t || t.shape !== 'rectangle' || t.oneSide) return 0;
+  const k = s === 'L' ? 'endsL' : 'endsR';
+  return t[k] != null ? Math.max(0, +t[k] || 0) : (t.hasEnds ? 1 : 0);
+}
+function setEnds(t, L, R){ t.endsL = Math.max(0, L|0); t.endsR = Math.max(0, R|0); t.hasEnds = (t.endsL + t.endsR) > 0; }
 function tableTotalSeats(t){
   if(t.shape === 'round') return t.totalSeats;
   if(t.shape === 'u') return t.baseSeats + t.armSeats*2;
   if(t.oneSide) return t.seatsPerSide;
-  return t.seatsPerSide*2 + (t.hasEnds?2:0);
+  return t.seatsPerSide*2 + endsOf(t,'L') + endsOf(t,'R');
 }
 
 // Whether a guest's existing seat coordinate still exists on `table` (after a resize/shape change).
@@ -5460,7 +5513,7 @@ function seatStillValid(table, seat){
     return false;
   }
   // rectangle
-  if(seat.side === 'endL' || seat.side === 'endR') return !!table.hasEnds;
+  if(seat.side === 'endL' || seat.side === 'endR') return (seat.index || 0) < endsOf(table, seat.side === 'endL' ? 'L' : 'R');
   if(seat.side === 'bottom' && table.oneSide) return false;
   if(seat.side === 'top' || seat.side === 'bottom') return seat.index < table.seatsPerSide;
   return false;
@@ -5508,7 +5561,7 @@ function updateTopSub(){
   if(t.shape === 'round') detail = 'round table';
   else if(t.shape === 'u') detail = `U-shape \u00b7 ${t.baseSeats} on the base, ${t.armSeats} per arm` + (t.seatsInside ? ' \u00b7 seated inside' : '');
   else if(t.oneSide) detail = 'seated along one side';
-  else detail = `${t.seatsPerSide} per side` + (t.hasEnds ? ' \u00b7 with end seats' : '');
+  else detail = `${t.seatsPerSide} per side` + ((endsOf(t,'L') || endsOf(t,'R')) ? ' \u00b7 ' + (endsOf(t,'L') === endsOf(t,'R') && endsOf(t,'L') === 1 ? 'with end seats' : endsOf(t,'L') + ' + ' + endsOf(t,'R') + ' at the ends') : '');
   document.getElementById('topSub').textContent = `${t.name} \u00b7 ${total} seat${total===1?'':'s'} \u00b7 ${detail}`;
 }
 
@@ -5912,12 +5965,12 @@ function tableSlots(t){
   }
   for(let i = 0; i < t.seatsPerSide; i++) out.push({side:'top', index:i});
   if(!t.oneSide) for(let i = 0; i < t.seatsPerSide; i++) out.push({side:'bottom', index:i});
-  if(t.hasEnds){ out.push({side:'endL'}); out.push({side:'endR'}); }
+  ['L', 'R'].forEach(sd=>{ for(let i = 0; i < endsOf(t, sd); i++) out.push(i ? {side:'end' + sd, index:i} : {side:'end' + sd}); });
   return out;
 }
 function freeSlots(t){
   const taken = state.guests.filter(g=> g.seat && g.seat.tableId === t.id);
-  return tableSlots(t).filter(sl=> !taken.some(g=> g.seat.side === sl.side && (sl.index === undefined || g.seat.index === sl.index)));
+  return tableSlots(t).filter(sl=> !taken.some(g=> g.seat.side === sl.side && (g.seat.index || 0) === (sl.index || 0)));
 }
 function msDot(g){ const d = document.createElement('span'); d.className = 'ms-dot'; d.style.background = groupOf(g).color || '#999'; return d; }
 function msRender(){
@@ -6150,8 +6203,8 @@ function seatKey(side, index){ return side + (index!==undefined ? '-'+index : ''
 function guestAtSeat(side, index){
   return state.guests.find(g=> g.seat && g.seat.tableId===state.activeTableId && g.seat.side===side && g.seat.index===index);
 }
-function guestAtEnd(side){
-  return state.guests.find(g=> g.seat && g.seat.tableId===state.activeTableId && g.seat.side===side);
+function guestAtEnd(side, index){
+  return state.guests.find(g=> g.seat && g.seat.tableId===state.activeTableId && g.seat.side===side && (g.seat.index || 0) === (index || 0));
 }
 
 /* ===================== TABLE TABS / ADD TABLE ===================== */
@@ -6400,7 +6453,7 @@ function openAddTableModal(){
   newTableChosenSize = null;
 
   if(def){
-    document.getElementById('newTableChkEnds').checked = !!def.hasEnds;
+    { const e = def.hasEnds; if(e && typeof e === 'object') setEndsUI(e.L, e.R); else setEndsUI(e ? 1 : 0, e ? 1 : 0); }
     document.getElementById('newUInside').checked = !!def.uInside;
     if(def.roundSeats) document.getElementById('newRoundSeats').value = def.roundSeats;
     if(def.uBaseSeats) document.getElementById('newUBaseSeats').value = def.uBaseSeats;
@@ -6414,7 +6467,7 @@ function openAddTableModal(){
     fillDimFields(def.dim || null);
     updateDimFieldVisibility();
   } else {
-    document.getElementById('newTableChkEnds').checked = false;
+    setEndsUI(0, 0);
     document.getElementById('newUInside').checked = false;
     fillDimFields(null);
   }
@@ -6445,7 +6498,7 @@ function openEditTableModal(tableId){
 
   newTableSizeOptions.querySelectorAll('.size-opt').forEach(b=>b.classList.remove('selected'));
   newTableCustomWrap.classList.add('hidden');
-  document.getElementById('newTableChkEnds').checked = false;
+  setEndsUI(0, 0);
   document.getElementById('newUInside').checked = false;
 
   if(t.shape === 'round'){
@@ -6463,7 +6516,7 @@ function openEditTableModal(tableId){
     newTableSizeOptions.querySelectorAll('.size-opt').forEach(b=>b.classList.toggle('selected', b.dataset.size === preset));
     newTableCustomWrap.classList.toggle('hidden', preset !== 'custom');
     newTableCustomSize.value = total;
-    document.getElementById('newTableChkEnds').checked = !!t.hasEnds;
+    setEndsUI(endsOf(t, 'L'), endsOf(t, 'R'));
   }
   fillDimFields(t.dim);
 
@@ -6587,7 +6640,7 @@ document.getElementById('btnConfirmAddTable').addEventListener('click', ()=>{
     name: document.getElementById('newTableName').value.trim(),
     size: newTableChosenSize,
     customSize: newTableCustomSize.value,
-    hasEnds: document.getElementById('newTableChkEnds').checked,
+    ends: getEndsUI(),
     roundSeats: document.getElementById('newRoundSeats').value,
     uBaseSeats: document.getElementById('newUBaseSeats').value,
     uArmSeats: document.getElementById('newUArmSeats').value,
@@ -6641,7 +6694,7 @@ document.getElementById('btnConfirmAddTable').addEventListener('click', ()=>{
       newTableChosenShape,
       newTableChosenSize,
       newTableCustomSize.value,
-      document.getElementById('newTableChkEnds').checked,
+      getEndsUI(),
       document.getElementById('newRoundSeats').value,
       document.getElementById('newUBaseSeats').value,
       document.getElementById('newUArmSeats').value,
@@ -6752,13 +6805,14 @@ function renderRectTable(table, wrap){
     wrap.appendChild(bottomRow);
   }
 
-  if(table.hasEnds){
-    const endL = buildEndSeat('endL', m);
+  if(endsOf(table, 'L')){
+    const endL = buildEndSeat('endL', m, endsOf(table, 'L'));
     endL.style.gridColumn = '1';
     endL.style.gridRow = '1 / 4';
     wrap.appendChild(endL);
-
-    const endR = buildEndSeat('endR', m);
+  }
+  if(endsOf(table, 'R')){
+    const endR = buildEndSeat('endR', m, endsOf(table, 'R'));
     endR.style.gridColumn = '3';
     endR.style.gridRow = '1 / 4';
     wrap.appendChild(endR);
@@ -6907,11 +6961,11 @@ function buildArmColumn(side, n, m){
   return col;
 }
 
-function buildEndSeat(side, m){
+function buildEndSeat(side, m, n){
   const outer = document.createElement('div');
   outer.className = 'end-seat-wrap';
   outer.style.width = m.w + 'px';
-  outer.appendChild(buildSeatEl(side, undefined, m));
+  for(let i = 0; i < (n || 1); i++) outer.appendChild(buildSeatEl(side, i ? i : undefined, m));
   return outer;
 }
 
@@ -7031,7 +7085,7 @@ function buildSeatEl(side, index, m){
   seat.style.minHeight = m.h + 'px';
   seat.style.fontSize = m.font + 'px';
   const isEnd = (side==='endL' || side==='endR');
-  const guest = isEnd ? guestAtEnd(side) : guestAtSeat(side, index);
+  const guest = isEnd ? guestAtEnd(side, index) : guestAtSeat(side, index);
 
   if(!isEnd){
     const numTag = document.createElement('span');
@@ -7126,17 +7180,91 @@ function placeGuestAt(guestId, side, index){
   pushUndo();
   const tableId = state.activeTableId;
   const isEnd = (side==='endL' || side==='endR');
-  const occupant = isEnd ? guestAtEnd(side) : guestAtSeat(side, index);
+  const occupant = isEnd ? guestAtEnd(side, index) : guestAtSeat(side, index);
 
   if(occupant && occupant.id !== guestId){
     // swap: occupant takes the mover's previous seat (or goes to list if mover came from the list)
     const previousSeat = moving.seat;
     occupant.seat = previousSeat ? {...previousSeat} : null;
   }
-  moving.seat = isEnd ? {tableId, side} : {tableId, side, index};
+  moving.seat = (isEnd && !index) ? {tableId, side} : {tableId, side, index};
   renderGuestList(); renderTable(); renderGroups();
 }
 
+
+/* ===================== Change several tables at once ===================== */
+const isLongTable = t=> t.shape === 'rectangle' && !t.oneSide;
+function tableKindLabel(t){ return t.shape === 'round' ? 'round' : t.shape === 'u' ? 'U-shape' : t.oneSide ? 'bridal' : 'long'; }
+function openBulkTables(preset){
+  if(!state.tables.length){ toast('Add a table first.'); return; }
+  const list = document.getElementById('bulkList'); list.innerHTML = '';
+  state.tables.forEach(t=>{
+    const lb = document.createElement('label');
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = t.id; cb.dataset.kind = tableKindLabel(t);
+    const sm = document.createElement('small'); sm.textContent = tableTotalSeats(t) + ' seats · ' + tableKindLabel(t);
+    const nm = document.createElement('span'); nm.textContent = t.name + ' ';
+    nm.appendChild(sm); lb.append(cb, nm); list.appendChild(lb);
+  });
+  document.getElementById('bulkAction').value = preset || 'add';
+  bulkSync();
+  document.getElementById('bulkTablesModal').classList.remove('hidden');
+}
+function bulkSync(){
+  const a = document.getElementById('bulkAction').value;
+  document.getElementById('bulkCountRow').classList.toggle('hidden', a === 'endsOn' || a === 'endsOff');
+  document.getElementById('bulkCountHint').textContent = a === 'add'
+    ? 'Round tables get this many more seats. Long tables share them between both sides. To seat someone at the head of one table, use Edit table instead.'
+    : 'Seats are taken away from the end of each row. Anyone sitting there goes back to the guest list.';
+  /* end seats only make sense for long tables: tick those, untick the rest */
+  if(a === 'endsOn' || a === 'endsOff') document.querySelectorAll('#bulkList input').forEach(cb=>{ cb.checked = cb.dataset.kind === 'long'; cb.disabled = cb.dataset.kind !== 'long'; });
+  else document.querySelectorAll('#bulkList input').forEach(cb=> cb.disabled = false);
+}
+document.getElementById('bulkAction').addEventListener('change', bulkSync);
+document.querySelector('#bulkTablesModal .bulk-quick').addEventListener('click', e=>{
+  const k = e.target.dataset && e.target.dataset.pick; if(!k) return;
+  document.querySelectorAll('#bulkList input:not(:disabled)').forEach(cb=>{ cb.checked = k === 'all' || (k === 'round' && cb.dataset.kind === 'round') || (k === 'long' && cb.dataset.kind === 'long'); });
+});
+document.getElementById('bulkCancel').addEventListener('click', ()=> document.getElementById('bulkTablesModal').classList.add('hidden'));
+document.getElementById('bulkTablesModal').addEventListener('click', e=>{ if(e.target.id === 'bulkTablesModal') e.target.classList.add('hidden'); });
+document.getElementById('bulkApply').addEventListener('click', ()=>{
+  const a = document.getElementById('bulkAction').value;
+  const n = Math.max(1, Math.min(10, parseInt(document.getElementById('bulkCount').value, 10) || 1));
+  const ids = [...document.querySelectorAll('#bulkList input:checked')].map(cb=> cb.value);
+  if(!ids.length){ toast('Tick at least one table.'); return; }
+  /* work out the new version of every table first */
+  const plan = ids.map(id=>{
+    const t = state.tables.find(x=> x.id === id), nt = JSON.parse(JSON.stringify(t));
+    if(a === 'endsOn' || a === 'endsOff'){ if(isLongTable(nt)) setEnds(nt, a === 'endsOn' ? Math.max(1, endsOf(t,'L')) : 0, a === 'endsOn' ? Math.max(1, endsOf(t,'R')) : 0); }
+    else {
+      const sign = a === 'add' ? 1 : -1;
+      if(nt.shape === 'round') nt.totalSeats = Math.max(2, nt.totalSeats + sign*n);
+      else if(nt.shape === 'u') nt.baseSeats = Math.max(1, nt.baseSeats + sign*n);
+      else if(nt.oneSide) nt.seatsPerSide = Math.max(1, nt.seatsPerSide + sign*n);
+      else nt.seatsPerSide = Math.max(1, nt.seatsPerSide + sign*Math.ceil(n/2));
+    }
+    delete nt.dim;
+    return {t, nt};
+  });
+  const lose = [];
+  plan.forEach(({t, nt})=> state.guests.forEach(g=>{ if(g.seat && g.seat.tableId === t.id && !seatStillValid(nt, g.seat)) lose.push(g); }));
+  if(lose.length && !confirm(lose.length + (lose.length === 1 ? ' guest sits' : ' guests sit') + ' in seats you are removing and will go back to the guest list:\n' + lose.map(g=> g.name).join(', ') + '\n\nContinue?')) return;
+  pushUndo();
+  lose.forEach(g=> g.seat = null);
+  let before = 0, after = 0;
+  plan.forEach(({t, nt})=>{
+    before += tableTotalSeats(t); after += tableTotalSeats(nt);
+    const i = state.tables.findIndex(x=> x.id === t.id); state.tables[i] = nt;
+    const it = state.floorPlan && state.floorPlan.items.find(x=> x.tableId === nt.id);
+    if(it && !it.customSize){ const sz = defaultFloorSize('table', nt, state.floorPlan.unit); it.w = sz.w; it.h = sz.h; }
+  });
+  if(state.floorPlan) plan.forEach(({nt})=>{ const it = state.floorPlan.items.find(x=> x.tableId === nt.id); if(it) fpNudgeFree(it); });
+  document.getElementById('bulkTablesModal').classList.add('hidden');
+  renderTableTabs(); renderTable(); renderGuestList(); renderGroups(); updateTopSub();
+  if(state.floorPlan && !document.getElementById('floorPlanView').classList.contains('hidden')) renderFloorPlan();
+  const d = after - before;
+  toast(plan.length + (plan.length === 1 ? ' table' : ' tables') + ' changed: ' + (d >= 0 ? d + ' seats added' : (-d) + ' seats removed') + ' (' + after + ' seats on those tables now).', 6000);
+});
+document.getElementById('btnBulkTables').addEventListener('click', ()=> openBulkTables());
 /* ===================== FLOOR PLAN ===================== */
 let FP_PX_PER_UNIT = 70;
 /* ---------- Smart guides, grid, selection and align ---------- */
@@ -7163,7 +7291,7 @@ function fpChairPad(it){
   const c = (state.floorPlan && state.floorPlan.unit === 'ft') ? 2 : 0.6;   // a chair plus room to pull it out
   if(t.shape === 'round') return {l:c, r:c, t:c, b:c};
   if(t.shape === 'u') return {l:c, r:c, t:0, b:c};
-  return {l: t.hasEnds ? c : 0, r: t.hasEnds ? c : 0, t:c, b: t.oneSide ? 0 : c};
+  return {l: endsOf(t,'L') ? c : 0, r: endsOf(t,'R') ? c : 0, t:c, b: t.oneSide ? 0 : c};
 }
 /* the space an item takes up on the floor (chairs included), as a straight box; o = {dx, dy, w, h, rot} overrides */
 function fpHitBox(it, o){
@@ -7473,7 +7601,8 @@ function defaultFloorSize(kind, table, unit){
       return {w: round2(metersToUnit(w,unit)), h: round2(metersToUnit(h,unit))};
     }
     const w = table.seatsPerSide*0.65 + (table.hasEnds ? 1 : 0) + (table.oneSide ? 0.3 : 0);
-    return {w: round2(metersToUnit(w,unit)), h: round2(metersToUnit(0.8,unit))};
+    const h = Math.max(0.8, Math.max(endsOf(table,'L'), endsOf(table,'R')) * 0.55);
+    return {w: round2(metersToUnit(w,unit)), h: round2(metersToUnit(h,unit))};
   }
   const metersDefaults = {dancefloor:{w:4,h:4}, restroom:{w:1.5,h:1.5}, podium:{w:1.5,h:1}, bar:{w:3,h:1}, label:{w:1.5,h:1}};
   const m = metersDefaults[kind] || {w:1,h:1};
@@ -7698,6 +7827,7 @@ function renderFloorPalette(){
   const addT = document.createElement('button'); addT.type = 'button'; addT.className = 'fp-add-table'; addT.textContent = '+ Add a table';
   addT.addEventListener('click', ()=>{ fpAddAfterModal = true; openAddTableModal(); });
   tablesWrap.appendChild(addT);
+  if(state.tables.length > 1){ const bl = document.createElement('button'); bl.type = 'button'; bl.className = 'fp-bulk-link'; bl.textContent = 'Change several tables…'; bl.title = 'Add or remove seats, or end seats, on several tables at once'; bl.addEventListener('click', ()=> openBulkTables()); tablesWrap.appendChild(bl); }
   if(unplaced.length === 0){
     tablesWrap.insertAdjacentHTML('beforeend', '<div class="empty-note">All tables placed</div>');
   } else {
@@ -7896,7 +8026,7 @@ function fpChangeSeats(t, delta){
   if(nv === t[key]) return;
   const after = {...t, [key]: nv};
   const keep = tableSlots(after);
-  const lose = state.guests.filter(g=> g.seat && g.seat.tableId === t.id && !keep.some(sl=> sl.side === g.seat.side && (sl.index === undefined ? g.seat.index === undefined : sl.index === g.seat.index)));
+  const lose = state.guests.filter(g=> g.seat && g.seat.tableId === t.id && !keep.some(sl=> sl.side === g.seat.side && (sl.index || 0) === (g.seat.index || 0)));;
   if(lose.length && !confirm(lose.map(g=> g.name).join(', ') + (lose.length === 1 ? ' sits' : ' sit') + ' in the seat you are removing and will go back to the guest list. Continue?')) return;
   pushUndo();
   lose.forEach(g=> g.seat = null);
@@ -8180,7 +8310,7 @@ function fpDoorInside(item){
 function fpInitials(n){ const p = String(n || '').trim().split(/\s+/).filter(Boolean); if(!p.length) return '?'; return (p[0][0] + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase(); }
 function fpShortName(n){ const p = String(n || '').trim().split(/\s+/).filter(Boolean); if(p.length < 2) return p[0] || ''; return p[0] + ' ' + p[p.length - 1][0].toUpperCase() + '.'; }
 function fpGuestAt(tableId, side, index){
-  return state.guests.find(g=> g.seat && g.seat.tableId === tableId && g.seat.side === side && (index === undefined ? g.seat.index === undefined : g.seat.index === index));
+  return state.guests.find(g=> g.seat && g.seat.tableId === tableId && g.seat.side === side && (g.seat.index || 0) === (index || 0));
 }
 /* seat a guest at a given chair of any table (swaps if someone sits there) */
 function fpSeatGuest(guestId, tableId, side, index){
@@ -8238,7 +8368,7 @@ function fpSeatSpots(table, W, H, off){
       out.push({side:'top', index:i, x:pad + (i + 0.5) * pitch, y:-off, ox:0, oy:-1, room:pitch * 1.1});
       if(!table.oneSide) out.push({side:'bottom', index:i, x:pad + (i + 0.5) * pitch, y:H + off, ox:0, oy:1, room:pitch * 1.1});
     }
-    if(table.hasEnds){ out.push({side:'endL', x:-off, y:H / 2, ox:-1, oy:0, room:80}); out.push({side:'endR', x:W + off, y:H / 2, ox:1, oy:0, room:80}); }
+    ['L', 'R'].forEach(sd=>{ const n = endsOf(table, sd); for(let k = 0; k < n; k++) out.push(Object.assign({side:'end' + sd, x: sd === 'L' ? -off : W + off, y: H * (k + 0.5) / n, ox: sd === 'L' ? -1 : 1, oy:0, room: n > 1 ? 40 : 80}, k ? {index:k} : {})); });
   }
   return out;
 }
@@ -9057,8 +9187,7 @@ function seatDescription(guest){
   const table = state.tables.find(t => t.id === guest.seat.tableId);
   const tableName = table ? table.name : 'Unknown table';
   const side = guest.seat.side;
-  if(side === 'endL') return `${tableName} \u2014 left end seat`;
-  if(side === 'endR') return `${tableName} \u2014 right end seat`;
+  if(side === 'endL' || side === 'endR'){ const k = guest.seat.index || 0, many = table && endsOf(table, side === 'endL' ? 'L' : 'R') > 1; return `${tableName} \u2014 ${side === 'endL' ? 'left' : 'right'} end seat` + (many ? ' ' + (k + 1) : ''); }
   if(side === 'round') return `${tableName} \u2014 seat ${guest.seat.index + 1}`;
   if(side === 'armL') return `${tableName} \u2014 left arm, seat ${guest.seat.index + 1}`;
   if(side === 'armR') return `${tableName} \u2014 right arm, seat ${guest.seat.index + 1}`;
