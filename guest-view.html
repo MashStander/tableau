@@ -117,7 +117,7 @@
   /* ---- browse by letter ---- */
   .browse-label{margin:22px 0 10px; text-align:center; font-size:13px; color:var(--ink-soft);}
   #letterGrid{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;}
-  .letter-btn{border:1.5px solid var(--sage); background:var(--white); color:var(--sage-dark); border-radius:8px; padding:13px 6px; font-size:16px; font-family:'Lora',serif; font-weight:700; cursor:pointer; letter-spacing:.04em;}
+  .letter-btn{border:1px solid var(--sage); background:var(--white); color:var(--sage-dark); border-radius:8px; padding:13px 6px; font-size:16px; font-family:'Lora',serif; font-weight:700; cursor:pointer; letter-spacing:.04em;}
   .letter-btn:active{background:var(--sage); color:#fff;}
   .letter-btn small{display:block; font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:400; color:var(--ink-soft); letter-spacing:0; margin-top:2px;}
   .letter-btn:active small{color:#fff;}
@@ -127,13 +127,13 @@
   .glist-row .gt{color:var(--sage-dark); font-weight:600; white-space:nowrap;}
   /* ---- seat finder ---- */
   #searchInput{
-    width:100%; padding:14px 16px; font-size:17px; border:1.5px solid var(--line);
+    width:100%; padding:14px 16px; font-size:17px; border:1px solid var(--line);
     border-radius:10px; background:var(--white); color:var(--ink); font-family:'Plus Jakarta Sans',sans-serif;
   }
   #searchInput:focus{outline:none; border-color:var(--sage);}
   .home-search{margin:0 0 16px;}
   .home-search.hidden{display:none;}
-  #homeSearchInput{width:100%; box-sizing:border-box; font:inherit; font-size:17px; padding:15px 16px; border:1.5px solid var(--sage); border-radius:14px; background:#fff; box-shadow:0 3px 12px rgba(0,0,0,.05);}
+  #homeSearchInput{width:100%; box-sizing:border-box; font:inherit; font-size:17px; padding:15px 16px; border:1px solid var(--sage); border-radius:14px; background:#fff; box-shadow:0 3px 12px rgba(0,0,0,.05);}
   #homeSearchInput:focus{outline:none; border-color:var(--sage-dark);}
   #homeSearchHint{margin:10px 0 0;}
   #homeResults{margin-top:8px;}
@@ -164,7 +164,7 @@
     width:100%; overflow:auto; border:1px solid var(--line); border-radius:10px;
     background:var(--white); -webkit-overflow-scrolling:touch; max-height:70vh;
   }
-  #fpCanvas{position:relative; margin:18px; background:#fdfbf6; box-shadow:0 0 0 1.5px #7a7068;}
+  #fpCanvas{position:relative; margin:18px; background:#fdfbf6; box-shadow:0 0 0 1.25px #7a7068;}
   .fp-key{margin-top:10px; font-size:13px; color:var(--ink);}
   .fp-key h4{font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); font-weight:500; margin:8px 0 4px; font-family:'Plus Jakarta Sans',sans-serif;}
   .fp-key .kgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:3px 10px;}
@@ -175,22 +175,22 @@
   .fp-tools{display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:12.5px; color:var(--ink-soft);}
   .fp-tools button{border:1px solid var(--line); background:var(--linen); border-radius:16px; padding:6px 14px; font-size:13px; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; color:var(--ink);}
   .floor-item{
-    position:absolute; border:1.5px solid var(--wood-dark); border-radius:6px;
+    position:absolute; border:1px solid var(--wood-dark); border-radius:6px;
     display:flex; align-items:center; justify-content:center; text-align:center;
     font-size:11px; padding:2px; overflow:visible; background:var(--white); color:var(--ink);
   }
   .floor-item.is-mine{
-    border-color:var(--rose); border-width:2.5px; box-shadow:0 0 0 3px rgba(201,138,125,.25);
+    border-color:var(--rose); border-width:2px; box-shadow:0 0 0 3px rgba(201,138,125,.25);
     background:#fdf1ee; z-index:5; overflow:visible;
   }
   .floor-item.fp-dancefloor{background:repeating-linear-gradient(45deg, var(--sage), var(--sage) 8px, var(--sage-dark) 8px, var(--sage-dark) 16px); color:#fff; border-color:var(--sage-dark);}
   .floor-item.fp-restroom{background:#e6eef4; color:#3c5a6e; border-color:#a9c2d3;}
-  .floor-item.fp-door{background:#fdfbf6; border:none; border-left:1.5px solid #7a7068; border-right:1.5px solid #7a7068; border-radius:0; padding:0; font-size:0; overflow:visible; z-index:2;}
+  .floor-item.fp-door{background:#fdfbf6; border:none; border-left:1px solid #7a7068; border-right:1px solid #7a7068; border-radius:0; padding:0; font-size:0; overflow:visible; z-index:2;}
   .fp-door-svg{position:absolute; left:0; top:50%; pointer-events:none; overflow:visible;}
-  .floor-item.fp-door.fp-gap{border-left-width:2px; border-right-width:2px;}
-  .floor-item.fp-room{background:#fbf9f4; border:1.5px solid #7a7068; border-radius:0; color:#4a443d; font-weight:600;}
+  .floor-item.fp-door.fp-gap{border-left-width:1.5px; border-right-width:1.5px;}
+  .floor-item.fp-room{background:#fbf9f4; border:1px solid #7a7068; border-radius:0; color:#4a443d; font-weight:600;}
   .floor-item.fp-wall{background:#7a7068; border:none; border-radius:1px; padding:0; min-height:2px;}
-  .floor-item.fp-outdoor{border:1.5px dashed #6f6556; border-radius:0; color:#3f382f; font-weight:600;}
+  .floor-item.fp-outdoor{border:1px dashed #6f6556; border-radius:0; color:#3f382f; font-weight:600;}
   .floor-item.fp-out-boards{background:repeating-linear-gradient(90deg, #efe2cc 0 7px, #e3d2b5 7px 8px);}
   .floor-item.fp-out-paving{background:#ece9e3; background-image:linear-gradient(#d8d3ca 1px, transparent 1px), linear-gradient(90deg, #d8d3ca 1px, transparent 1px); background-size:11px 11px;}
   .floor-item.fp-out-grass{background:#e4efdc; background-image:radial-gradient(#c6dcb7 1.2px, transparent 1.3px); background-size:8px 8px;}
@@ -1205,8 +1205,8 @@ function gvDoorSvg(item, fp, scale){
   const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
   svg.setAttribute('class', 'fp-door-svg'); svg.setAttribute('width', wPx); svg.setAttribute('height', 2); svg.setAttribute('overflow', 'visible');
   const line = (x1, y1, x2, y2, wd)=>{ const l = document.createElementNS(ns, 'line'); l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2); l.setAttribute('stroke', '#7a7068'); l.setAttribute('stroke-width', wd || 1); l.setAttribute('stroke-linecap', 'round'); svg.appendChild(l); };
-  if(kind === 'dst'){ const pw = Math.max(4, Math.min(wPx * 0.08, 12)), dp = Math.min(14, pw * 1.8) * s; [[0, 1], [wPx, -1]].forEach(([x0, dir])=>{ for(let i = 0; i < 4; i++) line(x0 + dir * i * pw, i % 2 ? dp : 0, x0 + dir * (i + 1) * pw, i % 2 ? 0 : dp, 1.4); }); }
-  else if(kind === 'dsl'){ line(0, -1.8 * s, wPx * 0.56, -1.8 * s, 1.8); line(wPx * 0.44, 1.8 * s, wPx, 1.8 * s, 1.8); }
+  if(kind === 'dst'){ const pw = Math.max(4, Math.min(wPx * 0.08, 12)), dp = Math.min(14, pw * 1.8) * s; [[0, 1], [wPx, -1]].forEach(([x0, dir])=>{ for(let i = 0; i < 4; i++) line(x0 + dir * i * pw, i % 2 ? dp : 0, x0 + dir * (i + 1) * pw, i % 2 ? 0 : dp, 1); }); }
+  else if(kind === 'dsl'){ line(0, -1.8 * s, wPx * 0.56, -1.8 * s, 1.2); line(wPx * 0.44, 1.8 * s, wPx, 1.8 * s, 1.2); }
   else if(kind === 'door1') line(0, 0, wPx * Math.cos(a), s * wPx * Math.sin(a));
   else { const h = wPx / 2; line(0, 0, h * Math.cos(a), s * h * Math.sin(a)); line(wPx, 0, wPx - h * Math.cos(a), s * h * Math.sin(a)); }
   return svg;
