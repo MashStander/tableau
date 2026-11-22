@@ -1219,7 +1219,7 @@ function renderFloorPlan(guest){
   /* outside areas (deck, patio...) may sit beyond the walls: leave room for them */
   const out = {t:0, r:0, b:0, l:0}, pad = fp.unit === 'ft' ? 2 : 0.6;
   (fp.items || []).forEach(it=>{
-    if(it.kind !== 'outdoor') return;
+    if(it.kind !== 'outdoor' && it.kind !== 'room') return;
     const sw = (it.rot || 0) % 180 !== 0, w = sw ? it.h : it.w, h = sw ? it.w : it.h, cx = it.x + it.w / 2, cy = it.y + it.h / 2;
     const l = cx - w / 2, r = cx + w / 2, t = cy - h / 2, b = cy + h / 2;
     if(l < 0) out.l = Math.max(out.l, -l + pad); if(t < 0) out.t = Math.max(out.t, -t + pad);
