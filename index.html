@@ -7348,14 +7348,18 @@ function fpCollides(it, o, skip){
 }
 function fpAnyCollide(items, o){ const skip = new Set(items); return items.some(it=> fpCollides(it, o, skip)); }
 /* things may be moved and turned freely; if they end up on top of something, they slide to the nearest free spot */
-function fpNudgeGroup(items){
+function fpNudgeGroup(items, far){
   items = items.filter(fpSolid);
   if(!items.length || !fpAnyCollide(items)) return true;
-  const fp = state.floorPlan, step = fp.unit === 'ft' ? 1 : 0.25, skip = new Set(items);
-  const inRoom = (dx, dy)=> items.every(it=> it.kind === 'room' || it.kind === 'outdoor' ||
-    (it.x + dx >= -0.001 && it.y + dy >= -0.001 && it.x + dx + it.w <= fp.roomWidth + 0.001 && it.y + dy + it.h <= fp.roomDepth + 0.001));
+  const fp = state.floorPlan, ft = fp.unit === 'ft', step = ft ? 0.5 : 0.1, skip = new Set(items);
+  const inRoom = (dx, dy)=> items.every(it=>{
+    if(it.kind === 'room' || it.kind === 'outdoor') return true;
+    const b = fpBox(it, dx, dy);
+    return b.l >= -0.001 && b.t >= -0.001 && b.r <= fp.roomWidth + 0.001 && b.b <= fp.roomDepth + 0.001;
+  });
   const free = (dx, dy)=> inRoom(dx, dy) && !items.some(it=> fpCollides(it, {dx, dy}, skip));
-  const maxR = Math.ceil(Math.max(fp.roomWidth, fp.roomDepth) / step);
+  /* only a small shift: never carry something far from where she put it (new items may search the whole room) */
+  const maxR = far ? Math.ceil(Math.max(fp.roomWidth, fp.roomDepth) / step) : Math.ceil((ft ? 3 : 1) / step);
   for(let r = 1; r <= maxR; r++){
     let best = null, bd = Infinity;
     for(let i = -r; i <= r; i++) for(const [ix, iy] of [[i, -r], [i, r], [-r, i], [r, i]]){
@@ -7367,7 +7371,7 @@ function fpNudgeGroup(items){
   }
   return false;
 }
-function fpNudgeFree(it){ return fpNudgeGroup([it]); }
+function fpNudgeFree(it, far){ return fpNudgeGroup([it], far); }
 function fpMarkClash(el, on){ if(el) el.classList.toggle('fp-clash', !!on); }
 function fpUnion(boxes){
   const u = {l:Infinity, t:Infinity, r:-Infinity, b:-Infinity};
@@ -7814,7 +7818,7 @@ function renderFloorPlan(){
     fp.items.push(nu);
     if(isDoorKind(kind)) fpSnapDoorToWall(nu, true);
     if(kind === 'outdoor' || kind === 'room'){ fpPlaceOutside(nu, dropX, dropY); if(fpHallOnly){ fpHallOnly = false; try{ localStorage.setItem('tableauFpHallOnly', '0'); }catch(e){} } }
-    if(!fpNudgeFree(nu)) toast('There\u2019s no free space left for that. Make the room bigger or move things closer.', 6000);
+    if(!fpNudgeFree(nu, true)) toast('There\u2019s no free space left for that. Make the room bigger or move things closer.', 6000);
     renderFloorPlan();
   };
 }
@@ -8541,7 +8545,7 @@ function buildFloorItemEl(item){
       const off = fp.unit === 'ft' ? 1.5 : 0.5;
       copy.x = round2(item.x + off); copy.y = round2(item.y + off);
       fp.items.push(copy);
-      fpNudgeFree(copy);
+      fpNudgeFree(copy, true);
       renderFloorPlan();
       toast('Copy made \u2014 drag it where you want it.');
     });
@@ -8615,7 +8619,7 @@ function buildFloorItemEl(item){
       ang = ((Math.round(ang/15)*15) % 360 + 360) % 360;
       if(ang > 345 || ang < 8) ang = 0;
       item.rot = ang;
-      fpMarkClash(el, wasFree && fpCollides(item));
+      fpMarkClash(el, fpCollides(item));
       el.style.transform = 'rotate(' + ang + 'deg)';
       labelSpan.style.transform = 'rotate(' + (-ang) + 'deg)';
       el.querySelectorAll('.fp-nm-wrap').forEach(w=>{ w.style.transform = 'rotate(' + (-ang) + 'deg)'; });
@@ -8628,7 +8632,7 @@ function buildFloorItemEl(item){
       document.removeEventListener('pointerup', onUp);
       document.removeEventListener('pointercancel', onUp);
       if(!moved) item.rot = (((item.rot || 0) + 90) % 360);
-      if(wasFree && fpCollides(item) && !fpNudgeFree(item)){ item.rot = rotStart; toast('There\u2019s no room to turn it here.'); }
+      if(fpCollides(item) && !fpNudgeFree(item)) toast('This overlaps something (shown in red). Move it a little to make room.', 5000);
       renderFloorPlan();
     }
     document.addEventListener('pointermove', onMove);
@@ -8719,7 +8723,7 @@ function buildFloorItemEl(item){
       }
     });
     const clampD = (v, lo, hi)=> Math.min(hi, Math.max(lo, v));
-    const solidMovers = movers.filter(fpSolid), checkOn = solidMovers.length && !fpAnyCollide(solidMovers);
+    const solidMovers = movers.filter(fpSolid), checkOn = solidMovers.length > 0;
     function onMove(ev){
       if(!undoPushed){ if(Math.hypot(ev.clientX-startX, ev.clientY-startY) < 3) return; pushUndo(); undoPushed = true; }
       let dx = clampD((ev.clientX-startX)/FP_PX_PER_UNIT, minDx, maxDx);
@@ -8747,7 +8751,7 @@ function buildFloorItemEl(item){
         starts.forEach(st=>{ st.it.x = round2(st.x + (starts._dx||0)); st.it.y = round2(st.y + (starts._dy||0)); });
         let again = false;
         if(checkOn && fpAnyCollide(solidMovers)){
-          if(!fpNudgeGroup(solidMovers)) starts.forEach(st=>{ st.it.x = st.x; st.it.y = st.y; });
+          if(!fpNudgeGroup(solidMovers)) toast('This overlaps something (shown in red). Move it a little to make room.', 5000);
           again = true;
         }
         starts.forEach(st=>{ if(isDoorKind(st.it.kind)){ fpSnapDoorToWall(st.it, false); again = true; } if(st.it.kind === 'outdoor' || st.it.kind === 'room') again = true; });
@@ -8781,7 +8785,7 @@ function buildFloorItemEl(item){
       const dx = ev.clientX-startX, dy = ev.clientY-startY;
       const lx = dx*cs + dy*sn, ly = -dx*sn + dy*cs;
       const nw = Math.max(minPx, startW + lx), nh = (!isDoorKind(item.kind) && item.kind !== 'wall') ? Math.max(minPx, startH + ly) : parseFloat(el.style.height) || startH;
-      if(wasFreeRs) fpMarkClash(el, fpCollides(item, {w: nw/FP_PX_PER_UNIT, h: nh/FP_PX_PER_UNIT}));
+      fpMarkClash(el, fpCollides(item, {w: nw/FP_PX_PER_UNIT, h: nh/FP_PX_PER_UNIT}));
       el.style.width = nw + 'px';
       if(!isDoorKind(item.kind) && item.kind !== 'wall') el.style.height = nh + 'px';
       fitFloorLabel(el);
@@ -8792,7 +8796,7 @@ function buildFloorItemEl(item){
       document.removeEventListener('mouseup', onUp);
       item.w = round2(parseFloat(el.style.width)/FP_PX_PER_UNIT);
       item.h = round2(parseFloat(el.style.height)/FP_PX_PER_UNIT);
-      if(wasFreeRs && fpCollides(item) && !fpNudgeFree(item)){ item.w = w0; item.h = h0; }
+      if(fpCollides(item) && !fpNudgeFree(item)) toast('This overlaps something (shown in red). Make it smaller or move it.', 5000);
       renderFloorPlan();
     }
     document.addEventListener('mousemove', onMove);
@@ -8800,6 +8804,7 @@ function buildFloorItemEl(item){
   });
 
   fpAddSeatNames(el, item);
+  if(fpSolid(item) && fpCollides(item)) el.classList.add("fp-clash");
   return el;
 }
 
