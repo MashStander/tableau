@@ -652,6 +652,19 @@
   .fp-tbar .fp-tbar-name{font-weight:600;}
   .fp-tbar-n{min-width:62px; text-align:center; color:var(--ink-soft);}
   .fp-tbar-input{font:inherit; font-size:13px; padding:4px 6px; width:130px; border:1px solid var(--sage); border-radius:6px;}
+
+  /* Premium per event + test link */
+  .ei-chip .ei-prem{font-style:normal; font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; background:#efe6d6; color:#7a6a4a; border-radius:6px; padding:1px 5px; margin-left:2px;}
+  .ei-chip.on .ei-prem{background:rgba(255,255,255,.25); color:#fff;}
+  .test-wrap{margin:4px 0 6px; padding:12px 14px; border:1px dashed var(--line); border-radius:10px; display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px;}
+  .test-wrap .hint{margin:0; font-size:12.5px;}
+  .test-box{flex-basis:100%; display:flex; gap:14px; align-items:flex-start; margin-top:6px;}
+  .test-qr{width:120px; height:120px; border:1px solid var(--line); background:#fff; flex-shrink:0;}
+  .test-tx{font-size:13px; line-height:1.5;}
+  .test-note{color:var(--ink-soft); font-size:12.5px;}
+  .test-btns{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+  .test-btns .ghost-btn{text-decoration:none; font-size:13px;}
+  @media (max-width:560px){ .test-box{flex-direction:column;} }
   /* ---- Phase 2: numbered steps, Publish / Live pill, Planning beta ---- */
   .nav-step i{display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; border:1px solid currentColor; font-style:normal; font-size:10.5px; margin-right:6px; vertical-align:1px; opacity:.75;}
   .beta-tag{font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; background:#efe6d6; color:#7a6a4a; border-radius:8px; padding:1px 6px; vertical-align:2px;}
@@ -2096,7 +2109,7 @@
       <li class="ls-paid ls-planning"><span class="ls-n">11</span><div class="ls-t"><b>The whole weekend <button type="button" class="ls-chip" data-plan="2">Full planner &middot; R200 a year</button></b>Add a day before and a day after, each with its own programme. <a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener">Try a live example on your phone.</a> The bridal party code is <strong>6064</strong>.</div></li>
     </ol></div>
     </div>
-    <p class="landing-steps-note">Steps 1 to 6 are free. Premium adds the rest of your guest page for R299, once-off. <a id="lsPlans">See what each plan includes</a></p>
+    <p class="landing-steps-note">Steps 1 to 6 are free. Premium adds the rest of your guest page: R299 once-off for up to 4 events. Try it all free first. <a id="lsPlans">See what each plan includes</a></p>
     </div>
   </div>
   <p class="page-tagline">Familiar, with a spritz of magic.</p>
@@ -2257,8 +2270,8 @@
    </div>
   </div>
 
-  <div id="eiLockNote" class="hidden" style="background:#fff6e0; border:1px solid #e8cf8a; border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.5; color:#5a4a1c; margin-bottom:12px;">
-      <b>&#128274; Programme, menu, a note from you, gifts, photos, song requests and links are part of Premium (R299 once-off).</b> Find my seat works without them.
+  <div id="eiLockNote" class="hidden" style="background:#f4f8f4; border:1px solid #b9d3b9; border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.5; color:#2f4a36; margin-bottom:12px;">
+      <span id="eiLockText"></span>
       <div style="margin-top:8px;"><button type="button" class="ghost-btn" id="eiMoreBtn">More info</button> <button type="button" class="ghost-btn" id="eiUnlockBtn">Get Premium</button></div>
     </div>
    <div id="eventInfoModal" class="ei-main">
@@ -2741,6 +2754,11 @@
           <div style="margin-top:8px;"><b>Status:</b> <span id="finderStatus">Not published yet</span></div>
           <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"><button type="button" class="ghost-btn" id="btnFinderOpen">Open the guest page</button><button type="button" class="ghost-btn" id="btnFinderCopy">Copy link</button></div>
         </div>
+      </div>
+      <div class="test-wrap">
+        <button type="button" class="ghost-btn" id="btnTestLink">&#128241; Send a test link to my phone</button>
+        <span class="hint">See your real guest page on your phone first. Works for 48 hours, free.</span>
+        <div id="finderTestBox" class="test-box hidden"></div>
       </div>
       <div id="finderBpNote" style="margin-top:14px; padding:12px 14px; border-radius:10px; background:#fff6e0; border:1px solid #e8cf8a; font-size:13px; line-height:1.5; color:#5a4a1c;">
         <b id="finderBpTitle">Before you publish: set a code for your bridal party</b>
@@ -7712,7 +7730,23 @@ function fpAddSeatNames(el, item){
 }
 /* is a guest (not a floor plan item) being dragged? */
 let fpDragGuest = false;
-document.addEventListener('dragstart', e=>{ fpDragGuest = !!(e.target && e.target.closest && e.target.closest('.guest-chip, .fp-seat.taken, .seat.occupied')); }, true);
+document.addEventListener('dragstart', e=>{
+  fpDragGuest = !!(e.target && e.target.closest && e.target.closest('.guest-chip, .fp-seat.taken, .seat.occupied'));
+  /* on the floor plan, a dragged name becomes a small circle with initials, centred on the pointer */
+  if(!state.floorPlan || document.getElementById('floorPlanView').classList.contains('hidden') || !e.dataTransfer || !e.target.closest) return;
+  const chip = e.target.closest('.guest-chip'), grow = e.target.closest('.group-row');
+  let txt = '', bg = '#8a8a8a';
+  if(chip){ const g = state.guests.find(x=> x.id === chip.dataset.gid); if(!g) return; txt = fpInitials(g.name); bg = groupOf(g).color || bg; }
+  else if(grow){ const gid = grow.dataset.groupId; const gr = state.groups.find(x=> x.id === gid); if(!gr) return; txt = String(state.guests.filter(x=> x.groupId === gr.id && !x.seat).length); bg = gr.color || bg; }
+  else return;
+  const P = FP_PX_PER_UNIT, D = Math.round(Math.max(26, Math.min(34, P * 0.6)));
+  const ghost = document.createElement('div');
+  ghost.style.cssText = 'position:fixed; top:-200px; left:-200px; width:' + D + 'px; height:' + D + 'px; border-radius:50%; background:' + bg + '; color:#fff; display:flex; align-items:center; justify-content:center; font:700 ' + Math.round(D * 0.4) + 'px "Plus Jakarta Sans",sans-serif; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.3); z-index:9999;';
+  ghost.textContent = txt;
+  document.body.appendChild(ghost);
+  try{ e.dataTransfer.setDragImage(ghost, D / 2, D / 2); }catch(err){}
+  setTimeout(()=> ghost.remove(), 0);
+}, true);
 document.addEventListener('dragend', ()=>{ fpDragGuest = false; document.querySelectorAll('.fp-drop').forEach(x=> x.classList.remove('fp-drop')); }, true);
 /* after any seating change on the hidden seating chart, refresh the floor plan if it's showing */
 (function(){
@@ -8505,7 +8539,8 @@ function refreshFinderModal(){
   else { img.removeAttribute('src'); img.style.visibility = 'hidden'; }
   document.getElementById('btnFinderQr').disabled = !link;
   const bc = (state.bridal && state.bridal.code) || '';
-  document.getElementById('finderBpNote').classList.toggle('hidden', !signedIn);
+  document.getElementById('finderBpNote').classList.toggle('hidden', !signedIn || accessTier < 2);
+  document.getElementById('btnTestLink').parentElement.classList.toggle('hidden', !signedIn);
   document.getElementById('finderBpNote').style.background = bc ? '#eef5ee' : '#fff6e0';
   document.getElementById('finderBpNote').style.borderColor = bc ? '#b9d3b9' : '#e8cf8a';
   document.getElementById('finderBpTitle').textContent = bc ? 'Bridal party code: ' + bc : 'Before you publish: set a code for your bridal party';
@@ -8791,12 +8826,18 @@ function openEventInfoModal(){
 }
 const EI_FREE_SECS = ['look','language'];
 function applyEiLocks(){
-  const locked = accessTier < 1;
-  document.querySelectorAll('#eventInfoModal .ei-block[data-sec]').forEach(b=>{
-    const lk = locked && !EI_FREE_SECS.includes(b.dataset.sec);
-    b.classList.toggle('ei-locked', lk); b.inert = lk;
-  });
-  document.getElementById('eiLockNote').classList.toggle('hidden', !locked);
+  document.querySelectorAll('#eventInfoModal .ei-block[data-sec]').forEach(b=>{ b.classList.remove('ei-locked'); b.inert = false; });
+  const on = premOnThisEvent();
+  document.getElementById('eiLockNote').classList.toggle('hidden', on);
+  const t = document.getElementById('eiLockText');
+  if(t && !on){
+    t.innerHTML = accessTier >= 1 && premLeft() > 0
+      ? '<b>\u2728 You have Premium</b> (' + accessEventsUsed + ' of ' + accessEventsMax + ' events used). Sections marked <i>Premium</i> go live for guests when you publish this event and say yes to using Premium.'
+      : accessTier >= 1
+      ? '<b>All your Premium events are used.</b> Guests see Find my seat and your look on this event. Buy Premium again for 4 more events.'
+      : '<b>\u2728 Try everything free.</b> Fill in any section and see it in the preview, or on your phone with a test link. Guests see the sections marked <i>Premium</i> once you get Premium: R299 once-off for up to 4 events (wedding, engagement party, kitchen tea\u2026).';
+    document.getElementById('eiUnlockBtn').classList.toggle('hidden', accessTier >= 1 && premLeft() > 0);
+  }
   if(eiPageOpen()) eiRenderTiles();
 }
 const EI_FONTS = {dynalight:"'Dynalight',cursive", windsong:"'WindSong',cursive", bodoni:"'Bodoni Moda',serif", italiana:"'Italiana',serif", raleway:"'Raleway',sans-serif", ephesis:"'Ephesis',cursive"};
@@ -8840,11 +8881,7 @@ function eiPreviewData(){
   } finally { state.eventInfo = savedInfo; state.eventName = savedName; }
   /* show exactly what the published page will show for this plan (the live page removes the locked sections on the server) */
   if(data && data.info){
-    if(accessTier < 1){
-      ['program','programDays','menu','notes','songs','links','bankNote','bank','album'].forEach(k=>{ delete data.info[k]; });
-      const im = data.info.images || {}; data.info.images = {cover: im.cover || []};
-    }
-    data.plan = accessTier;
+    data.plan = accessTier;      /* the preview shows everything: she can try every section before she pays */
   }
   return data;
 }
@@ -9132,6 +9169,85 @@ function eiSongsSwitch(){
   document.getElementById('eiSongsOnState').textContent = on ? 'On \u2013 guests see a Song requests tab' : 'Off';
 }
 document.getElementById('eiSongsOn').addEventListener('change', eiSongsSwitch);
+
+/* ===================== Premium per event =====================
+   R299 Premium = up to 4 live events for 18 months. An event "uses" Premium the first time she
+   publishes it with Premium sections and says yes. Older plans (eventsMax empty) have no limit.
+   The server enforces all of this; the app only mirrors it. */
+let accessEventsMax = null, accessEventsUsed = 0, accessEventSlugs = new Set(), lastPremKey = '';
+function premLegacy(){ return accessTier >= 1 && accessEventsMax === null; }
+function premOnThisEvent(){ return premLegacy() || (!!currentPublishSlug && accessEventSlugs.has(currentPublishSlug)); }
+function premLeft(){ return accessEventsMax === null ? 99 : Math.max(0, accessEventsMax - accessEventsUsed); }
+function hasPremiumContent(){
+  const i = (buildGuestViewData() || {}).info || {};
+  const n = a=> Array.isArray(a) && a.length > 0;
+  const im = i.images || {};
+  return n(i.program) || n(i.programDays) || n(i.menu) || n(i.links) || n(i.notes) || !!i.songs || !!i.bankNote || n(i.bank) || !!i.album
+      || n(im.program) || n(im.menu) || n(im.notes) || n(im.bank);
+}
+function premAsk(){
+  return new Promise(res=>{
+    const left = premLeft(), max = accessEventsMax;
+    const o = document.createElement('div'); o.className = 'modal-overlay'; o.style.zIndex = 900;
+    o.innerHTML = '<div class="modal-card" style="max-width:440px;"><h3>Use Premium for this event?</h3>'
+      + '<p style="font-size:14.5px; line-height:1.55;">Your programme, menu and other Premium sections go live for guests. This uses <b>1 of your ' + max + ' Premium events</b> ('
+      + (left - 1) + ' left after this).</p>'
+      + '<p style="font-size:13px; color:var(--ink-soft); line-height:1.5;">Just testing? Choose <b>Not now</b> and use <b>Send a test link to my phone</b> instead. It doesn’t use an event.</p>'
+      + '<div class="modal-actions"><button type="button" class="ghost-btn" data-a="no">Not now</button><button type="button" class="primary-btn" data-a="yes">Yes, use Premium</button></div></div>';
+    o.addEventListener('click', e=>{ const b = e.target.closest('[data-a]'); if(!b && e.target !== o) return; o.remove(); res(!!b && b.dataset.a === 'yes'); });
+    document.body.appendChild(o);
+  });
+}
+async function premAfterPublish(manual){
+  if(premOnThisEvent() || !hasPremiumContent() || !(sb && cloudUser)) return;
+  if(accessTier < 1){
+    if(manual) toast('Live! Guests see Find my seat. Your programme, menu and other Premium sections go live once you get Premium (R299 once-off, up to 4 events).', 10000);
+    return;
+  }
+  if(!manual) return;                                  // automatic updates never ask
+  if(premLeft() <= 0){ toast('You’ve used all ' + accessEventsMax + ' Premium events, so guests see Find my seat only on this page. Buy Premium again for 4 more.', 10000); return; }
+  if(!(await premAsk())) { toast('Live without Premium sections. You can switch Premium on later by publishing again.', 7000); return; }
+  try{
+    const r = await sb.rpc('claim_premium_event', {p_slug: currentPublishSlug});
+    const d = r.data || {};
+    if(d.ok){
+      accessEventSlugs.add(currentPublishSlug); accessEventsUsed = +d.used || accessEventsUsed + 1;
+      pubSig = null; applyEiLocks();
+      toast('Premium is on for this event ✓ (' + accessEventsUsed + ' of ' + accessEventsMax + ' used).', 7000);
+    } else if(d.why === 'limit'){ accessEventsUsed = +d.used || accessEventsUsed; toast('You’ve used all your Premium events.', 7000); }
+    else toast('Could not switch Premium on. Please try again.', 7000);
+  }catch(e){ toast('Could not switch Premium on. Check your internet connection.', 7000); }
+}
+/* ---- test link: her real page on her own phone, for 48 hours, without using an event ---- */
+async function makeTestLink(){
+  if(!(sb && cloudUser && cloudEnabled)){ toast('Sign in first to make a test link.'); return; }
+  const box = document.getElementById('finderTestBox');
+  box.classList.remove('hidden'); box.innerHTML = '<p class="hint">Making your test link…</p>';
+  try{
+    const slug = 'test-' + Math.random().toString(36).slice(2, 8) + Math.random().toString(36).slice(2, 8);
+    const data = buildGuestViewData(); data.test = true;
+    const r = await sb.from('published').insert({slug, data, updated_at: new Date().toISOString()});
+    if(r.error) throw r.error;
+    const base = finderBaseUrl() || GUEST_PAGE_DEFAULT;
+    const link = base + (base.indexOf('?') > -1 ? '&' : '?') + 'event=' + slug;
+    const until = new Date(Date.now() + 48 * 3600000);
+    box.innerHTML = '';
+    const img = document.createElement('img'); img.className = 'test-qr'; img.alt = 'Scan with your phone'; img.src = drawFinderQr(link, '').toDataURL('image/png');
+    const tx = document.createElement('div'); tx.className = 'test-tx';
+    tx.innerHTML = '<b>Scan this with your phone camera</b>, or send the link to yourself.<br>'
+      + '<span class="test-note">It shows everything, Premium sections too, with a “Test” banner. It stops working on ' + until.toLocaleDateString([], {weekday:'short', day:'numeric', month:'short'}) + ' at ' + until.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + '. Don’t give it to guests: use your real link and QR code for that.</span>';
+    const row = document.createElement('div'); row.className = 'test-btns';
+    const wa = document.createElement('a'); wa.className = 'ghost-btn'; wa.target = '_blank'; wa.rel = 'noopener'; wa.textContent = 'Send to myself on WhatsApp';
+    wa.href = 'https://wa.me/?text=' + encodeURIComponent('My Tableau test page: ' + link);
+    const cp = document.createElement('button'); cp.type = 'button'; cp.className = 'ghost-btn'; cp.textContent = 'Copy link';
+    cp.addEventListener('click', ()=>{ try{ navigator.clipboard.writeText(link); toast('Link copied.'); }catch(e){ prompt('Copy this link:', link); } });
+    const op = document.createElement('a'); op.className = 'ghost-btn'; op.target = '_blank'; op.rel = 'noopener'; op.href = link; op.textContent = 'Open here';
+    row.append(wa, cp, op); tx.appendChild(row);
+    box.append(img, tx);
+  }catch(e){
+    box.innerHTML = '<p class="hint" style="color:#b0281c;">Could not make a test link. ' + (/test|exception|policy|permission/i.test(String(e && (e.message || e))) ? 'Your database needs the Premium update first.' : 'Check your internet connection and try again.') + '</p>';
+  }
+}
 /* ===================== Programme and menu as fill-in boxes =====================
    Stored as before (lines of text), so older weddings and the guest page keep working:
    programme "14:00 | Ceremony | Chapel", menu "# Starters" then one dish per line. */
@@ -9259,14 +9375,16 @@ function eiRenderTiles(){
   const locked = accessTier < 1;
   EI_SECS.forEach(sec=>{
     const b = document.createElement('button'); b.type = 'button'; b.className = 'ei-chip' + (sec.k === eiCurrent ? ' on' : '');
-    const lk = locked && !EI_FREE_SECS.includes(sec.k);
-    const st = lk ? {done:false} : eiStatus(sec.k);
+    const lk = false;
+    const st = eiStatus(sec.k);
+    const premTag = !premOnThisEvent() && !EI_FREE_SECS.includes(sec.k);
     b.title = sec.d;
     const mark = document.createElement('i'); mark.className = lk ? 'lk' : (st.done ? 'ok' : '');
     mark.textContent = lk ? '🔒' : (st.done ? '✓' : '');
     const t = document.createElement('span'); t.textContent = sec.t;
     b.append(mark, t);
-    b.addEventListener('click', ()=>{ if(lk){ needPlan(1, sec.t); return; } if(sec.k !== eiCurrent){ eiCommit(false); eiOpenSec(sec.k); } });
+    if(premTag){ const pt = document.createElement('em'); pt.className = 'ei-prem'; pt.textContent = 'Premium'; b.appendChild(pt); }
+    b.addEventListener('click', ()=>{ if(sec.k !== eiCurrent){ eiCommit(false); eiOpenSec(sec.k); } });
     box.appendChild(b);
   });
 }
@@ -9385,7 +9503,6 @@ function eiRefreshPhone(now){
     const i = EI_SECS.findIndex(x=> x.k === eiCurrent);
     for(let j = i + 1; j < EI_SECS.length; j++){
       const nx = EI_SECS[j];
-      if(accessTier < 1 && !EI_FREE_SECS.includes(nx.k)) continue;
       eiOpenSec(nx.k); return;
     }
     eiShowTiles();
@@ -9468,7 +9585,7 @@ async function buyPlan(tier){
   }
 })();
 const PLAN_NAMES = ['Free', 'Premium', 'Full planner'];
-const PLAN_PRICE = ['Free', 'R299 once-off', 'Full planner'];
+const PLAN_PRICE = ['Free', 'R299 once-off, up to 4 events', 'Full planner'];
 const PLAN_LINES = [
   'Seating chart, floor plan, guest page and QR code',
   'Adds programme, menu, a note from you, gifts, photos, song requests and links to your guest page',
@@ -9493,18 +9610,24 @@ async function checkAccess(){
     } else {
       t = r.data.ok ? (r.data.tier != null ? +r.data.tier : 2) : 0;
       accessExpires = r.data.expires || null; accessHad = !!r.data.had;
+      accessEventsMax = (r.data.eventsMax == null) ? null : +r.data.eventsMax;
+      accessEventsUsed = +(r.data.eventsUsed || 0);
+      accessEventSlugs = new Set(r.data.eventSlugs || []);
     }
   }catch(e){ t = 2; tellExpiry = false; }
-  const changed = (t !== accessTier);
-  accessTier = t;
+  const premKey = premOnThisEvent() + '|' + accessEventsUsed;
+  const changed = (t !== accessTier) || premKey !== lastPremKey;
+  accessTier = t; lastPremKey = premOnThisEvent() + '|' + accessEventsUsed;
   if(changed){ pubSig = null; }
   updateAccessUI();
   if(tellExpiry){
     if(accessTier > 0 && accessExpires){
       const days = Math.ceil((new Date(accessExpires) - new Date()) / 86400000);
-      if(days <= 30) toast('Your ' + PLAN_NAMES[accessTier] + ' plan ends on ' + fmtLong(accessExpires) + '. Use Account → Plan & payment to add another year.', 9000);
+      if(days <= 30) toast(accessEventsMax != null
+        ? 'Premium editing ends on ' + fmtLong(accessExpires) + '. Your guest pages stay online after that.'
+        : 'Your ' + PLAN_NAMES[accessTier] + ' plan ends on ' + fmtLong(accessExpires) + '. Use Account → Plan & payment to unlock again.', 9000);
     } else if(accessTier === 0 && accessHad){
-      toast('Your plan has ended. Your charts are safe and your guest page still works. Use Account → Plan & payment to unlock again.', 9000);
+      toast(accessEventSlugs.size ? 'Premium editing has ended. Your guest pages stay online and your charts are safe.' : 'Your plan has ended. Your charts are safe and your guest page still works. Use Account → Plan & payment to unlock again.', 9000);
     }
   }
 }
@@ -9561,7 +9684,8 @@ function openAccessModal(need, what){
   document.getElementById('accessIntro').textContent = intro;
   const cur = accessTier;
   let line = 'Your plan: ' + PLAN_NAMES[cur];
-  if(cur > 0 && accessExpires && (new Date(accessExpires) - new Date()) > 3 * 365 * 86400000) line += ' (once-off, yours to keep)';
+  if(cur > 0 && accessEventsMax != null) line += ' \u00b7 ' + accessEventsUsed + ' of ' + accessEventsMax + ' events used \u00b7 editing until ' + fmtLong(accessExpires);
+  else if(cur > 0 && accessExpires && (new Date(accessExpires) - new Date()) > 3 * 365 * 86400000) line += ' (once-off, yours to keep)';
   else if(cur > 0 && accessExpires) line += ' (until ' + fmtLong(accessExpires) + ')';
   else if(cur > 0) line += ' (no end date)';
   else if(accessHad) line += ' — your last plan has ended';
@@ -9570,7 +9694,7 @@ function openAccessModal(need, what){
     '<div class="plan-row' + (i === cur ? ' now' : '') + (i === accessNeed ? ' need' : '') + '"><b>' + (i <= cur ? '✓ ' : '🔒 ') + nm + ' <small style="font-weight:600; color:var(--ink-soft);">&middot; ' + PLAN_PRICE[i] + '</small></b><span>' + PLAN_LINES[i] + '</span>' + (i > 0 ? '<a href="#" class="plan-more" data-plan="' + i + '">More info</a>' : '') + '</div>').join('');
   // Show buy buttons for plans the user doesn't have yet
   const row = document.getElementById('accessBuyRow');
-  if(signedIn && cur < 1){
+  if(signedIn && (cur < 1 || (cur === 1 && accessEventsMax != null && premLeft() <= 1))){
     row.classList.remove('hidden');
     const b1 = document.getElementById('accessBuyBtn1'), b2 = document.getElementById('accessBuyBtn2');
     if(b1){ b1.classList.remove('hidden'); b1._orig = 'Buy Premium – R299 once-off'; b1.textContent = b1._orig; b1.disabled = false; }
@@ -9630,7 +9754,7 @@ function openPlanInfo(n){
   const d = PLAN_INFO[n]; if(!d) return;
   planInfoNow = n;
   document.getElementById('planInfoTitle').textContent = d.title;
-  document.getElementById('planInfoPrice').textContent = n === 1 ? 'R299 once-off \u00b7 pay once for your wedding' : (n === 2 ? 'Planning tools are in beta' : PLAN_PRICE[n]);
+  document.getElementById('planInfoPrice').textContent = n === 1 ? 'R299 once-off \u00b7 up to 4 events (wedding, engagement party, kitchen tea, rehearsal dinner) \u00b7 18 months' : (n === 2 ? 'Planning tools are in beta' : PLAN_PRICE[n]);
   document.getElementById('planInfoList').innerHTML = d.bullets.map(b=> '<li>' + b + '</li>').join('');
   const box = document.getElementById('planInfoImgs'); box.innerHTML = '';
   for(let i = 1; i <= 3; i++){
@@ -9665,7 +9789,7 @@ document.getElementById('planInfoBuy').addEventListener('click', ()=>{
 });
 /* Guests only get what the plan includes (the server does the same, so it can't be bypassed) */
 function tierView(d){
-  if(accessTier >= 1 || !d || !d.info) return d;
+  if(premOnThisEvent() || !d || !d.info) return d;
   const i = d.info, cov = (i.images && i.images.cover) || [];
   ['program','programDays','menu','notes','songs','links','bankNote','bank','album'].forEach(k=> delete i[k]);
   i.images = {cover: cov};
@@ -9739,7 +9863,7 @@ document.getElementById('pubPill').addEventListener('click', async ()=>{
   if(st === 'retry'){ await pubSendNow(); return; }
   /* first publish: publish, then show the link and QR code */
   if(!(hasAccess && sb && cloudUser && cloudEnabled)){ openFinderModal(); return; }
-  if(await pubSendNow()) openFinderModal();
+  if(await pubSendNow()){ openFinderModal(); premAfterPublish(true); }
 });
 setInterval(refreshPublishFloat, 3000);
 document.getElementById('btnPublishFloat').addEventListener('click', async ()=>{
@@ -9815,7 +9939,8 @@ document.getElementById('btnFinderSignIn').addEventListener('click', ()=>{
   document.getElementById('finderModal').classList.add('hidden');
   showAuthScreen('signin');
 });
-document.getElementById('btnFinderPublish').addEventListener('click', publishGuestPage);
+document.getElementById('btnFinderPublish').addEventListener('click', async ()=>{ await publishGuestPage(); if(/Published/.test(document.getElementById('finderStatus').textContent)) premAfterPublish(true); });
+document.getElementById('btnTestLink').addEventListener('click', makeTestLink);
 document.getElementById('btnFinderOpen').addEventListener('click', ()=>{
   const link = finderLinkFor(); if(!link){ toast('Publish the guest page first to get your link.'); return; }
   window.open(link, '_blank');
