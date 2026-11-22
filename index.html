@@ -895,17 +895,19 @@
   .bm-opt:hover{border-color:var(--sage-dark); background:var(--linen);}
   .bm-opt b{display:block; font-size:15.5px; color:var(--sage-dark); margin-bottom:4px;}
   .bm-opt span{display:block; font-size:13.5px; line-height:1.5; color:var(--ink-soft);}
-  .chart-row{display:flex; align-items:center; gap:10px; padding:11px 12px; border:1px solid var(--line); border-radius:6px; margin-bottom:8px; background:var(--linen);}
-  .chart-row .cr-name{flex:1; font-weight:500; word-break:break-word;}
-  .chart-row .cr-date{font-size:12px; color:var(--ink-soft);}
+  .chart-row{display:flex; flex-wrap:wrap; align-items:baseline; gap:10px 12px; padding:12px 14px; border:1px solid var(--line); border-radius:8px; margin-bottom:10px; background:var(--linen);}
+  .chart-row .cr-name{flex:1 1 auto; min-width:0; font-weight:600; font-size:16px; overflow-wrap:anywhere;}
+  .chart-row .cr-date{flex:0 0 auto; font-size:12px; color:var(--ink-soft);}
+  .chart-row .cr-actions{flex:1 1 100%; display:flex; gap:8px;}
   .chart-row button{font-size:13px; padding:6px 12px;}
+  .chart-row .cr-open{background:var(--btn); border-color:var(--btn); color:#fff;}
+  .chart-row .cr-actions .chart-del{margin-left:auto;}
   @media (max-width:600px){
     /* phone: name and date on top, the three buttons share the line below */
     .charts-head{flex-direction:column; align-items:flex-start; gap:2px;}
-    .chart-row{flex-wrap:wrap; gap:8px; padding:12px;}
-    .chart-row .cr-name{flex:1 1 60%; font-size:16px;}
-    .chart-row .cr-date{flex:0 0 auto; align-self:center;}
+    .chart-row{padding:12px;}
     .chart-row button{flex:1 1 0; padding:9px 6px; font-size:14px;}
+    .chart-row .cr-actions .chart-del{margin-left:0;}
     .new-chart-row{flex-direction:column; align-items:stretch;}
     .new-chart-row input, .new-chart-row button{width:100%; box-sizing:border-box; margin-left:0 !important; margin-right:0 !important;}
   }
@@ -971,7 +973,9 @@
   .fp-bulk-link{display:block; width:100%; margin:-2px 0 8px; border:none; background:none; color:var(--sage-dark); font:inherit; font-size:13px; font-weight:600; cursor:pointer; text-align:left; padding:2px 0;}
   .fp-bulk-link:hover{text-decoration:underline;}
   @media (max-width:600px){ .bulk-list{grid-template-columns:1fr;} }
-  .ends-row{display:flex; gap:18px; flex-wrap:wrap; font-size:14px;}
+  .seat-summary{margin-top:10px; font-size:13.5px; color:var(--sage-dark); font-weight:600;}
+  .seat-summary:empty{display:none;}
+  .ends-row{margin-top:8px; display:flex; gap:18px; flex-wrap:wrap; font-size:14px;}
   .ends-row select{margin-left:6px; padding:5px 8px; border:1px solid var(--line); border-radius:6px; font:inherit;}
   .end-seat-wrap{flex-shrink:0; display:flex; flex-direction:column; justify-content:center; gap:8px; align-self:center;}
 
@@ -1563,6 +1567,9 @@
     opacity:0; transition:all .25s; pointer-events:none; max-width:420px; text-align:center;
   }
   #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  #toast.show:has(.toast-undo){pointer-events:auto;}
+  .toast-undo{margin-left:12px; border:1px solid rgba(255,255,255,.6); background:transparent; color:#fff; border-radius:999px; padding:3px 12px; font:inherit; font-weight:600; cursor:pointer;}
+  .toast-undo:hover{background:rgba(255,255,255,.15);}
 
   input[type=file]{display:none;}
 
@@ -1834,7 +1841,7 @@
 
   <div id="rectFields">
     <div class="field-row">
-      <label>Table size (total seats along the two long sides)</label>
+      <label>Table size (total seats)</label>
       <div class="size-options" id="sizeOptions">
         <button class="size-opt" data-size="6">6</button>
         <button class="size-opt" data-size="8">8</button>
@@ -2317,7 +2324,7 @@
     </div>
     <div id="newRectFields">
       <div class="field-row">
-        <label>Table size (total seats along the two long sides)</label>
+        <label>Table size (total seats)</label>
         <div class="size-options" id="newTableSizeOptions">
           <button class="size-opt" data-size="6">6</button>
           <button class="size-opt" data-size="8">8</button>
@@ -2330,11 +2337,12 @@
         </div>
       </div>
       <div class="field-row" style="margin-bottom:8px;">
-        <label>Seats at the ends <span style="font-weight:400; color:var(--ink-soft);">(e.g. 2 kids at the head)</span></label>
-        <div class="ends-row">
+        <div class="toggle-row"><input type="checkbox" id="newTableEndsOn"><span>Include seats at the ends</span></div>
+        <div class="ends-row hidden" id="newTableEndsPick">
           <span>Left end <select id="newTableEndsL"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></span>
           <span>Right end <select id="newTableEndsR"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></span>
         </div>
+        <div class="seat-summary" id="newTableSeatSummary"></div>
       </div>
     </div>
     <div id="newRoundFields" class="hidden">
@@ -5480,14 +5488,37 @@ function buildTableFromFields(shape, opts, existingId){
   } else {
     total = parseInt(opts.size, 10);
   }
-  const perSide = Math.ceil(total/2);
-  const out = {id, name, shape:'rectangle', seatsPerSide: perSide, hasEnds: !!opts.hasEnds};
-  if(opts.ends) setEnds(out, opts.ends.L, opts.ends.R);
+  const ends = opts.ends || (opts.hasEnds ? {L:1, R:1} : {L:0, R:0});
+  const out = {id, name, shape:'rectangle', seatsPerSide: rectSplit(total, ends.L, ends.R).per};
+  setEnds(out, ends.L, ends.R);
   return out;
 }
 
-function setEndsUI(L, R){ document.getElementById('newTableEndsL').value = String(Math.min(4, L|0)); document.getElementById('newTableEndsR').value = String(Math.min(4, R|0)); }
-function getEndsUI(){ return {L: +document.getElementById('newTableEndsL').value || 0, R: +document.getElementById('newTableEndsR').value || 0}; }
+function setEndsUI(L, R){
+  const on = (L|0) + (R|0) > 0;
+  document.getElementById('newTableEndsOn').checked = on;
+  document.getElementById('newTableEndsL').value = String(on ? Math.min(4, L|0) : 1);
+  document.getElementById('newTableEndsR').value = String(on ? Math.min(4, R|0) : 1);
+  document.getElementById('newTableEndsPick').classList.toggle('hidden', !on);
+  updateSeatSummary();
+}
+function getEndsUI(){
+  if(!document.getElementById('newTableEndsOn').checked) return {L:0, R:0};
+  return {L: +document.getElementById('newTableEndsL').value || 0, R: +document.getElementById('newTableEndsR').value || 0};
+}
+/* long tables: the size she picks is the total, end seats included. Say plainly how it works out. */
+function rectSplit(total, L, R){ const per = Math.max(1, Math.ceil((total - L - R) / 2)); return {per, total: per*2 + L + R}; }
+function updateSeatSummary(){
+  const out = document.getElementById('newTableSeatSummary'); if(!out) return;
+  if(typeof newTableChosenShape !== 'undefined' && newTableChosenShape !== 'rectangle'){ out.textContent = ''; return; }
+  const sz = typeof newTableChosenSize !== 'undefined' ? newTableChosenSize : null;
+  const total = sz === 'custom' ? parseInt(document.getElementById('newTableCustomSize').value, 10) : parseInt(sz, 10);
+  if(!total){ out.textContent = ''; return; }
+  const e = getEndsUI(), sp = rectSplit(total, e.L, e.R);
+  let ends = '';
+  if(e.L || e.R) ends = (e.L === e.R) ? ' + ' + e.L + ' at each end' : ' + ' + [e.L ? e.L + ' at the left end' : '', e.R ? e.R + ' at the right end' : ''].filter(Boolean).join(' + ');
+  out.textContent = sp.per + ' on each long side' + ends + ' = ' + sp.total + ' seats' + (sp.total !== total ? ' (an odd number can\u2019t be split evenly)' : '');
+}
 /* seats at the ends of a long table: any number per end (older charts: hasEnds = one at each end) */
 function endsOf(t, s){
   if(!t || t.shape !== 'rectangle' || t.oneSide) return 0;
@@ -6327,14 +6358,16 @@ function renderTableTabs(){
       del.title = 'Delete this table';
       del.addEventListener('click', e=>{
         e.stopPropagation();
-        if(occupied > 0){ toast(`Move or unseat the ${occupied} guest${occupied===1?'':'s'} at "${t.name}" first.`); return; }
-        if(!confirm(`Delete "${t.name}"?`)) return;
+        /* no "are you sure?": it goes at once, with Undo right there in the message */
         pushUndo();
+        state.guests.forEach(g=>{ if(g.seat && g.seat.tableId === t.id) g.seat = null; });
         state.tables = state.tables.filter(x=>x.id!==t.id);
         if(state.activeTableId === t.id){ state.activeTableId = state.tables[0].id; }
-        if(state.floorPlan){ state.floorPlan.items = state.floorPlan.items.filter(it=>it.tableId!==t.id); }
+        if(state.floorPlan){ state.floorPlan.items = state.floorPlan.items.filter(it=>it.tableId!==t.id); (state.floorPlan.layouts || []).forEach(l=>{ if(l.items) l.items = l.items.filter(it=> it.tableId !== t.id); }); }
         updateTopSub();
-        renderTable();
+        renderTable(); renderGuestList(); renderGroups();
+        if(state.floorPlan && !document.getElementById('floorPlanView').classList.contains('hidden')) renderFloorPlan();
+        toastUndo('\u201c' + t.name + '\u201d deleted' + (occupied ? '. ' + occupied + (occupied === 1 ? ' guest is' : ' guests are') + ' back on the guest list.' : '.'));
       });
       tab.appendChild(del);
     }
@@ -6376,6 +6409,7 @@ newTableShapeOptions.querySelectorAll('.shape-opt').forEach(btn=>{
     document.getElementById('newBridalFields').classList.toggle('hidden', newTableChosenShape !== 'bridal');
     document.getElementById('newTableCountRow').classList.toggle('hidden', !!editingTableId || newTableChosenShape === 'bridal');
     updateMultiNames();
+    updateSeatSummary();
     updateDimFieldVisibility();
   });
 });
@@ -6412,8 +6446,12 @@ newTableSizeOptions.querySelectorAll('.size-opt').forEach(btn=>{
     btn.classList.add('selected');
     newTableChosenSize = btn.dataset.size;
     newTableCustomWrap.classList.toggle('hidden', newTableChosenSize !== 'custom');
+    updateSeatSummary();
   });
 });
+document.getElementById('newTableEndsOn').addEventListener('change', e=>{ document.getElementById('newTableEndsPick').classList.toggle('hidden', !e.target.checked); updateSeatSummary(); });
+['newTableEndsL', 'newTableEndsR'].forEach(id=> document.getElementById(id).addEventListener('change', updateSeatSummary));
+document.getElementById('newTableCustomSize').addEventListener('input', updateSeatSummary);
 
 let editingTableId = null;
 
@@ -6472,7 +6510,7 @@ function openAddTableModal(){
     fillDimFields(null);
   }
 
-  document.getElementById('addTableModal').classList.remove('hidden');
+  document.getElementById('addTableModal').classList.remove('hidden'); updateSeatSummary();
 }
 
 // Opens the same modal pre-filled with an existing table's current shape/size, for editing in place.
@@ -6510,7 +6548,7 @@ function openEditTableModal(tableId){
   } else if(t.oneSide){
     /* bridal: nothing else to fill */
   } else {
-    const total = t.seatsPerSide*2;
+    const total = tableTotalSeats(t);
     const preset = [6,8,10,12].includes(total) ? String(total) : 'custom';
     newTableChosenSize = preset;
     newTableSizeOptions.querySelectorAll('.size-opt').forEach(b=>b.classList.toggle('selected', b.dataset.size === preset));
@@ -6520,7 +6558,7 @@ function openEditTableModal(tableId){
   }
   fillDimFields(t.dim);
 
-  document.getElementById('addTableModal').classList.remove('hidden');
+  document.getElementById('addTableModal').classList.remove('hidden'); updateSeatSummary();
 }
 
 /* ===================== FLOOR PLAN: TABLE DIMENSIONS MODAL ===================== */
@@ -12485,7 +12523,8 @@ async function openChartsScreen(){
     ren.addEventListener('click', ()=> renameProject(row));
     const cp = document.createElement('button'); cp.className = 'ghost-btn'; cp.textContent = 'Copy'; cp.title = 'Make a full copy to try something different';
     cp.addEventListener('click', ()=> copyProject(row.id, row.name));
-    el.append(nm, dt, open, ren, cp, del);
+    const acts = document.createElement('div'); acts.className = 'cr-actions'; open.classList.add('cr-open'); acts.append(open, ren, cp, del);
+    el.append(nm, dt, acts);
     list.appendChild(el);
   });
 }
@@ -13033,6 +13072,14 @@ document.getElementById('btnReset').addEventListener('click', ()=>{
 
 /* ===================== HELPERS ===================== */
 let toastTimer = null;
+/* a message with an Undo button in it */
+function toastUndo(msg){
+  toast(msg, 7000);
+  const el = document.getElementById('toast');
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'toast-undo'; b.textContent = 'Undo';
+  b.addEventListener('click', ()=>{ const u = document.getElementById('btnUndo'); if(u && !u.disabled) u.click(); el.classList.remove('show'); });
+  el.appendChild(b);
+}
 function toast(msg, duration=3200){
   const el = document.getElementById('toast');
   el.textContent = msg;
