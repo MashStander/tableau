@@ -632,6 +632,19 @@
   .ei-sw-text small{font-size:12.5px; color:var(--ink-soft); margin-top:2px;}
   .ls-planning{display:none !important;}
 
+
+  /* doors, side rooms, outside areas */
+  .floor-item.fp-door{background:#fdfbf6 !important; border:none !important; border-left:2px solid #3a342c !important; border-right:2px solid #3a342c !important; border-radius:0 !important;}
+  .fp-door-svg{position:absolute; left:0; top:50%; pointer-events:none; overflow:visible;}
+  .floor-item.fp-room{background:#f7f4ee; border:3px solid #3a342c; border-radius:0; color:#2f2a24; font-weight:700;}
+  .floor-item.fp-outdoor{border:2px dashed #6f6556; border-radius:0; color:#3f382f; font-weight:600;}
+  .floor-item.fp-out-boards{background:repeating-linear-gradient(90deg, #efe2cc 0 9px, #e3d2b5 9px 10px);}
+  .floor-item.fp-out-paving{background:#ece9e3; background-image:linear-gradient(#d8d3ca 1px, transparent 1px), linear-gradient(90deg, #d8d3ca 1px, transparent 1px); background-size:14px 14px;}
+  .floor-item.fp-out-grass{background:#e4efdc; background-image:radial-gradient(#c6dcb7 1.2px, transparent 1.3px); background-size:9px 9px;}
+  .fp-pal-sub{margin:12px 0 4px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);}
+  .fp-pal-hint{font-size:11.5px; color:var(--ink-soft); margin:0 0 6px; line-height:1.35;}
+  .fp-palette-item.fp-pal-room{border-left:4px solid #3a342c;}
+  .fp-palette-item.fp-pal-outdoor{border-style:dashed;}
   /* ---- seating on the floor plan ---- */
   .floor-item.fp-table.fp-round{border-radius:50%;}
   .floor-item.fp-table:not(.resizing) .fp-dim-tag{display:none !important;}
@@ -1132,7 +1145,8 @@
   .floor-item.fp-door .fp-del{display:none; top:-26px; right:-4px; left:auto;}
   .floor-item.fp-door .fp-rot-btn{top:-26px; left:-4px; right:auto;}
   .floor-item.fp-door:hover .fp-del, .floor-item.fp-door:hover .fp-rot-btn, .floor-item.fp-door.show-ctrl .fp-del, .floor-item.fp-door.show-ctrl .fp-rot-btn{display:block;}
-  .floor-item.fp-door .fp-resize-handle{right:-6px; top:-5px; bottom:auto; width:12px; height:19px; border-radius:3px; background:#4b3720; cursor:ew-resize;}
+  .floor-item.fp-door .fp-resize-handle{right:-6px; top:-5px; bottom:auto; width:10px; height:16px; border-radius:3px; background:var(--sage-dark); cursor:ew-resize; opacity:0; transition:opacity .12s;}
+  .floor-item.fp-door:hover .fp-resize-handle, .floor-item.fp-door.show-ctrl .fp-resize-handle{opacity:.85;}
   .floor-item.fp-door .fp-dim-tag{top:-26px; margin-top:0;}
   .fp-mylabels{margin-top:10px; padding-top:10px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:7px;}
   .fp-mylabels-title{font-size:12px; font-weight:600; color:var(--ink-soft);}
@@ -7155,7 +7169,8 @@ function fpUpdateScale(){
   let ppu = 70;
   if(fpFitToScreen && fp && fp.roomWidth > 0 && wrap && wrap.offsetWidth > 100){
     const avail = wrap.offsetWidth - 48 - 4;
-    let fitW = avail / fp.roomWidth;
+    const oo = fpOutside(fp);
+    let fitW = avail / (fp.roomWidth + oo.l + oo.r);
     /* also fit the room's depth into the space left on the screen, so the whole room shows without scrolling */
     let fitH = Infinity;
     if(fp.roomDepth > 0){
@@ -7166,7 +7181,7 @@ function fpUpdateScale(){
       if(sc && sc !== document.body){ const sr = sc.getBoundingClientRect(); top = wr.top - sr.top + sc.scrollTop; viewH = sc.clientHeight; }
       else { top = wr.top + window.scrollY; viewH = window.innerHeight; }
       const availH = viewH - top - 48 - 24;
-      if(availH > 120) fitH = availH / fp.roomDepth;
+      if(availH > 120) fitH = availH / (fp.roomDepth + oo.t + oo.b);
     }
     ppu = Math.max(12, Math.min(70, fitW, fitH));
   }
@@ -7176,12 +7191,12 @@ function fpUpdateScale(){
   return changed;
 }
 const FP_KIND_LABELS = {
-  dancefloor: 'Dance floor', restroom: 'Restroom', door2: 'Door',
-  door4: 'Door', podium: 'Podium', bar: 'Bar', label: 'Label'
+  dancefloor: 'Dance floor', restroom: 'Restroom', door2: 'Door', door4: 'Door', door1: 'Door', dfr: 'French doors', dsl: 'Sliding doors',
+  podium: 'Podium', bar: 'Bar', label: 'Label', room: 'Room', outdoor: 'Deck'
 };
 const FP_KIND_CLASS = {
-  dancefloor:'fp-dancefloor', restroom:'fp-restroom', door2:'fp-door',
-  door4:'fp-door', podium:'fp-podium', bar:'fp-bar', label:'fp-label'
+  dancefloor:'fp-dancefloor', restroom:'fp-restroom', door2:'fp-door', door4:'fp-door', door1:'fp-door', dfr:'fp-door', dsl:'fp-door',
+  podium:'fp-podium', bar:'fp-bar', label:'fp-label', room:'fp-room', outdoor:'fp-outdoor'
 };
 
 function round2(n){ return Math.round(n*100)/100; }
@@ -7189,10 +7204,15 @@ function metersToUnit(m, unit){ return unit === 'ft' ? m*3.28084 : m; }
 
 const FP_DOOR_PX = 9;
 const FP_DOOR_T = Math.round((FP_DOOR_PX/70)*100)/100;
-function isDoorKind(k){ return k === 'door2' || k === 'door4'; }
+function isDoorKind(k){ return k === 'door2' || k === 'door4' || k === 'door1' || k === 'dfr' || k === 'dsl'; }
 function defaultFloorSize(kind, table, unit){
   if(kind === 'door2') return unit==='ft' ? {w:6,h:FP_DOOR_T} : {w:2,h:FP_DOOR_T};
   if(kind === 'door4') return unit==='ft' ? {w:12,h:FP_DOOR_T} : {w:4,h:FP_DOOR_T};
+  if(kind === 'door1') return unit==='ft' ? {w:3,h:FP_DOOR_T} : {w:0.9,h:FP_DOOR_T};
+  if(kind === 'dfr') return unit==='ft' ? {w:6,h:FP_DOOR_T} : {w:1.8,h:FP_DOOR_T};
+  if(kind === 'dsl') return unit==='ft' ? {w:8,h:FP_DOOR_T} : {w:2.4,h:FP_DOOR_T};
+  if(kind === 'room') return unit==='ft' ? {w:13,h:10} : {w:4,h:3};
+  if(kind === 'outdoor') return unit==='ft' ? {w:20,h:10} : {w:6,h:3};
   if(kind === 'table' && table){
     if(table.dim){
       const toUnit = v => {
@@ -7359,6 +7379,8 @@ function renderFloorPlan(){
   canvas.innerHTML = '';
   canvas.style.width = (fp.roomWidth*FP_PX_PER_UNIT) + 'px';
   canvas.style.height = (fp.roomDepth*FP_PX_PER_UNIT) + 'px';
+  { const o = fpOutside(fp), P = FP_PX_PER_UNIT;
+    canvas.style.margin = (o.t*P) + 'px ' + (o.r*P) + 'px ' + (o.b*P) + 'px ' + (o.l*P) + 'px'; }
 
   fp.items.forEach(item=> canvas.appendChild(buildFloorItemEl(item)));
   canvas.querySelectorAll('.floor-item').forEach(fitFloorLabel);
@@ -7386,17 +7408,21 @@ function renderFloorPlan(){
       tableId = table.id;
       kind = 'table';
     } else {
-      size = defaultFloorSize(data.fpKind, null, fp.unit);
+      size = {...defaultFloorSize(data.fpKind, null, fp.unit)};
+      if(data.w) size.w = +data.w;
       label = (data.text && String(data.text).slice(0,60)) || FP_KIND_LABELS[data.fpKind] || 'Label';
     }
 
     pushUndo();
-    fp.items.push({
+    const nu = {
       id: uid('fp'), kind, tableId, label,
       x: isDoorKind(kind) ? round2(dropX - size.w/2) : Math.max(0, round2(dropX - size.w/2)),
       y: isDoorKind(kind) ? round2(dropY - size.h/2) : Math.max(0, round2(dropY - size.h/2)),
       w: size.w, h: size.h
-    });
+    };
+    fp.items.push(nu);
+    if(isDoorKind(kind)) fpSnapDoorToWall(nu, true);
+    if(kind === 'outdoor') fpPlaceOutside(nu, dropX, dropY);
     renderFloorPlan();
   };
 }
@@ -7426,19 +7452,42 @@ function renderFloorPalette(){
 
   const shapesWrap = document.getElementById('fpShapesPalette');
   shapesWrap.innerHTML = '';
-  const doorLabel2 = fp.unit==='ft' ? '(6ft)' : '(2m)';
-  const doorLabel4 = fp.unit==='ft' ? '(12ft)' : '(4m)';
+  const ft = fp.unit === 'ft', L = (m, f)=> ft ? f + ' ft' : m + ' m';
   const shapeDefs = [
     {kind:'dancefloor', label:'Dance floor'},
     {kind:'restroom', label:'Restroom'},
-    {kind:'door2', label:'Door ' + doorLabel2},
-    {kind:'door4', label:'Door ' + doorLabel4},
     {kind:'podium', label:'Podium'},
     {kind:'bar', label:'Bar'},
     {kind:'label', label:'DJ', text:'DJ'},
     {kind:'label', label:'Gifts table', text:'Gifts table'},
     {kind:'label', label:'Buffet', text:'Buffet'},
   ];
+  /* doors, side rooms and outside areas get their own short lists */
+  const doorDefs = [
+    {kind:'door1', label:'Single door (' + L(0.9, 3) + ')', w: ft ? 3 : 0.9},
+    {kind:'dfr', label:'French doors (' + L(1.2, 4) + ')', w: ft ? 4 : 1.2},
+    {kind:'dfr', label:'French doors (' + L(1.8, 6) + ')', w: ft ? 6 : 1.8},
+    {kind:'dfr', label:'French doors (' + L(2.4, 8) + ')', w: ft ? 8 : 2.4},
+    {kind:'dsl', label:'Sliding doors (' + L(1.8, 6) + ')', w: ft ? 6 : 1.8},
+    {kind:'dsl', label:'Sliding doors (' + L(2.4, 8) + ')', w: ft ? 8 : 2.4},
+    {kind:'dsl', label:'Sliding doors (' + L(3.6, 12) + ')', w: ft ? 12 : 3.6},
+  ];
+  const roomDefs = ['Kitchen', 'Restrooms', 'Coat room', 'Bridal suite', 'Storage'].map(t=> ({kind:'room', label:t, text:t}));
+  const outDefs = ['Deck', 'Patio', 'Porch', 'Garden', 'Terrace'].map(t=> ({kind:'outdoor', label:t, text:t}));
+  const extra = document.createElement('div'); extra.className = 'fp-pal-extra';
+  const addGroup = (title, defs, hint)=>{
+    const h = document.createElement('div'); h.className = 'fp-pal-sub'; h.textContent = title; extra.appendChild(h);
+    if(hint){ const n = document.createElement('div'); n.className = 'fp-pal-hint'; n.textContent = hint; extra.appendChild(n); }
+    defs.forEach(def=>{
+      const it = document.createElement('div'); it.className = 'fp-palette-item fp-pal-' + def.kind; it.draggable = true; it.textContent = def.label;
+      it.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', JSON.stringify({fpKind:def.kind, text:def.text, w:def.w})); });
+      extra.appendChild(it);
+    });
+  };
+  addGroup('Doors', doorDefs, 'Drop near a wall and it clicks onto it.');
+  addGroup('Side rooms', roomDefs, 'Drag against a wall, then stretch to size. Rename with \u270e.');
+  addGroup('Outside areas', outDefs, 'Drop near a wall and it goes outside it.');
+  setTimeout(()=>{ shapesWrap.querySelectorAll('.fp-pal-extra').forEach(x=> x.remove()); const ml = shapesWrap.querySelector('.fp-mylabels'); if(ml) shapesWrap.insertBefore(extra, ml); else shapesWrap.appendChild(extra); }, 0);
   if(!fp.shapeNames || typeof fp.shapeNames !== 'object') fp.shapeNames = {};
   shapeDefs.forEach(def=>{
     const item = document.createElement('div');
@@ -7591,6 +7640,92 @@ function fpShowTableBar(el, item){
   const cv = document.getElementById('floorCanvas'); cv.appendChild(bar);
   const half = bar.offsetWidth / 2, cx = (b.l + b.r) / 2 * P, maxX = cv.offsetWidth;
   bar.style.left = Math.max(half + 4, Math.min(maxX - half - 4, cx)) + 'px';
+}
+
+/* ===================== Doors, side rooms and outside areas ===================== */
+/* how far things stick out beyond the walls (only outside areas may), plus a little breathing room */
+function fpOutside(fp){
+  const o = {t:0, r:0, b:0, l:0}, pad = fp.unit === 'ft' ? 2 : 0.6;
+  (fp.items || []).forEach(it=>{
+    if(it.kind !== 'outdoor') return;
+    const b = fpBox(it);
+    if(b.l < 0) o.l = Math.max(o.l, -b.l + pad);
+    if(b.t < 0) o.t = Math.max(o.t, -b.t + pad);
+    if(b.r > fp.roomWidth) o.r = Math.max(o.r, b.r - fp.roomWidth + pad);
+    if(b.b > fp.roomDepth) o.b = Math.max(o.b, b.b - fp.roomDepth + pad);
+  });
+  return o;
+}
+/* all walls a door can sit on: the room's four walls and the walls of side rooms */
+function fpWalls(fp){
+  const W = fp.roomWidth, D = fp.roomDepth, out = [
+    {o:'h', at:0, a:0, b:W}, {o:'h', at:D, a:0, b:W}, {o:'v', at:0, a:0, b:D}, {o:'v', at:W, a:0, b:D}];
+  (fp.items || []).forEach(it=>{
+    if(it.kind !== 'room' || (it.rot || 0) % 180 !== 0) return;
+    out.push({o:'h', at:it.y, a:it.x, b:it.x + it.w}, {o:'h', at:it.y + it.h, a:it.x, b:it.x + it.w},
+             {o:'v', at:it.x, a:it.y, b:it.y + it.h}, {o:'v', at:it.x + it.w, a:it.y, b:it.y + it.h});
+  });
+  return out;
+}
+/* put a door onto the nearest wall, facing along it */
+function fpSnapDoorToWall(it, always){
+  const fp = state.floorPlan;
+  const cx = it.x + it.w / 2, cy = it.y + it.h / 2;
+  const reach = always ? Infinity : (fp.unit === 'ft' ? 4 : 1.2);
+  let best = null, bd = reach;
+  fpWalls(fp).forEach(w=>{
+    const along = w.o === 'h' ? cx : cy, across = w.o === 'h' ? cy : cx;
+    const c = Math.max(w.a + it.w / 2, Math.min(w.b - it.w / 2, along));
+    if(w.b - w.a < it.w * 0.9) return;
+    const d = Math.abs(across - w.at) + Math.max(0, Math.abs(along - c) - 0.01);
+    if(d < bd){ bd = d; best = {w, c}; }
+  });
+  if(!best) return;
+  if(best.w.o === 'h'){ it.rot = 0; it.x = round2(best.c - it.w / 2); it.y = round2(best.w.at - it.h / 2); }
+  else { it.rot = 90; it.x = round2(best.w.at - it.w / 2); it.y = round2(best.c - it.h / 2); }
+}
+/* outside areas go outside the nearest wall */
+function fpPlaceOutside(it, x, y){
+  const fp = state.floorPlan, W = fp.roomWidth, D = fp.roomDepth;
+  const d = [['t', y], ['b', D - y], ['l', x], ['r', W - x]].sort((a, b)=> a[1] - b[1])[0][0];
+  const clamp = (v, lo, hi)=> Math.max(lo, Math.min(hi, v));
+  if(d === 't'){ it.y = round2(-it.h); it.x = round2(clamp(x - it.w / 2, 0, Math.max(0, W - it.w))); }
+  if(d === 'b'){ it.y = round2(D); it.x = round2(clamp(x - it.w / 2, 0, Math.max(0, W - it.w))); }
+  if(d === 'l' || d === 'r'){ const t = it.w; it.w = it.h; it.h = t; it.x = round2(d === 'l' ? -it.w : W); it.y = round2(clamp(y - it.h / 2, 0, Math.max(0, D - it.h))); }
+}
+/* the open door leaves: thin lines, no swing arcs; sliding doors are two overlapping panels */
+function fpDoorSvg(kind, wPx, inside){
+  const s = inside >= 0 ? 1 : -1, a = 62 * Math.PI / 180, ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('class', 'fp-door-svg'); svg.setAttribute('width', wPx); svg.setAttribute('height', 2);
+  svg.setAttribute('overflow', 'visible');
+  const line = (x1, y1, x2, y2, wd)=>{ const l = document.createElementNS(ns, 'line'); l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2); l.setAttribute('stroke', '#3a342c'); l.setAttribute('stroke-width', wd || 1.4); l.setAttribute('stroke-linecap', 'round'); svg.appendChild(l); };
+  if(kind === 'dsl'){
+    const off = 2.2;
+    line(0, -off * s, wPx * 0.56, -off * s, 2.2); line(wPx * 0.44, off * s, wPx, off * s, 2.2);
+  } else if(kind === 'door1'){
+    line(0, 0, wPx * Math.cos(a), s * wPx * Math.sin(a));
+  } else {
+    const h = wPx / 2;
+    line(0, 0, h * Math.cos(a), s * h * Math.sin(a));
+    line(wPx, 0, wPx - h * Math.cos(a), s * h * Math.sin(a));
+  }
+  return svg;
+}
+function fpDoorInside(item){
+  const fp = state.floorPlan;
+  const cx = item.x + item.w / 2, cy = item.y + item.h / 2;
+  let vx = fp.roomWidth / 2 - cx, vy = fp.roomDepth / 2 - cy;
+  /* doors on a side room open into that room */
+  (fp.items || []).forEach(r=>{
+    if(r.kind !== 'room') return;
+    const onEdge = (Math.abs(cx - r.x) < 0.2 || Math.abs(cx - r.x - r.w) < 0.2) && cy > r.y - 0.2 && cy < r.y + r.h + 0.2
+                || (Math.abs(cy - r.y) < 0.2 || Math.abs(cy - r.y - r.h) < 0.2) && cx > r.x - 0.2 && cx < r.x + r.w + 0.2;
+    if(onEdge){ vx = r.x + r.w / 2 - cx; vy = r.y + r.h / 2 - cy; }
+  });
+  const r = (item.rot || 0) * Math.PI / 180;
+  const ly = -vx * Math.sin(r) + vy * Math.cos(r);       // the room side, in the door's own up/down
+  return ly >= 0 ? 1 : -1;
 }
 /* ===================== Seating on the floor plan =====================
    Every chair shows as a small dot around its table: empty, or the guest's initials in their group colour.
@@ -7768,6 +7903,8 @@ function buildFloorItemEl(item){
   el.style.top = (item.y*FP_PX_PER_UNIT) + 'px';
   el.style.width = (item.w*FP_PX_PER_UNIT) + 'px';
   if(isDoorKind(item.kind)){ item.h = FP_DOOR_T; }
+  if(isDoorKind(item.kind)) setTimeout(()=>{ if(el.isConnected){ const sv = fpDoorSvg(item.kind === 'door2' || item.kind === 'door4' ? 'dfr' : item.kind, item.w * FP_PX_PER_UNIT, fpDoorInside(item)); el.appendChild(sv); } }, 0);
+  if(item.kind === 'outdoor'){ const k = String(item.label || '').toLowerCase(); el.classList.add(/garden|lawn|grass|tuin/.test(k) ? 'fp-out-grass' : /patio|terrace|paving|stoep/.test(k) ? 'fp-out-paving' : 'fp-out-boards'); }
   el.style.height = (item.h*FP_PX_PER_UNIT) + 'px';
   const rot0 = item.rot || 0;
   if(rot0) el.style.transform = 'rotate(' + rot0 + 'deg)';
@@ -7990,6 +8127,10 @@ function buildFloorItemEl(item){
       if(door){
         minDx = Math.max(minDx, -st.it.w/2 - st.x); maxDx = Math.min(maxDx, fp.roomWidth - st.it.w/2 - st.x);
         minDy = Math.max(minDy, -st.it.h/2 - st.y); maxDy = Math.min(maxDy, fp.roomDepth - st.it.h/2 - st.y);
+      } else if(st.it.kind === 'outdoor'){
+        const bx = fpBox(st.it), far = fp.unit === 'ft' ? 60 : 20;
+        minDx = Math.max(minDx, -bx.r - far); maxDx = Math.min(maxDx, fp.roomWidth + far - bx.l);
+        minDy = Math.max(minDy, -bx.b - far); maxDy = Math.min(maxDy, fp.roomDepth + far - bx.t);
       } else {
         /* use the item's visible outline, so a turned item can still go right up against the wall */
         const bx = fpBox(st.it);
@@ -8021,6 +8162,9 @@ function buildFloorItemEl(item){
       starts.forEach(st=>{ if(st.el) st.el.classList.remove('dragging-move'); });
       if(undoPushed){
         starts.forEach(st=>{ st.it.x = round2(st.x + (starts._dx||0)); st.it.y = round2(st.y + (starts._dy||0)); });
+        let again = false;
+        starts.forEach(st=>{ if(isDoorKind(st.it.kind)){ fpSnapDoorToWall(st.it, false); again = true; } if(st.it.kind === 'outdoor') again = true; });
+        if(again) renderFloorPlan();
         return;
       }
       /* no movement: a click */

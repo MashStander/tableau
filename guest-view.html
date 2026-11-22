@@ -185,7 +185,13 @@
   }
   .floor-item.fp-dancefloor{background:repeating-linear-gradient(45deg, var(--sage), var(--sage) 8px, var(--sage-dark) 8px, var(--sage-dark) 16px); color:#fff; border-color:var(--sage-dark);}
   .floor-item.fp-restroom{background:#e6eef4; color:#3c5a6e; border-color:#a9c2d3;}
-  .floor-item.fp-door{background:#7a5a33; border:none; border-radius:2px; padding:0; font-size:0; overflow:visible;}
+  .floor-item.fp-door{background:#fdfbf6; border:none; border-left:1.5px solid #3a342c; border-right:1.5px solid #3a342c; border-radius:0; padding:0; font-size:0; overflow:visible;}
+  .fp-door-svg{position:absolute; left:0; top:50%; pointer-events:none; overflow:visible;}
+  .floor-item.fp-room{background:#f7f4ee; border:2.5px solid #3a342c; border-radius:0; color:#2f2a24; font-weight:700;}
+  .floor-item.fp-outdoor{border:1.5px dashed #6f6556; border-radius:0; color:#3f382f; font-weight:600;}
+  .floor-item.fp-out-boards{background:repeating-linear-gradient(90deg, #efe2cc 0 7px, #e3d2b5 7px 8px);}
+  .floor-item.fp-out-paving{background:#ece9e3; background-image:linear-gradient(#d8d3ca 1px, transparent 1px), linear-gradient(90deg, #d8d3ca 1px, transparent 1px); background-size:11px 11px;}
+  .floor-item.fp-out-grass{background:#e4efdc; background-image:radial-gradient(#c6dcb7 1.2px, transparent 1.3px); background-size:8px 8px;}
   .floor-item.fp-bar{background:#8a5a44; color:#fff; border-color:#5e3b2b;}
   .floor-item.fp-podium{background:#5c6a52; color:#fff; border-color:#3f4a38;}
   .floor-item.fp-label{background:var(--white); border:1px dashed var(--ink-soft); color:var(--ink);}
@@ -1181,23 +1187,56 @@ function fitFloorLabel(el){
   lab.style.fontSize = fs + 'px';
   while(fs > 6.5 && (lab.scrollWidth > availW + 1 || lab.offsetHeight > availH + 1)){ fs -= 0.5; lab.style.fontSize = fs + 'px'; }
 }
+
+/* doors on the guest map: a gap in the wall with thin open door leaves (same drawing as in the app) */
+function gvDoorSvg(item, fp, scale){
+  const kind = (item.kind === 'door2' || item.kind === 'door4') ? 'dfr' : item.kind, wPx = item.w * scale;
+  const cx = item.x + item.w / 2, cy = item.y + item.h / 2;
+  let vx = fp.roomWidth / 2 - cx, vy = fp.roomDepth / 2 - cy;
+  (fp.items || []).forEach(r=>{
+    if(r.kind !== 'room') return;
+    const onEdge = (Math.abs(cx - r.x) < 0.2 || Math.abs(cx - r.x - r.w) < 0.2) && cy > r.y - 0.2 && cy < r.y + r.h + 0.2
+                || (Math.abs(cy - r.y) < 0.2 || Math.abs(cy - r.y - r.h) < 0.2) && cx > r.x - 0.2 && cx < r.x + r.w + 0.2;
+    if(onEdge){ vx = r.x + r.w / 2 - cx; vy = r.y + r.h / 2 - cy; }
+  });
+  const rr = (item.rot || 0) * Math.PI / 180, s = (-vx * Math.sin(rr) + vy * Math.cos(rr)) >= 0 ? 1 : -1, a = 62 * Math.PI / 180;
+  const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('class', 'fp-door-svg'); svg.setAttribute('width', wPx); svg.setAttribute('height', 2); svg.setAttribute('overflow', 'visible');
+  const line = (x1, y1, x2, y2, wd)=>{ const l = document.createElementNS(ns, 'line'); l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2); l.setAttribute('stroke', '#3a342c'); l.setAttribute('stroke-width', wd || 1.2); l.setAttribute('stroke-linecap', 'round'); svg.appendChild(l); };
+  if(kind === 'dsl'){ line(0, -1.8 * s, wPx * 0.56, -1.8 * s, 1.8); line(wPx * 0.44, 1.8 * s, wPx, 1.8 * s, 1.8); }
+  else if(kind === 'door1') line(0, 0, wPx * Math.cos(a), s * wPx * Math.sin(a));
+  else { const h = wPx / 2; line(0, 0, h * Math.cos(a), s * h * Math.sin(a)); line(wPx, 0, wPx - h * Math.cos(a), s * h * Math.sin(a)); }
+  return svg;
+}
 function renderFloorPlan(guest){
   const canvas = document.getElementById('fpCanvas');
   canvas.innerHTML = '';
   const fp = SEAT_DATA.floorPlan;
   if(!fp || !guest.tableId) return;
 
-  const containerW = Math.min(FP_MAX_PX_WIDTH, window.innerWidth - 80) * fpZoom;
-  const scale = containerW / fp.roomWidth;
+  const frameW = (canvas.parentElement && canvas.parentElement.clientWidth) ? canvas.parentElement.clientWidth - 38 : window.innerWidth - 80;
+  const containerW = Math.min(FP_MAX_PX_WIDTH, frameW) * fpZoom;
+  /* outside areas (deck, patio...) may sit beyond the walls: leave room for them */
+  const out = {t:0, r:0, b:0, l:0}, pad = fp.unit === 'ft' ? 2 : 0.6;
+  (fp.items || []).forEach(it=>{
+    if(it.kind !== 'outdoor') return;
+    const sw = (it.rot || 0) % 180 !== 0, w = sw ? it.h : it.w, h = sw ? it.w : it.h, cx = it.x + it.w / 2, cy = it.y + it.h / 2;
+    const l = cx - w / 2, r = cx + w / 2, t = cy - h / 2, b = cy + h / 2;
+    if(l < 0) out.l = Math.max(out.l, -l + pad); if(t < 0) out.t = Math.max(out.t, -t + pad);
+    if(r > fp.roomWidth) out.r = Math.max(out.r, r - fp.roomWidth + pad); if(b > fp.roomDepth) out.b = Math.max(out.b, b - fp.roomDepth + pad);
+  });
+  const scale = containerW / (fp.roomWidth + out.l + out.r);
   canvas.style.width = (fp.roomWidth*scale) + 'px';
   canvas.style.height = (fp.roomDepth*scale) + 'px';
+  canvas.style.margin = (18 + out.t*scale) + 'px ' + (18 + out.r*scale) + 'px ' + (18 + out.b*scale) + 'px ' + (18 + out.l*scale) + 'px';
+  const isDoor = k=> k === 'door2' || k === 'door4' || k === 'door1' || k === 'dfr' || k === 'dsl';
 
   const letterOf = {}, keyEls = [], tNum = {};
   (SEAT_DATA.tables || []).forEach((t,i)=>{ tNum[t.id] = 'T' + (i+1); });
   const LET = 'ABCDEFGHIJKLMNOPQRSUVWXYZ';
   let nextL = 0;
   (fp.items || []).forEach(item=>{
-    if(item.kind === 'door2' || item.kind === 'door4' || item.kind === 'table') return;
+    if(isDoor(item.kind) || item.kind === 'table' || item.kind === 'room' || item.kind === 'outdoor') return;   /* rooms and outside areas show their own names */
     const nm = (item.label || '').trim(); if(!nm) return;
     const k = nm.toLowerCase();
     if(!(k in letterOf)){
@@ -1210,7 +1249,8 @@ function renderFloorPlan(guest){
     const kindClass = item.kind === 'table' ? '' :
       (item.kind === 'dancefloor' ? 'fp-dancefloor' :
        item.kind === 'restroom' ? 'fp-restroom' :
-       (item.kind === 'door2' || item.kind === 'door4') ? 'fp-door' :
+       isDoor(item.kind) ? 'fp-door' : item.kind === 'room' ? 'fp-room' :
+       item.kind === 'outdoor' ? ('fp-outdoor ' + (/garden|lawn|grass|tuin/i.test(item.label || '') ? 'fp-out-grass' : /patio|terrace|paving|stoep/i.test(item.label || '') ? 'fp-out-paving' : 'fp-out-boards')) :
        item.kind === 'podium' ? 'fp-podium' : item.kind === 'bar' ? 'fp-bar' : 'fp-label');
     el.className = 'floor-item ' + kindClass;
     if(item.kind === 'table' && item.round) el.classList.add('fp-roundt');
@@ -1219,14 +1259,15 @@ function renderFloorPlan(guest){
     el.style.left = (item.x*scale) + 'px';
     el.style.top = (item.y*scale) + 'px';
     el.style.width = (item.w*scale) + 'px';
-    el.style.height = (item.kind === 'door2' || item.kind === 'door4' ? Math.max(5, 0.13*scale) : item.h*scale) + 'px';
+    el.style.height = (isDoor(item.kind) ? Math.max(4, 0.13*scale) : item.h*scale) + 'px';
     const lb = document.createElement('span'); lb.className = 'fp-label'; lb.textContent = item.kind === 'table' ? (tNum[item.tableId] || item.label || '') :
-      (item.kind==='door2'||item.kind==='door4') ? (item.label||'') : (letterOf[(item.label||'').trim().toLowerCase()] || item.label || '');
+      isDoor(item.kind) ? '' : (item.kind === 'room' || item.kind === 'outdoor') ? (item.label || '') : (letterOf[(item.label||'').trim().toLowerCase()] || item.label || '');
     if(item.rot){
       el.style.transform = 'rotate(' + item.rot + 'deg)';
       lb.style.transform = 'rotate(' + (-item.rot) + 'deg)';
     }
     el.appendChild(lb);
+    if(isDoor(item.kind)) el.appendChild(gvDoorSvg(item, fp, scale));
     if(mine){
       const star = document.createElement('span');
       star.className = 'star-badge';
