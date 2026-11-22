@@ -633,6 +633,13 @@
   .ls-planning{display:none !important;}
 
 
+  /* room size form: three equal columns, labels and boxes lined up */
+  #floorPlanSetup .fp-setup-row{display:grid !important; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px; align-items:end; margin:14px 0 18px;}
+  #floorPlanSetup .fp-setup-row .field-row{margin:0; display:flex; flex-direction:column; gap:6px;}
+  #floorPlanSetup .fp-setup-row label{display:flex; flex-direction:column; line-height:1.25; min-height:2.6em; justify-content:flex-end; margin:0;}
+  #floorPlanSetup .fp-dir{font-size:11.5px; color:var(--ink-soft); font-weight:400;}
+  #floorPlanSetup .fp-setup-row .custom-num, #floorPlanSetup .fp-setup-row select{width:100%; margin:0; box-sizing:border-box; height:42px; padding:0 10px; font-size:15px;}
+  @media (max-width:480px){ #floorPlanSetup .fp-setup-row{grid-template-columns:1fr 1fr;} #floorPlanSetup .fp-setup-row .field-row:last-child{grid-column:1 / 3;} }
   /* doors, side rooms, outside areas */
   .floor-item.fp-door{background:#fdfbf6 !important; border:none !important; border-left:2px solid #3a342c !important; border-right:2px solid #3a342c !important; border-radius:0 !important;}
   .fp-door-svg{position:absolute; left:0; top:50%; pointer-events:none; overflow:visible;}
@@ -2001,11 +2008,11 @@
         <p class="hint">Enter your room's dimensions so tables and furniture are placed to scale. You can change this later.</p>
         <div class="fp-setup-row">
           <div class="field-row">
-            <label>Length (left to right)</label>
+            <label>Length <span class="fp-dir">&harr; left to right</span></label>
             <input type="number" min="1" step="0.1" class="custom-num" id="fpRoomWidth" value="8">
           </div>
           <div class="field-row">
-            <label>Width (top to bottom)</label>
+            <label>Width <span class="fp-dir">&varr; top to bottom</span></label>
             <input type="number" min="1" step="0.1" class="custom-num" id="fpRoomDepth" value="6">
           </div>
           <div class="field-row">
