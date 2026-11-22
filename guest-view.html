@@ -183,7 +183,7 @@
     border-color:var(--rose); border-width:2px; box-shadow:0 0 0 3px rgba(201,138,125,.25);
     background:#fdf1ee; z-index:5; overflow:visible;
   }
-  .floor-item.fp-dancefloor{background:repeating-linear-gradient(45deg, var(--sage), var(--sage) 8px, var(--sage-dark) 8px, var(--sage-dark) 16px); color:#fff; border-color:var(--sage-dark);}
+  .floor-item.fp-dancefloor{background:#f3f4ef; background:repeating-linear-gradient(45deg, color-mix(in srgb, var(--sage) 9%, #fff), color-mix(in srgb, var(--sage) 9%, #fff) 8px, color-mix(in srgb, var(--sage) 17%, #fff) 8px, color-mix(in srgb, var(--sage) 17%, #fff) 16px); color:var(--sage-dark); border-color:color-mix(in srgb, var(--sage) 45%, #fff);}
   .floor-item.fp-restroom{background:#e6eef4; color:#3c5a6e; border-color:#a9c2d3;}
   .floor-item.fp-door{background:#fdfbf6; border:none; border-left:1px solid #7a7068; border-right:1px solid #7a7068; border-radius:0; padding:0; font-size:0; overflow:visible; z-index:2;}
   .fp-door-svg{position:absolute; left:0; top:50%; pointer-events:none; overflow:visible;}
@@ -1303,6 +1303,10 @@ function renderFloorPlan(guest){
     canvas.appendChild(el);
   });
   canvas.querySelectorAll('.floor-item').forEach(fitFloorLabel);
+  /* all table numbers the same size: the size that fits the tightest table */
+  { const labs = [...canvas.querySelectorAll('.floor-item:not(.fp-dancefloor):not(.fp-room):not(.fp-outdoor):not(.fp-door):not(.fp-wall):not([data-keyable]) .fp-label')].filter(l=> /^\d+$/.test(l.textContent.trim()));   /* numbered tables only; a named table keeps its own size */
+    const fsMin = Math.min(...labs.map(l=> parseFloat(l.style.fontSize) || 14));
+    if(isFinite(fsMin)) labs.forEach(l=> l.style.fontSize = fsMin + 'px'); }
   /* a name too small to read is swapped for a letter, explained in the key underneath */
   canvas.querySelectorAll('.floor-item[data-keyable]').forEach(el=>{
     const lab = el.querySelector('.fp-label'); if(!lab || !lab.textContent) return;
