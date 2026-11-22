@@ -656,15 +656,19 @@
   .floor-item.fp-room .fp-label, .floor-item.fp-outdoor .fp-label{overflow-wrap:normal !important; word-break:normal !important; hyphens:auto;}
   #fpToggleRow{display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
   .fp-outside-tog{font-size:13px; color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; gap:6px;}
+  .fp-grid-size{display:flex; align-items:center; gap:6px; margin:8px 0 0 20px; font-size:12.5px; color:var(--ink-soft); white-space:nowrap;}
+  .fp-grid-size input{width:64px; padding:4px 6px; border:1px solid var(--line); border-radius:6px; font:inherit; font-size:13px;}
   .fp-ml-where{width:100%; padding:6px 8px; border:1px solid var(--line); border-radius:8px; font:inherit; font-size:13px; background:#fff;}
   .fp-ml-tag{font-style:normal; font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin-left:auto; padding:0 4px;}
   #fpMinePalette .fp-mylabels{margin-top:0; padding-top:0; border-top:0;}
   /* doors, side rooms, outside areas */
-  .floor-item.fp-door{background:#fdfbf6 !important; border:none !important; border-left:2px solid #3a342c !important; border-right:2px solid #3a342c !important; border-radius:0 !important;}
+  .floor-item.fp-door{background:#fdfbf6 !important; border:none !important; border-left:2px solid var(--ink-soft) !important; border-right:2px solid var(--ink-soft) !important; border-radius:0 !important;}
   .fp-door-svg{position:absolute; left:0; top:50%; pointer-events:none; overflow:visible;}
-  .floor-item.fp-door.fp-gap{border-left-width:3px !important; border-right-width:3px !important;}
+  .floor-item.fp-door.fp-gap{border-left-width:2px !important; border-right-width:2px !important;}
   .floor-item.fp-door.fp-gap::after{content:''; position:absolute; left:2px; right:2px; top:50%; border-top:1px dotted #b9ad95;}
-  .floor-item.fp-room{background:#f7f4ee; border:3px solid #3a342c; border-radius:0; color:#2f2a24; font-weight:700;}
+  .floor-item.fp-room{background:#fbf9f4; border:2px solid var(--ink-soft); border-radius:0; color:#4a443d; font-weight:600;}
+  .floor-item.fp-wall{background:var(--ink-soft); border:none; border-radius:1px; padding:0; min-height:3px;}
+  .floor-item.fp-wall .fp-label{display:none;}
   .floor-item.fp-outdoor{border:2px dashed #6f6556; border-radius:0; color:#3f382f; font-weight:600;}
   .floor-item.fp-out-boards{background:repeating-linear-gradient(90deg, #efe2cc 0 9px, #e3d2b5 9px 10px);}
   .floor-item.fp-out-paving{background:#ece9e3; background-image:linear-gradient(#d8d3ca 1px, transparent 1px), linear-gradient(90deg, #d8d3ca 1px, transparent 1px); background-size:14px 14px;}
@@ -2054,7 +2058,7 @@
       </div>
 
       <div id="floorPlanBody" class="hidden">
-        <div id="fpToggleRow"><button type="button" class="ghost-btn" id="fpPaletteToggle" aria-expanded="true"><span id="fpPaletteChev">&#9662;</span> <span id="fpPaletteToggleText">Hide tables &amp; room items</span></button><label class="fp-outside-tog hidden" id="fpOutsideTogWrap"><input type="checkbox" id="fpOutsideTog" checked> Show side rooms &amp; outside areas</label></div>
+        <div id="fpToggleRow"><button type="button" class="ghost-btn" id="fpPaletteToggle" aria-expanded="true"><span id="fpPaletteChev">&#9662;</span> <span id="fpPaletteToggleText">Hide menu</span></button><label class="fp-outside-tog hidden" id="fpOutsideTogWrap"><input type="checkbox" id="fpOutsideTog" checked> Show side rooms &amp; outside areas</label></div>
         <div id="floorCanvasWrap">
           <div id="floorCanvas"></div>
         </div>
@@ -2082,6 +2086,7 @@
       <div class="fp-palette-section fp-col" data-col="align"><h4>Line up &amp; arrange</h4><div class="fp-col-body">
             <label class="fp-fit"><input type="checkbox" id="fpSnapToggle" checked> Snap to guides <span class="fp-fit-sub">(hold Alt to move freely)</span></label>
             <label class="fp-fit"><input type="checkbox" id="fpGridToggle"> Show grid and snap to it</label>
+        <label class="fp-grid-size">Grid squares <input type="number" id="fpGridSize" min="50" step="50"> <span id="fpGridUnit">mm</span></label>
             <label class="fp-fit"><input type="checkbox" id="fpNamesToggle" checked> Show guest names beside tables</label>
             <div id="fpSelCount" class="fp-hint">Nothing selected. Shift-click items to select several.</div>
             <div id="fpAlignGrid">
@@ -6489,7 +6494,7 @@ document.getElementById('tableDimsModal').addEventListener('click', e=>{
     body.classList.toggle('palette-collapsed', collapsed);
     btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
     document.getElementById('fpPaletteChev').innerHTML = collapsed ? '&#9656;' : '&#9662;';
-    document.getElementById('fpPaletteToggleText').textContent = collapsed ? 'Show tables & room items' : 'Hide tables & room items';
+    document.getElementById('fpPaletteToggleText').textContent = collapsed ? 'Show menu' : 'Hide menu';
     if(save){ try{ localStorage.setItem('tableauFpPalette', collapsed ? '1' : '0'); }catch(e){} }
   }
   let saved = null; try{ saved = localStorage.getItem('tableauFpPalette'); }catch(e){}
@@ -7125,7 +7130,7 @@ let FP_PX_PER_UNIT = 70;
 let fpSnapOn = true, fpGridOn = false;
 try{ if(localStorage.getItem('tableauFpSnap') === '0') fpSnapOn = false; if(localStorage.getItem('tableauFpGrid') === '1') fpGridOn = true; }catch(e){}
 const fpSelected = new Set();
-function fpGridStep(){ const fp = state.floorPlan; return fp && fp.unit === 'ft' ? 1 : 0.5; }
+function fpGridStep(){ const fp = state.floorPlan; if(fp && +fp.gridStep > 0) return +fp.gridStep; return fp && fp.unit === 'ft' ? 1 : 0.5; }
 function fpBox(it, ox, oy){
   ox = ox || 0; oy = oy || 0;
   const r = ((((it.rot||0) % 180) + 180) % 180) * Math.PI/180;
@@ -7271,11 +7276,15 @@ function fpAlign(op){
 }
 function fpApplyGridLook(){
   const canvas = document.getElementById('floorCanvas'); if(!canvas) return;
-  if(fpGridOn && state.floorPlan){
-    const px = fpGridStep()*FP_PX_PER_UNIT;
-    canvas.style.backgroundImage = 'linear-gradient(0deg, rgba(0,0,0,.09) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.09) 1px, transparent 1px)';
+  if(state.floorPlan){
+    /* grid squares are always true to size; stronger when "Show grid and snap to it" is on */
+    let px = fpGridStep()*FP_PX_PER_UNIT; while(px < 6) px *= 2;
+    const a = fpGridOn ? .10 : .045;
+    canvas.style.backgroundImage = 'linear-gradient(0deg, rgba(0,0,0,' + a + ') 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,' + a + ') 1px, transparent 1px)';
     canvas.style.backgroundSize = px + 'px ' + px + 'px';
   } else { canvas.style.backgroundImage = ''; canvas.style.backgroundSize = ''; }
+  const gs = document.getElementById('fpGridSize');
+  if(gs && state.floorPlan && document.activeElement !== gs){ const u = state.floorPlan.unit === 'ft' ? 'ft' : 'm'; gs.value = state.floorPlan.unit === 'ft' ? fpGridStep() : Math.round(fpGridStep() * 1000); document.getElementById('fpGridUnit').textContent = u === 'ft' ? 'ft' : 'mm'; }
 }
 
 let fpFitToScreen = true;
@@ -7308,11 +7317,11 @@ function fpUpdateScale(){
 }
 const FP_KIND_LABELS = {
   dancefloor: 'Dance floor', restroom: 'Restroom', door2: 'Door', door4: 'Door', door1: 'Door', dfr: 'French doors', dsl: 'Sliding doors', gap: 'Opening',
-  podium: 'Podium', bar: 'Bar', label: 'Label', room: 'Room', outdoor: 'Deck'
+  podium: 'Podium', bar: 'Bar', label: 'Label', room: 'Room', outdoor: 'Deck', wall: 'Wall'
 };
 const FP_KIND_CLASS = {
   dancefloor:'fp-dancefloor', restroom:'fp-restroom', door2:'fp-door', door4:'fp-door', door1:'fp-door', dfr:'fp-door', dsl:'fp-door', gap:'fp-door',
-  podium:'fp-podium', bar:'fp-bar', label:'fp-label', room:'fp-room', outdoor:'fp-outdoor'
+  podium:'fp-podium', bar:'fp-bar', label:'fp-label', room:'fp-room', outdoor:'fp-outdoor', wall:'fp-wall'
 };
 
 function round2(n){ return Math.round(n*100)/100; }
@@ -7328,6 +7337,7 @@ function defaultFloorSize(kind, table, unit){
   if(kind === 'dfr') return unit==='ft' ? {w:6,h:FP_DOOR_T} : {w:1.8,h:FP_DOOR_T};
   if(kind === 'dsl') return unit==='ft' ? {w:8,h:FP_DOOR_T} : {w:2.4,h:FP_DOOR_T};
   if(kind === 'gap') return unit==='ft' ? {w:6,h:FP_DOOR_T} : {w:2,h:FP_DOOR_T};
+  if(kind === 'wall') return unit==='ft' ? {w:10,h:0.5} : {w:3,h:0.15};
   if(kind === 'room') return unit==='ft' ? {w:13,h:10} : {w:4,h:3};
   if(kind === 'outdoor') return unit==='ft' ? {w:20,h:10} : {w:6,h:3};
   if(kind === 'table' && table){
@@ -7403,6 +7413,16 @@ document.getElementById('fpSetRoomBtn').addEventListener('click', ()=>{
   snap.addEventListener('change', ()=>{ fpSnapOn = snap.checked; try{ localStorage.setItem('tableauFpSnap', fpSnapOn ? '1' : '0'); }catch(e){} });
   grid.addEventListener('change', ()=>{ fpGridOn = grid.checked; try{ localStorage.setItem('tableauFpGrid', fpGridOn ? '1' : '0'); }catch(e){} fpApplyGridLook(); });
   document.querySelectorAll('#fpAlignGrid button').forEach(b=> b.addEventListener('click', ()=> fpAlign(b.dataset.op)));
+  const gs = document.getElementById('fpGridSize');
+  const setGrid = ()=>{
+    const fp = state.floorPlan; if(!fp) return;
+    const v = parseFloat(gs.value); if(!(v > 0)){ fpApplyGridLook(); return; }
+    const step = fp.unit === 'ft' ? Math.max(0.25, v) : Math.max(0.05, v / 1000);
+    if(step !== fp.gridStep){ pushUndo(); fp.gridStep = round2(step * 100) / 100 || step; }
+    fpApplyGridLook();
+  };
+  gs.addEventListener('change', setGrid);
+  gs.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); gs.blur(); } });
   document.getElementById('fpSelAll').addEventListener('click', ()=>{
     if(!state.floorPlan) return; fpSelected.clear();
     state.floorPlan.items.forEach(i=>{ if(!isDoorKind(i.kind)) fpSelected.add(i.id); }); fpRefreshSelUI();
@@ -7578,6 +7598,7 @@ function renderFloorPalette(){
   const shapeDefs = [
     {kind:'dancefloor', label:'Dance floor'},
     {kind:'restroom', label:'Restroom'},
+    {kind:'wall', label:'Wall (free-standing)'},
     {kind:'podium', label:'Podium'},
     {kind:'bar', label:'Bar'},
     {kind:'label', label:'DJ', text:'DJ'},
@@ -7908,10 +7929,10 @@ function fpDoorSvg(kind, wPx, inside){
   const svg = document.createElementNS(ns, 'svg');
   svg.setAttribute('class', 'fp-door-svg'); svg.setAttribute('width', wPx); svg.setAttribute('height', 2);
   svg.setAttribute('overflow', 'visible');
-  const line = (x1, y1, x2, y2, wd)=>{ const l = document.createElementNS(ns, 'line'); l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2); l.setAttribute('stroke', '#3a342c'); l.setAttribute('stroke-width', wd || 1.4); l.setAttribute('stroke-linecap', 'round'); svg.appendChild(l); };
+  const line = (x1, y1, x2, y2, wd)=>{ const l = document.createElementNS(ns, 'line'); l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2); l.setAttribute('stroke', '#7a7068'); l.setAttribute('stroke-width', wd || 1.1); l.setAttribute('stroke-linecap', 'round'); svg.appendChild(l); };
   if(kind === 'dsl'){
     const off = 2.2;
-    line(0, -off * s, wPx * 0.56, -off * s, 2.2); line(wPx * 0.44, off * s, wPx, off * s, 2.2);
+    line(0, -off * s, wPx * 0.56, -off * s, 1.6); line(wPx * 0.44, off * s, wPx, off * s, 1.6);
   } else if(kind === 'door1'){
     line(0, 0, wPx * Math.cos(a), s * wPx * Math.sin(a));
   } else {
@@ -8126,7 +8147,7 @@ function buildFloorItemEl(item){
     const table = state.tables.find(t=>t.id===item.tableId);
     displayLabel = table ? table.name : '(deleted table)';
   }
-  labelSpan.textContent = isDoorKind(item.kind) ? '' : displayLabel;
+  labelSpan.textContent = (isDoorKind(item.kind) || item.kind === 'wall') ? '' : displayLabel;
   if(item.kind === 'table'){
     const tb = state.tables.find(t=> t.id === item.tableId);
     if(tb){ const c = document.createElement('small'); c.className = 'fp-count'; const n = state.guests.filter(g=> g.seat && g.seat.tableId === tb.id).length, tot = tableTotalSeats(tb); c.textContent = n + '/' + tot; if(n >= tot) c.classList.add('full'); labelSpan.appendChild(c); }
@@ -8134,7 +8155,7 @@ function buildFloorItemEl(item){
   if(rot0){ labelSpan.style.transform = 'rotate(' + (-rot0) + 'deg)'; }
   el.appendChild(labelSpan);
 
-  if(item.kind !== 'table' && !isDoorKind(item.kind)){
+  if(item.kind !== 'table' && !isDoorKind(item.kind) && item.kind !== 'wall'){
     const renameBtn = document.createElement('button');
     renameBtn.className = 'fp-dims-btn';
     renameBtn.textContent = '\u270e';
@@ -8403,7 +8424,7 @@ function buildFloorItemEl(item){
       const dx = ev.clientX-startX, dy = ev.clientY-startY;
       const lx = dx*cs + dy*sn, ly = -dx*sn + dy*cs;
       el.style.width = Math.max(minPx, startW + lx) + 'px';
-      if(!isDoorKind(item.kind)) el.style.height = Math.max(minPx, startH + ly) + 'px';
+      if(!isDoorKind(item.kind) && item.kind !== 'wall') el.style.height = Math.max(minPx, startH + ly) + 'px';
       fitFloorLabel(el);
       dimTag.textContent = isDoorKind(item.kind) ? fmtDim(parseFloat(el.style.width)/FP_PX_PER_UNIT) : fmtDim(parseFloat(el.style.width)/FP_PX_PER_UNIT) + ' \u00d7 ' + fmtDim(parseFloat(el.style.height)/FP_PX_PER_UNIT);
     }

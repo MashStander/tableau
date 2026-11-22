@@ -164,7 +164,7 @@
     width:100%; overflow:auto; border:1px solid var(--line); border-radius:10px;
     background:var(--white); -webkit-overflow-scrolling:touch; max-height:70vh;
   }
-  #fpCanvas{position:relative; margin:18px;}
+  #fpCanvas{position:relative; margin:18px; background:#fdfbf6; box-shadow:0 0 0 1.5px #7a7068;}
   .fp-key{margin-top:10px; font-size:13px; color:var(--ink);}
   .fp-key h4{font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); font-weight:500; margin:8px 0 4px; font-family:'Plus Jakarta Sans',sans-serif;}
   .fp-key .kgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:3px 10px;}
@@ -185,10 +185,11 @@
   }
   .floor-item.fp-dancefloor{background:repeating-linear-gradient(45deg, var(--sage), var(--sage) 8px, var(--sage-dark) 8px, var(--sage-dark) 16px); color:#fff; border-color:var(--sage-dark);}
   .floor-item.fp-restroom{background:#e6eef4; color:#3c5a6e; border-color:#a9c2d3;}
-  .floor-item.fp-door{background:#fdfbf6; border:none; border-left:1.5px solid #3a342c; border-right:1.5px solid #3a342c; border-radius:0; padding:0; font-size:0; overflow:visible;}
+  .floor-item.fp-door{background:#fdfbf6; border:none; border-left:1.5px solid #7a7068; border-right:1.5px solid #7a7068; border-radius:0; padding:0; font-size:0; overflow:visible; z-index:2;}
   .fp-door-svg{position:absolute; left:0; top:50%; pointer-events:none; overflow:visible;}
   .floor-item.fp-door.fp-gap{border-left-width:2px; border-right-width:2px;}
-  .floor-item.fp-room{background:#f7f4ee; border:2.5px solid #3a342c; border-radius:0; color:#2f2a24; font-weight:700;}
+  .floor-item.fp-room{background:#fbf9f4; border:1.5px solid #7a7068; border-radius:0; color:#4a443d; font-weight:600;}
+  .floor-item.fp-wall{background:#7a7068; border:none; border-radius:1px; padding:0; min-height:2px;}
   .floor-item.fp-outdoor{border:1.5px dashed #6f6556; border-radius:0; color:#3f382f; font-weight:600;}
   .floor-item.fp-out-boards{background:repeating-linear-gradient(90deg, #efe2cc 0 7px, #e3d2b5 7px 8px);}
   .floor-item.fp-out-paving{background:#ece9e3; background-image:linear-gradient(#d8d3ca 1px, transparent 1px), linear-gradient(90deg, #d8d3ca 1px, transparent 1px); background-size:11px 11px;}
@@ -1203,7 +1204,7 @@ function gvDoorSvg(item, fp, scale){
   const rr = (item.rot || 0) * Math.PI / 180, s = (-vx * Math.sin(rr) + vy * Math.cos(rr)) >= 0 ? 1 : -1, a = 62 * Math.PI / 180;
   const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
   svg.setAttribute('class', 'fp-door-svg'); svg.setAttribute('width', wPx); svg.setAttribute('height', 2); svg.setAttribute('overflow', 'visible');
-  const line = (x1, y1, x2, y2, wd)=>{ const l = document.createElementNS(ns, 'line'); l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2); l.setAttribute('stroke', '#3a342c'); l.setAttribute('stroke-width', wd || 1.2); l.setAttribute('stroke-linecap', 'round'); svg.appendChild(l); };
+  const line = (x1, y1, x2, y2, wd)=>{ const l = document.createElementNS(ns, 'line'); l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2); l.setAttribute('stroke', '#7a7068'); l.setAttribute('stroke-width', wd || 1); l.setAttribute('stroke-linecap', 'round'); svg.appendChild(l); };
   if(kind === 'dsl'){ line(0, -1.8 * s, wPx * 0.56, -1.8 * s, 1.8); line(wPx * 0.44, 1.8 * s, wPx, 1.8 * s, 1.8); }
   else if(kind === 'door1') line(0, 0, wPx * Math.cos(a), s * wPx * Math.sin(a));
   else { const h = wPx / 2; line(0, 0, h * Math.cos(a), s * h * Math.sin(a)); line(wPx, 0, wPx - h * Math.cos(a), s * h * Math.sin(a)); }
@@ -1237,7 +1238,7 @@ function renderFloorPlan(guest){
   const LET = 'ABCDEFGHIJKLMNOPQRSUVWXYZ';
   let nextL = 0;
   (fp.items || []).forEach(item=>{
-    if(isDoor(item.kind) || item.kind === 'table' || item.kind === 'room' || item.kind === 'outdoor') return;   /* rooms and outside areas show their own names */
+    if(isDoor(item.kind) || item.kind === 'table' || item.kind === 'room' || item.kind === 'outdoor' || item.kind === 'wall') return;   /* rooms and outside areas show their own names */
     const nm = (item.label || '').trim(); if(!nm) return;
     const k = nm.toLowerCase();
     if(!(k in letterOf)){
@@ -1250,7 +1251,7 @@ function renderFloorPlan(guest){
     const kindClass = item.kind === 'table' ? '' :
       (item.kind === 'dancefloor' ? 'fp-dancefloor' :
        item.kind === 'restroom' ? 'fp-restroom' :
-       isDoor(item.kind) ? 'fp-door' : item.kind === 'room' ? 'fp-room' :
+       isDoor(item.kind) ? 'fp-door' : item.kind === 'room' ? 'fp-room' : item.kind === 'wall' ? 'fp-wall' :
        item.kind === 'outdoor' ? ('fp-outdoor ' + (/garden|lawn|grass|tuin/i.test(item.label || '') ? 'fp-out-grass' : /patio|terrace|paving|stoep/i.test(item.label || '') ? 'fp-out-paving' : 'fp-out-boards')) :
        item.kind === 'podium' ? 'fp-podium' : item.kind === 'bar' ? 'fp-bar' : 'fp-label');
     el.className = 'floor-item ' + kindClass;
@@ -1263,7 +1264,7 @@ function renderFloorPlan(guest){
     el.style.width = (item.w*scale) + 'px';
     el.style.height = (isDoor(item.kind) ? Math.max(4, 0.13*scale) : item.h*scale) + 'px';
     const lb = document.createElement('span'); lb.className = 'fp-label'; lb.textContent = item.kind === 'table' ? (tNum[item.tableId] || item.label || '') :
-      isDoor(item.kind) ? '' : (item.kind === 'room' || item.kind === 'outdoor') ? (item.label || '') : (letterOf[(item.label||'').trim().toLowerCase()] || item.label || '');
+      (isDoor(item.kind) || item.kind === 'wall') ? '' : (item.kind === 'room' || item.kind === 'outdoor') ? (item.label || '') : (letterOf[(item.label||'').trim().toLowerCase()] || item.label || '');
     if(item.rot){
       el.style.transform = 'rotate(' + item.rot + 'deg)';
       lb.style.transform = 'rotate(' + (-item.rot) + 'deg)';
