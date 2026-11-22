@@ -7148,6 +7148,61 @@ function fpBox(it, ox, oy){
   const cx = it.x + ox + it.w/2, cy = it.y + oy + it.h/2;
   return {l:cx-w/2, r:cx+w/2, t:cy-h/2, b:cy+h/2, cx, cy, w, h};
 }
+
+/* ---- nothing may overlap: tables (with room for their chairs), dance floor, bar, labels, walls, side rooms.
+   Doors and openings sit in the walls and are left out. ---- */
+function fpSolid(it){ return !isDoorKind(it.kind); }
+function fpChairPad(it){
+  const z = {l:0, r:0, t:0, b:0};
+  if(it.kind !== 'table') return z;
+  const t = state.tables.find(x=> x.id === it.tableId); if(!t) return z;
+  const c = (state.floorPlan && state.floorPlan.unit === 'ft') ? 2 : 0.6;   // a chair plus room to pull it out
+  if(t.shape === 'round') return {l:c, r:c, t:c, b:c};
+  if(t.shape === 'u') return {l:c, r:c, t:0, b:c};
+  return {l: t.hasEnds ? c : 0, r: t.hasEnds ? c : 0, t:c, b: t.oneSide ? 0 : c};
+}
+/* the space an item takes up on the floor (chairs included), as a straight box; o = {dx, dy, w, h, rot} overrides */
+function fpHitBox(it, o){
+  o = o || {};
+  const w = o.w != null ? o.w : it.w, h = o.h != null ? o.h : it.h, rot = o.rot != null ? o.rot : (it.rot || 0);
+  const x = it.x + (o.dx || 0), y = it.y + (o.dy || 0), pd = fpChairPad(it);
+  const cx = x + w/2, cy = y + h/2, a = rot * Math.PI/180, c = Math.cos(a), sn = Math.sin(a);
+  const pts = [[x - pd.l, y - pd.t], [x + w + pd.r, y - pd.t], [x + w + pd.r, y + h + pd.b], [x - pd.l, y + h + pd.b]].map(([px, py])=>{
+    const ux = px - cx, uy = py - cy; return [cx + ux*c - uy*sn, cy + ux*sn + uy*c];
+  });
+  const xs = pts.map(q=> q[0]), ys = pts.map(q=> q[1]);
+  return {l: Math.min(...xs), r: Math.max(...xs), t: Math.min(...ys), b: Math.max(...ys)};
+}
+function fpBoxesHit(a, b){ const E = 0.02; return a.l < b.r - E && a.r > b.l + E && a.t < b.b - E && a.b > b.t + E; }
+/* does this item (moved/resized/turned by o) run into anything not in 'skip'? */
+function fpCollides(it, o, skip){
+  if(!fpSolid(it)) return false;
+  const fp = state.floorPlan, me = fpHitBox(it, o);
+  return fp.items.some(x=> x !== it && !(skip && skip.has(x)) && fpSolid(x) && fpBoxesHit(me, fpHitBox(x)));
+}
+function fpAnyCollide(items, o){ const skip = new Set(items); return items.some(it=> fpCollides(it, o, skip)); }
+/* move an item to the nearest free spot; returns false if the room is full */
+function fpNudgeFree(it){
+  if(!fpSolid(it) || !fpCollides(it)) return true;
+  const fp = state.floorPlan, ft = fp.unit === 'ft', step = ft ? 1 : 0.25, x0 = it.x, y0 = it.y;
+  const outside = it.kind === 'room' || it.kind === 'outdoor';
+  const ok = (x, y)=>{
+    if(!outside){ const b = fpHitBox(it, {dx: x - x0, dy: y - y0}); const pd = fpChairPad(it);
+      if(x < 0 || y < 0 || x + it.w > fp.roomWidth + 0.001 || y + it.h > fp.roomDepth + 0.001) return false; }
+    return !fpCollides(it, {dx: x - x0, dy: y - y0});
+  };
+  const maxR = Math.ceil(Math.max(fp.roomWidth, fp.roomDepth) / step);
+  for(let r = 1; r <= maxR; r++){
+    let best = null, bd = Infinity;
+    for(let i = -r; i <= r; i++) for(const [ix, iy] of [[i, -r], [i, r], [-r, i], [r, i]]){
+      const x = round2(x0 + ix*step), y = round2(y0 + iy*step);
+      const d = ix*ix + iy*iy;
+      if(d < bd && ok(x, y)){ best = {x, y}; bd = d; }
+    }
+    if(best){ it.x = best.x; it.y = best.y; return true; }
+  }
+  return false;
+}
 function fpUnion(boxes){
   const u = {l:Infinity, t:Infinity, r:-Infinity, b:-Infinity};
   boxes.forEach(b=>{ u.l = Math.min(u.l,b.l); u.t = Math.min(u.t,b.t); u.r = Math.max(u.r,b.r); u.b = Math.max(u.b,b.b); });
@@ -7256,6 +7311,8 @@ function fpAlign(op){
   const items = fp.items.filter(i=> fpSelected.has(i.id));
   if(!items.length) return;
   pushUndo();
+  const before = items.map(i=> [i.x, i.y]);
+  const hadHit = items.some(i=> fpCollides(i));
   const boxes = items.map(i=> fpBox(i));
   const u = fpUnion(boxes);
   const mv = (it, ddx, ddy)=>{ it.x = round2(it.x + ddx); it.y = round2(it.y + ddy); };
@@ -7280,6 +7337,10 @@ function fpAlign(op){
       if(X) mv(o.it, pos - cur, 0); else mv(o.it, 0, pos - cur);
       pos += size + gap;
     });
+  }
+  if(!hadHit && items.some(i=> fpCollides(i))){
+    items.forEach((it, k)=>{ it.x = before[k][0]; it.y = before[k][1]; });
+    toast('That would push things on top of each other. Move them apart first.', 5000);
   }
   renderFloorPlan();
 }
@@ -7325,11 +7386,11 @@ function fpUpdateScale(){
   return changed;
 }
 const FP_KIND_LABELS = {
-  dancefloor: 'Dance floor', restroom: 'Restroom', door2: 'Door', door4: 'Door', door1: 'Door', dfr: 'French doors', dsl: 'Sliding doors', gap: 'Opening',
+  dancefloor: 'Dance floor', restroom: 'Restroom', door2: 'Door', door4: 'Door', door1: 'Door', dfr: 'French doors', dsl: 'Sliding doors', dst: 'Stacking doors', gap: 'Opening',
   podium: 'Podium', bar: 'Bar', label: 'Label', room: 'Room', outdoor: 'Deck', wall: 'Wall'
 };
 const FP_KIND_CLASS = {
-  dancefloor:'fp-dancefloor', restroom:'fp-restroom', door2:'fp-door', door4:'fp-door', door1:'fp-door', dfr:'fp-door', dsl:'fp-door', gap:'fp-door',
+  dancefloor:'fp-dancefloor', restroom:'fp-restroom', door2:'fp-door', door4:'fp-door', door1:'fp-door', dfr:'fp-door', dsl:'fp-door', dst:'fp-door', gap:'fp-door',
   podium:'fp-podium', bar:'fp-bar', label:'fp-label', room:'fp-room', outdoor:'fp-outdoor', wall:'fp-wall'
 };
 
@@ -7338,13 +7399,14 @@ function metersToUnit(m, unit){ return unit === 'ft' ? m*3.28084 : m; }
 
 const FP_DOOR_PX = 9;
 const FP_DOOR_T = Math.round((FP_DOOR_PX/70)*100)/100;
-function isDoorKind(k){ return k === 'door2' || k === 'door4' || k === 'door1' || k === 'dfr' || k === 'dsl' || k === 'gap'; }
+function isDoorKind(k){ return k === 'door2' || k === 'door4' || k === 'door1' || k === 'dfr' || k === 'dsl' || k === 'dst' || k === 'gap'; }
 function defaultFloorSize(kind, table, unit){
   if(kind === 'door2') return unit==='ft' ? {w:6,h:FP_DOOR_T} : {w:2,h:FP_DOOR_T};
   if(kind === 'door4') return unit==='ft' ? {w:12,h:FP_DOOR_T} : {w:4,h:FP_DOOR_T};
   if(kind === 'door1') return unit==='ft' ? {w:3,h:FP_DOOR_T} : {w:0.9,h:FP_DOOR_T};
   if(kind === 'dfr') return unit==='ft' ? {w:6,h:FP_DOOR_T} : {w:1.8,h:FP_DOOR_T};
   if(kind === 'dsl') return unit==='ft' ? {w:8,h:FP_DOOR_T} : {w:2.4,h:FP_DOOR_T};
+  if(kind === 'dst') return unit==='ft' ? {w:12,h:FP_DOOR_T} : {w:3.6,h:FP_DOOR_T};
   if(kind === 'gap') return unit==='ft' ? {w:6,h:FP_DOOR_T} : {w:2,h:FP_DOOR_T};
   if(kind === 'wall') return unit==='ft' ? {w:10,h:0.5} : {w:3,h:0.15};
   if(kind === 'room') return unit==='ft' ? {w:13,h:10} : {w:4,h:3};
@@ -7576,6 +7638,7 @@ function renderFloorPlan(){
     fp.items.push(nu);
     if(isDoorKind(kind)) fpSnapDoorToWall(nu, true);
     if(kind === 'outdoor' || kind === 'room'){ fpPlaceOutside(nu, dropX, dropY); if(fpHallOnly){ fpHallOnly = false; try{ localStorage.setItem('tableauFpHallOnly', '0'); }catch(e){} } }
+    if(!fpNudgeFree(nu)) toast('There\u2019s no free space left for that. Make the room bigger or move things closer.', 6000);
     renderFloorPlan();
   };
 }
@@ -7625,6 +7688,9 @@ function renderFloorPalette(){
     {kind:'dsl', label:'Sliding doors (' + L(1.8, 6) + ')', w: ft ? 6 : 1.8},
     {kind:'dsl', label:'Sliding doors (' + L(2.4, 8) + ')', w: ft ? 8 : 2.4},
     {kind:'dsl', label:'Sliding doors (' + L(3.6, 12) + ')', w: ft ? 12 : 3.6},
+    {kind:'dst', label:'Stacking doors (' + L(2.4, 8) + ')', w: ft ? 8 : 2.4},
+    {kind:'dst', label:'Stacking doors (' + L(3.6, 12) + ')', w: ft ? 12 : 3.6},
+    {kind:'dst', label:'Stacking doors (' + L(4.8, 16) + ')', w: ft ? 16 : 4.8},
     {kind:'gap', label:'Opening (' + L(1.2, 4) + ')', w: ft ? 4 : 1.2},
     {kind:'gap', label:'Opening (' + L(2, 6) + ')', w: ft ? 6 : 2},
     {kind:'gap', label:'Opening (' + L(3, 10) + ')', w: ft ? 10 : 3},
@@ -7791,6 +7857,7 @@ function fpChangeSeats(t, delta){
   if(t.dim) delete t.dim;
   const it = state.floorPlan && state.floorPlan.items.find(i=> i.tableId === t.id);
   if(it && !it.customSize){ const sz = defaultFloorSize('table', t, state.floorPlan.unit); it.w = sz.w; it.h = sz.h; }
+  if(it && fpCollides(it)){ const ox = it.x, oy = it.y; if(fpNudgeFree(it) && (it.x !== ox || it.y !== oy)) toast('Moved the table a little to make room for the extra chairs.'); }
   fpAfterSeatChange(); updateTopSub();
 }
 function fpShowTableBar(el, item){
@@ -8028,7 +8095,11 @@ function fpDoorSvg(kind, wPx, inside){
   svg.setAttribute('class', 'fp-door-svg'); svg.setAttribute('width', wPx); svg.setAttribute('height', 2);
   svg.setAttribute('overflow', 'visible');
   const line = (x1, y1, x2, y2, wd)=>{ const l = document.createElementNS(ns, 'line'); l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2); l.setAttribute('stroke', '#7a7068'); l.setAttribute('stroke-width', wd || 1.1); l.setAttribute('stroke-linecap', 'round'); svg.appendChild(l); };
-  if(kind === 'dsl'){
+  if(kind === 'dst'){
+    /* stacking doors: the folded panels stacked at both ends */
+    const pw = Math.max(4, Math.min(wPx * 0.08, 12)), dp = Math.min(14, pw * 1.8) * s;
+    [[0, 1], [wPx, -1]].forEach(([x0, dir])=>{ for(let i = 0; i < 4; i++) line(x0 + dir * i * pw, i % 2 ? dp : 0, x0 + dir * (i + 1) * pw, i % 2 ? 0 : dp, 1.2); });
+  } else if(kind === 'dsl'){
     const off = 2.2;
     line(0, -off * s, wPx * 0.56, -off * s, 1.6); line(wPx * 0.44, off * s, wPx, off * s, 1.6);
   } else if(kind === 'door1'){
@@ -8293,6 +8364,7 @@ function buildFloorItemEl(item){
       const off = fp.unit === 'ft' ? 1.5 : 0.5;
       copy.x = round2(item.x + off); copy.y = round2(item.y + off);
       fp.items.push(copy);
+      fpNudgeFree(copy);
       renderFloorPlan();
       toast('Copy made \u2014 drag it where you want it.');
     });
@@ -8358,12 +8430,14 @@ function buildFloorItemEl(item){
     const startX = e.clientX, startY = e.clientY;
     const startAng = Math.atan2(startY-cy, startX-cx), rotStart = item.rot || 0;
     let moved = false, tag = null;
+    const blockRot = fpSolid(item) && !fpCollides(item);
     function onMove(ev){
       if(!moved && Math.hypot(ev.clientX-startX, ev.clientY-startY) < 4) return;
       moved = true;
       let ang = rotStart + (Math.atan2(ev.clientY-cy, ev.clientX-cx) - startAng) * 180/Math.PI;
       ang = ((Math.round(ang/15)*15) % 360 + 360) % 360;
       if(ang > 345 || ang < 8) ang = 0;
+      if(blockRot && fpCollides(item, {rot: ang})) return;
       item.rot = ang;
       el.style.transform = 'rotate(' + ang + 'deg)';
       labelSpan.style.transform = 'rotate(' + (-ang) + 'deg)';
@@ -8376,7 +8450,11 @@ function buildFloorItemEl(item){
       document.removeEventListener('pointermove', onMove);
       document.removeEventListener('pointerup', onUp);
       document.removeEventListener('pointercancel', onUp);
-      if(!moved) item.rot = (((item.rot || 0) + 90) % 360);
+      if(!moved){
+        const nr = (((item.rot || 0) + 90) % 360);
+        if(blockRot && fpCollides(item, {rot: nr})) toast('There\u2019s no room to turn it here. Move it to a clearer spot first.', 5000);
+        else item.rot = nr;
+      }
       renderFloorPlan();
     }
     document.addEventListener('pointermove', onMove);
@@ -8467,6 +8545,8 @@ function buildFloorItemEl(item){
       }
     });
     const clampD = (v, lo, hi)=> Math.min(hi, Math.max(lo, v));
+    const solidMovers = movers.filter(fpSolid), blockOn = solidMovers.length && !fpAnyCollide(solidMovers);
+    let goodDx = 0, goodDy = 0;
     function onMove(ev){
       if(!undoPushed){ if(Math.hypot(ev.clientX-startX, ev.clientY-startY) < 3) return; pushUndo(); undoPushed = true; }
       let dx = clampD((ev.clientX-startX)/FP_PX_PER_UNIT, minDx, maxDx);
@@ -8476,6 +8556,16 @@ function buildFloorItemEl(item){
         dx = clampD(res.dx, minDx, maxDx); dy = clampD(res.dy, minDy, maxDy);
         fpDrawGuides(res);
       } else { fpClearGuides(); }
+      if(blockOn){
+        const hit = (ddx, ddy)=> fpAnyCollide(solidMovers, {dx: ddx, dy: ddy});
+        if(hit(dx, dy)){
+          if(!hit(dx, goodDy)) dy = goodDy;
+          else if(!hit(goodDx, dy)) dx = goodDx;
+          else { dx = goodDx; dy = goodDy; }
+          fpClearGuides();
+        }
+        goodDx = dx; goodDy = dy;
+      }
       starts.forEach(st=>{
         if(!st.el) return;
         st.el.style.left = ((st.x + dx)*FP_PX_PER_UNIT) + 'px';
@@ -8518,11 +8608,24 @@ function buildFloorItemEl(item){
     const minPx = 0.3*FP_PX_PER_UNIT;
     el.classList.add('resizing');
     const rr = (item.rot || 0) * Math.PI/180, cs = Math.cos(rr), sn = Math.sin(rr);
+    const blockRs = fpSolid(item) && !fpCollides(item);
     function onMove(ev){
       const dx = ev.clientX-startX, dy = ev.clientY-startY;
       const lx = dx*cs + dy*sn, ly = -dx*sn + dy*cs;
-      el.style.width = Math.max(minPx, startW + lx) + 'px';
-      if(!isDoorKind(item.kind) && item.kind !== 'wall') el.style.height = Math.max(minPx, startH + ly) + 'px';
+      const nw = Math.max(minPx, startW + lx), nh = (!isDoorKind(item.kind) && item.kind !== 'wall') ? Math.max(minPx, startH + ly) : parseFloat(el.style.height) || startH;
+      if(blockRs){
+        const P = FP_PX_PER_UNIT, cw = parseFloat(el.style.width) || startW, ch = parseFloat(el.style.height) || startH;
+        const hit = (w, h)=> fpCollides(item, {w: w/P, h: h/P});
+        if(hit(nw, nh)){
+          if(!hit(nw, ch)){ el.style.width = nw + 'px'; }
+          else if(!hit(cw, nh)){ if(!isDoorKind(item.kind) && item.kind !== 'wall') el.style.height = nh + 'px'; }
+          fitFloorLabel(el);
+          dimTag.textContent = isDoorKind(item.kind) ? fmtDim(parseFloat(el.style.width)/FP_PX_PER_UNIT) : fmtDim(parseFloat(el.style.width)/FP_PX_PER_UNIT) + ' \u00d7 ' + fmtDim(parseFloat(el.style.height)/FP_PX_PER_UNIT);
+          return;
+        }
+      }
+      el.style.width = nw + 'px';
+      if(!isDoorKind(item.kind) && item.kind !== 'wall') el.style.height = nh + 'px';
       fitFloorLabel(el);
       dimTag.textContent = isDoorKind(item.kind) ? fmtDim(parseFloat(el.style.width)/FP_PX_PER_UNIT) : fmtDim(parseFloat(el.style.width)/FP_PX_PER_UNIT) + ' \u00d7 ' + fmtDim(parseFloat(el.style.height)/FP_PX_PER_UNIT);
     }
