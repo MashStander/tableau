@@ -22,7 +22,7 @@
 })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Ephesis&display=swap" rel="stylesheet">
 <style>
   @font-face{font-family:'Glacial Indifference'; src:url('fonts/GlacialIndifference-Regular.woff2') format('woff2'); font-weight:400; font-display:swap;}
   @font-face{font-family:'Glacial Indifference'; src:url('fonts/GlacialIndifference-Bold.woff2') format('woff2'); font-weight:700; font-display:swap;}
@@ -163,6 +163,7 @@
   .plan h3{font-size:22px;}
   .plan .price{font-family:'Glacial Indifference',sans-serif; font-size:44px; font-weight:700; margin:8px 0 0;}
   .plan .per{color:var(--soft); font-size:14px; margin-bottom:18px;}
+  .event-def{font-size:13px; color:var(--soft); background:var(--linen); border-radius:10px; padding:9px 12px; margin:-6px 0 16px; line-height:1.45;}
   .plan ul{list-style:none; padding:0; margin:0 0 24px; flex:1;}
   .plan li{padding:7px 0 7px 26px; position:relative; border-top:1px solid var(--line); font-size:15px;}
   .plan li::before{content:'\2713'; position:absolute; left:2px; color:var(--sage-dark); font-weight:700;}
@@ -187,7 +188,7 @@
   .pics figcaption{text-align:center; font-size:13px; color:var(--soft); margin-top:6px; font-weight:600;}
   .story h2{font-size:clamp(26px, 3.4vw, 34px); margin-bottom:16px;}
   .story .note{font-size:16.5px; color:var(--ink);}
-  .story .sig{font-family:'Corinthia',cursive; font-size:44px; color:var(--rose); margin-top:6px; line-height:1;}
+  .story .sig{font-family:'Ephesis',cursive; font-size:46px; color:var(--rose); margin-top:6px; line-height:1;}
   @media (max-width:860px){ .story{grid-template-columns:1fr; gap:26px;} .pics{max-width:420px; margin:0 auto;} }
 
   .final{text-align:center;}
@@ -339,7 +340,7 @@
     <div class="pains">
       <div class="pain"><div class="q" data-t="p1q">&ldquo;Where am I sitting?&rdquo;</div><p class="a" data-t="p1a">Forty guests around one seating board at the door. With Tableau, everyone finds their seat on their own phone.</p></div>
       <div class="pain"><div class="q" data-t="p2q">&ldquo;What were the banking details again?&rdquo;</div><p class="a" data-t="p2a">The same WhatsApp question, over and over. Put it on your guest page once, with a Copy button.</p></div>
-      <div class="pain"><div class="q" data-t="p3q">The times changed after you printed</div><p class="a" data-t="p3a">Update the programme in Tableau. Guests see the new times on the same QR code.</p></div>
+      <div class="pain"><div class="q" data-t="p3q">The times changed after you printed</div><p class="a" data-t="p3a">Change the programme in Tableau. Within seconds, guests see the new times on the same QR code.</p></div>
       <div class="pain"><div class="q" data-t="p4q">Seating chart in a spreadsheet</div><p class="a" data-t="p4a">Drag guests to their seats, see who is still unseated, and move a whole family in one go.</p></div>
     </div>
   </div>
@@ -349,7 +350,7 @@
   <div class="wrap">
     <div class="sec-head">
       <div class="kicker" data-t="priceKicker">Pricing</div>
-      <h2 data-t="priceTitle">Pay once. No subscription.</h2>
+      <h2 data-t="priceTitle">Pay once. No monthly fees.</h2>
       <p data-t="priceSub">Start free. Upgrade when you want the extras on your guest page.</p>
     </div>
     <div class="plans">
@@ -371,13 +372,15 @@
         <h3>Premium</h3>
         <div class="price">R299</div>
         <div class="per" data-t="premPer">Once-off, for up to 4 events</div>
+        <p class="event-def" data-t="eventDef">An event is one occasion with its own guest page, like the wedding or the kitchen tea. It counts the first time you share it with Premium sections.</p>
         <ul>
           <li data-t="pr1">Everything in Free</li>
           <li data-t="pr2">Programme and menu on your guest page</li>
           <li data-t="pr3">Gifts and banking details, with Copy buttons</li>
           <li data-t="pr4">Photo album, song requests, links and a note from you</li>
+          <li data-t="prPick">Use all of these, or only the ones you want, like just the programme and menu</li>
           <li data-t="pr5">Up to 4 events: wedding, engagement party, kitchen tea, rehearsal dinner</li>
-          <li data-t="pr6">18 months to edit. Your guest pages stay online afterwards.</li>
+          <li data-t="pr6">Start your events any time within 18 months. They stay online, and you can keep updating them.</li>
         </ul>
         <a class="btn btn-main js-start" href="/app?start=signup" data-t="startFreeUp">Start free, upgrade later</a>
       </div>
@@ -397,7 +400,9 @@
       <details><summary data-t="q2">What if I change the seating after I&rsquo;ve printed the QR code?</summary><p data-t="a2">That&rsquo;s fine. The QR code never changes. Your changes go to your guests by themselves within seconds.</p></details>
       <details><summary data-t="q3">Is it in Afrikaans?</summary><p data-t="a3">Your guest page can be in English or Afrikaans, or in your own words for any other language. The planning side, where you work, is in English for now.</p></details>
       <details><summary data-t="q4">Can I do it all on my phone?</summary><p data-t="a4">Yes, you can add guests and seat them on your phone. The floor plan is easiest on a computer, because of the bigger screen.</p></details>
-      <details><summary data-t="q5">Is Premium a subscription?</summary><p data-t="a5">No. You pay R299 once. It covers up to 4 events and you can edit for 18 months. Your guest pages stay online afterwards.</p></details>
+      <details><summary data-t="q5">Is Premium a subscription?</summary><p data-t="a5">No. You pay R299 once. It covers up to 4 events, which you can start any time within 18 months. Your guest pages stay online afterwards, and you can still update them.</p></details>
+      <details><summary data-t="qEv">What counts as an event?</summary><p data-t="aEv">One occasion with its own guest page and QR code: the wedding, the engagement party, the kitchen tea or a family get-together. Making changes to an event doesn&rsquo;t use up another one. Neither do test links.</p></details>
+      <details><summary data-t="qMore">What if I need more events or more time?</summary><p data-t="aMore">Buy Premium again. You get 4 more events, and another 18 months is added to the time you have left.</p></details>
       <details><summary data-t="q6">Who can see my guest page?</summary><p data-t="a6">Only people with your QR code or link. Your guest page doesn&rsquo;t show up in Google.</p></details>
     </div>
   </div>
@@ -411,7 +416,7 @@
     </div>
     <div>
       <div class="kicker" data-t="storyKicker">Why we built Tableau</div>
-      <h2 data-t="storyTitle">A note from a mom who&rsquo;s been there</h2>
+      <h2 data-t="storyTitle">Two weddings in one year taught us a lot</h2>
       <p class="note" data-t="story" data-html="1">Just over a year ago, Erik and I attended five back-to-back weddings of young people who practically grew up in our home&mdash;watching the planning from the sidelines was both a thrill and a workout. This year, we planned two of our own: my son&rsquo;s and my daughter&rsquo;s (who married one of her brother&rsquo;s best mates). Two weddings in one year! Seeing it all up close taught me how quickly the joy gets buried under seating charts, frantic WhatsApp groups, and details you spend hours creating for a five-second glance from guests. I built Tableau to trade the planning chaos for a little more magic&mdash;taking the stress off you beforehand, and making every guest, from varsity friends to Ouma, feel welcomed in their own language. Think of it as a note from a mom who&rsquo;s been right in the thick of it: pour the champagne and go enjoy your day.</p>
       <div class="sig">Mash &amp; Erik</div>
     </div>
@@ -453,7 +458,7 @@ const AF = {
   exBasic:'Gereedgemaakte bladsye', exFull:'Met opgelaaide Canva-ontwerpe',
   exSwitchNote:'Gereedgemaak: tik jul program en spyskaart in en Tableau sit dit mooi uit. Of laai jul eie ontwerpe uit Canva op.',
   tipTitle:'Wenk van Mash: begin met die vloerplan',
-  tipText:'Voordat julle op 6- of 8-sitplektafels besluit, of sitplekke aan die koppe, plaas eers jul tafels op die vloerplan. Met 120 gaste het ons 20 tafels sonder kopsitplekke nodig gehad, en dit het eenvoudig nie in ons saal gepas nie. As julle eers die saal nagaan, hoef julle nie almal twee keer te plaas nie.',
+  tipText:'Voordat julle op 6- of 8-sitplektafels besluit, of om sitplekke aan die koppe te hê, plaas eers jul tafels op die vloerplan. Met 120 gaste het ons 20 tafels sonder kopsitplekke beplan (lang tafels), maar dit het eenvoudig nie in ons saal gepas nie. As julle eers op die vloerplan toets, hoef julle nie almal twee keer te plaas nie.',
   shotMap:'Waar is my tafel?', shotList:'Wie sit aan my tafel?', loadingEx:'Die voorbeeld laai&hellip;',
   featKicker:'Alles op een plek', featTitle:'Minder admin vir julle. Minder verwarring vir jul gaste.',
   forGuests:'Vir jul gaste', forGuestsLead:'Een bladsy op hul foon, van die parkeerterrein tot op die dansvloer.',
@@ -477,24 +482,26 @@ const AF = {
   dayText2:'Ouma kry haar sitplek sonder om te vra. Jul <i>varsity</i>-pelle kry hulle s’n terwyl hulle nog op die parkeerterrein is. En niemand hoef vir julle te kom vra nie.',
   mapWho:'Anna Botha sit by', mapTable:'Tafel 4', mapBridal:'Bruidstafel', mapDance:'Dansvloer',
   painKicker:'Klink bekend?', painTitle:'Die klein goedjies wat jou tyd opvreet',
-  p1q:'&ldquo;Waar sit ek?&rdquo;', p1a:'Veertig gaste om een sitplekbord by die deur. Met Tableau kry elke gas hul sitplek op hul eie foon.',
+  p1q:'&ldquo;Waar sit ek?&rdquo;', p1a:'Veertig gaste om een tafellys by die deur. Met Tableau kry elke gas hul sitplek op hul eie foon.',
   p2q:'&ldquo;Wat was die bankbesonderhede nou weer?&rdquo;', p2a:'Dieselfde WhatsApp-vraag, oor en oor. Sit dit een keer op jul gastebladsy, met ’n Kopieer-knoppie.',
-  p3q:'Die tye het verander nadat julle gedruk het', p3a:'Werk die program in Tableau by. Gaste sien die nuwe tye op dieselfde QR-kode.',
+  p3q:'Die tye het verander nadat julle gedruk het', p3a:'Verander die program in Tableau. Gaste sien die nuwe tye binne sekondes op dieselfde QR-kode.',
   p4q:'’n Sitplekplan in Excel', p4a:'Sleep gaste na hul sitplekke, sien wie nog nie ’n plek het nie, en skuif ’n hele gesin in een slag.',
-  priceKicker:'Pryse', priceTitle:'Betaal een keer. Geen intekening nie.', priceSub:'Begin gratis. Gradeer op wanneer julle die ekstras op jul gastebladsy wil hê.',
+  priceKicker:'Pryse', priceTitle:'Betaal een keer. Geen maandelikse fooie nie.', priceSub:'Begin gratis. Gradeer op wanneer julle die ekstras op jul gastebladsy wil hê.',
   freePer:'So lank as wat julle wil', f1:'Sitplekplan met groepe', f2:'Vloerplan, met verskillende uitlegte om te vergelyk', f3:'Gastebladsy: sitplekvinder met ’n tafelkaart', f4:'Jul eie kleure en voorbladfoto', f5:'Een QR-kode om te druk of te deel',
-  ribbon:'Alles op jul gastebladsy', premPer:'Eenmalig, vir tot 4 geleenthede',
-  freeName:'Gratis', pr1:'Alles in die gratis plan', pr2:'Program en spyskaart op jul gastebladsy', pr3:'Geskenke en bankbesonderhede, met Kopieer-knoppies', pr4:'Foto-album, liedjieversoeke, skakels en ’n boodskap van julle',
-  pr5:'Tot 4 geleenthede: troue, verlowingspartytjie, kombuistee, familie-bymekaarkoms', pr6:'18 maande om te wysig. Jul gastebladsye bly daarna aanlyn.',
+  ribbon:'Alles op jul gastebladsy', premPer:'Eenmalig, vir tot 4 geleenthede', eventDef:'’n Geleentheid is een okkasie met sy eie gastebladsy, soos die troue of die kombuistee. Dit tel die eerste keer wat julle dit met Premium-afdelings deel.',
+  freeName:'Gratis', pr1:'Alles in die gratis plan', pr2:'Program en spyskaart op jul gastebladsy', pr3:'Geskenke en bankbesonderhede, met Kopieer-knoppies', pr4:'Foto-album, liedjieversoeke, skakels en ’n boodskap van julle af', prPick:'Gebruik alles, of net wat julle nodig het, soos net die program en spyskaart',
+  pr5:'Tot 4 geleenthede: troue, verlowingspartytjie, kombuistee, familie-bymekaarkoms', pr6:'Begin jul geleenthede enige tyd binne 18 maande. Hulle bly aanlyn, en julle kan dit steeds bywerk.',
   plansNote:'Probeer elke Premium-afdeling terwyl julle opstel. Julle betaal eers wanneer julle dit met jul gaste deel. Veilige betaling in Rand deur PayFast.',
   faqTitle:'Goed om te weet',
   q1:'Moet my gaste ’n app aflaai?', a1:'Nee. Hulle skandeer die QR-kode met hul foonkamera en die bladsy maak in hul blaaier oop. As hulle wil, kan hulle dit op hul tuisskerm stoor.',
   q2:'Wat as ek die sitplekke verander nadat ek die QR-kode gedruk het?', a2:'Geen probleem nie. Die QR-kode verander nooit. Jul veranderinge bereik jul gaste binne sekondes vanself.',
   q3:'Is dit in Afrikaans?', a3:'Jul gastebladsy kan in Engels of Afrikaans wees, of in jul eie woorde vir enige ander taal. Die beplanningskant, waar julle werk, is vir eers in Engels.',
   q4:'Kan ek alles op my foon doen?', a4:'Ja, jy kan gaste byvoeg en hulle op jou foon plaas. Die vloerplan werk die maklikste op ’n rekenaar, want die skerm is groter.',
-  q5:'Is Premium ’n intekening?', a5:'Nee. Jy betaal een keer R299. Dit dek tot 4 geleenthede en jy kan vir 18 maande wysig. Jul gastebladsye bly daarna aanlyn.',
+  q5:'Moet ek maandeliks vir Premium betaal?', a5:'Nee. Jy betaal een keer R299. Dit dek tot 4 geleenthede, wat jy enige tyd binne 18 maande kan begin. Jul gastebladsye bly daarna aanlyn, en jy kan dit steeds bywerk.',
+  qEv:'Wat tel as ’n geleentheid?', aEv:'Een okkasie met sy eie gastebladsy en QR-kode: die troue, die verlowingspartytjie, die kombuistee of ’n familie-bymekaarkoms. Om ’n geleentheid te verander, gebruik nie nog een op nie. Toetsskakels ook nie.',
+  qMore:'Wat as ek meer geleenthede of meer tyd nodig het?', aMore:'Koop weer Premium. Julle kry 4 ekstra geleenthede, en nog 18 maande word by die tyd wat oorbly gevoeg.',
   q6:'Wie kan my gastebladsy sien?', a6:'Net mense met jul QR-kode of skakel. Jul gastebladsy wys nie in Google op nie.',
-  today:'Vandag', storyKicker:'Hoekom ons Tableau gebou het', storyTitle:'’n Boodskappie van ’n ma wat self daar was',
+  today:'Vandag', storyKicker:'Hoekom ons Tableau gebou het', storyTitle:'Twee troues in een jaar het ons baie geleer',
   story:'’n Bietjie meer as ’n jaar gelede was ek en Erik gaste by vyf troues, kort op mekaar se hakke, almal van jongmense wat feitlik in ons huis grootgeword het. Om die beplanning van die kantlyn af dop te hou, was tegelykertyd opwindend en uitputtend. Hierdie jaar het ons twee van ons eie beplan: my seun s’n en my dogter s’n (wat met een van haar broer se beste pelle getrou het). Twee troues in een jaar! Om dit van naby te beleef, het my gewys hoe vinnig die vreugde wegraak onder sitplekplanne, dol WhatsApp-groepe, en detail waaraan jy ure lank skaaf wat jou gaste skaars onthou. Ek het Tableau gebou om die beplanningschaos vir ’n bietjie meer <i>magic</i> te verruil&mdash;om die stres voor die tyd van julle skouers af te haal, en elke gas, van <i>varsity</i>-pel tot Ouma, in hul eie taal welkom te laat voel. Beskou dit as ’n boodskappie van ’n ma wat self tot oor haar ore daarin was: skink die sjampanje en gaan geniet julle dag.',
   finalTitle:'Gereed wanneer julle is', finalText:'Stel vanaand jul gastelys op. Dis gratis om te begin.',
   madeIn:'Gemaak in Suid-Afrika &middot; Engels &amp; Afrikaans &middot; Betaal in Rand', contact:'Kontak', terms:'Bepalings &amp; privaatheid'
@@ -514,7 +521,7 @@ function setLang(l){
   try{ localStorage.setItem('tableauHomeLang', lang); }catch(e){}
   /* the example couple: Ava & Jack in English, Mia & Henco in Afrikaans */
   document.querySelectorAll('.js-ex').forEach(a=> a.href = 'https://tableauevents.co.za/guest-view.html?event=' + exampleSlug());
-  const fr = document.querySelector('#phone iframe'); if(fr && !fr.src.includes(exampleSlug())) fr.src = 'guest-view.html?event=' + exampleSlug();
+  const fr = document.querySelector('#phone iframe'); if(fr && !fr.src.includes(exampleSlug())) fr.src = 'guest-view.html?frame=1&event=' + exampleSlug();
   document.querySelectorAll('.js-shot').forEach(im=>{ const f = im.dataset[lang] || im.dataset.en; if(!im.src.endsWith(f)) im.src = f; });
   markSignedIn();
 }
@@ -551,7 +558,7 @@ setLang(lang);
   if(getComputedStyle(ph).display === 'none') return;
   const load = ()=>{
     const f = document.createElement('iframe');
-    f.src = 'guest-view.html?event=' + exampleSlug(); f.title = 'Example guest page'; f.loading = 'lazy';
+    f.src = 'guest-view.html?frame=1&event=' + exampleSlug(); f.title = 'Example guest page'; f.loading = 'lazy';
     f.addEventListener('load', ()=>{ try{ const st = f.contentDocument.createElement('style'); st.textContent = 'html{scrollbar-width:none}::-webkit-scrollbar{display:none}'; f.contentDocument.head.appendChild(st); }catch(e){} });
     ph.innerHTML = ''; ph.appendChild(f);
   };

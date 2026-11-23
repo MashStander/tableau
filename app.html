@@ -1625,6 +1625,7 @@
   .si-msg{margin:16px 0 0; padding:10px 14px; border-radius:10px; font-size:14px; line-height:1.45;}
   .si-msg.error{background:#fdeeee; color:#a33b3b;}
   .si-msg.ok{background:#eef4ec; color:var(--sage-dark);}
+  .si-same{font-size:12.5px; color:#8a8178; margin-top:12px;}
   .si-foot{margin:18px 0 0; font-size:13px;}
   .si-foot + .si-foot{margin-top:8px;}
   #landingIn .primary-btn{background:#f5ac9f; color:#5b3a33; border-radius:999px; font-weight:700; padding:13px 18px; border:0;}
@@ -2206,6 +2207,7 @@
           <input type="email" id="siEmail" class="si-input" autocomplete="email" required data-si-ph="emailPh" placeholder="Your email address">
           <button type="submit" class="si-btn" id="siSend" data-si="send">Send me a code</button>
         </form>
+        <p class="si-small si-same" data-si="sameEmail">Always use the same email, and you&rsquo;ll always get the same account with all your projects.</p>
       </div>
       <div id="siStep2" class="hidden">
         <h2 class="si-h" data-si="t2">Check your email</h2>
@@ -2215,6 +2217,7 @@
           <button type="submit" class="si-btn" id="siVerify" data-si="verify">Sign in</button>
         </form>
         <p class="si-small"><span data-si="spam">Not there after a minute? Check your spam or promotions folder.</span></p>
+        <p class="si-small si-same" data-si="same">Each code works once. A new code is just a new key to the same account.</p>
         <p class="si-small"><button type="button" class="si-link" id="siResend"></button> &middot; <button type="button" class="si-link" id="siChange" data-si="change">Use a different email</button></p>
       </div>
       <div id="siMsg" class="si-msg hidden"></div>
@@ -10096,8 +10099,8 @@ function premAsk(){
     const o = document.createElement('div'); o.className = 'modal-overlay'; o.style.zIndex = 900;
     o.innerHTML = '<div class="modal-card" style="max-width:440px;"><h3>Use Premium for this event?</h3>'
       + '<p style="font-size:14.5px; line-height:1.55;">Your programme, menu and other Premium sections go live for guests. This uses <b>1 of your ' + max + ' Premium events</b> ('
-      + (left - 1) + ' left after this).</p>'
-      + '<p style="font-size:13px; color:var(--ink-soft); line-height:1.5;">Just testing? Choose <b>Not now</b> and use <b>Send a test link to my phone</b> instead. It doesn’t use an event.</p>'
+      + (left - 1) + ' left after this). Changes you make to this event later are free.</p>'
+      + '<p style="font-size:13px; color:var(--ink-soft); line-height:1.5;">Just want to see how it looks? Choose <b>Not now</b>. The preview beside your guest page shows it as on a phone, and <b>Share → Send a test link to my phone</b> lets you try the real thing for 48 hours. Neither uses an event.</p>'
       + '<div class="modal-actions"><button type="button" class="ghost-btn" data-a="no">Not now</button><button type="button" class="primary-btn" data-a="yes">Yes, use Premium</button></div></div>';
     o.addEventListener('click', e=>{ const b = e.target.closest('[data-a]'); if(!b && e.target !== o) return; o.remove(); res(!!b && b.dataset.a === 'yes'); });
     document.body.appendChild(o);
@@ -12605,6 +12608,7 @@ const SI_TXT = {
         t2:'Check your email', sub2:'We sent a code to', verify:'Sign in', checking:'Checking…',
         spam:'Not there after a minute? Check your spam or promotions folder.',
         resendIn:'Send a new code in {s}s', resend:'Send a new code', change:'Use a different email', newSent:'A new code is on its way.',
+        same:'Each code works once. A new code is just a new key to the same account.', sameEmail:'Always use the same email, and you\u2019ll always get the same account with all your projects.',
         pw:'Sign in with my password instead', home:'← Back to the homepage', contact:'Contact us',
         badEmail:'Please check your email address.', badCode:'That code didn’t work. Check it, or send a new one.',
         short:'Type the whole code from the email.', wait:'Too many tries just now. Please wait a minute and try again.',
@@ -12616,6 +12620,7 @@ const SI_TXT = {
         t2:'Kyk in jou e-pos', sub2:'Ons het ’n kode gestuur na', verify:'Meld aan', checking:'Kontroleer…',
         spam:'Nog niks na ’n minuut nie? Kyk in jou spam- of promosie-vouer.',
         resendIn:'Stuur ’n nuwe kode oor {s}s', resend:'Stuur ’n nuwe kode', change:'Gebruik ’n ander e-posadres', newSent:'’n Nuwe kode is op pad.',
+        same:'Elke kode werk net een keer. ’n Nuwe kode is net ’n nuwe sleutel tot dieselfde rekening.', sameEmail:'Gebruik altyd dieselfde e-posadres, dan kry jy altyd dieselfde rekening met al jou projekte.',
         pw:'Meld eerder met my wagwoord aan', home:'← Terug na die tuisblad', contact:'Kontak ons',
         badEmail:'Kyk asseblief jou e-posadres na.', badCode:'Daardie kode werk nie. Kyk weer, of stuur ’n nuwe een.',
         short:'Tik die hele kode uit die e-pos.', wait:'Te veel pogings so pas. Wag asseblief ’n minuut en probeer weer.',
