@@ -6,11 +6,9 @@
 <title>Contact us — Tableau Events</title>
 <meta name="description" content="Questions about Tableau, your plan or your guest page? Send us a message.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Corinthia&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{ --paper:#fffdfa; --ink:#343834; --ink-soft:#7a7068; --line:#ddd9cc; --white:#fff; --bar:#aebdab; --btn:#7d9479; --btn-hover:#6b8267; --sage-dark:#6e8a70; --rose:#f98484; --danger:#c0392b; }
-  @font-face{font-family:'Glacial Indifference'; src:url('fonts/GlacialIndifference-Regular.woff2') format('woff2'); font-weight:400; font-display:swap;}
-  @font-face{font-family:'Glacial Indifference'; src:url('fonts/GlacialIndifference-Bold.woff2') format('woff2'); font-weight:700; font-display:swap;}
   *{box-sizing:border-box;}
   body{margin:0; font-family:'Plus Jakarta Sans',sans-serif; font-weight:500; background:#fff; color:var(--ink); line-height:1.55;}
   .strip{background:var(--paper); border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:34px 0 40px; margin-top:24px;}
@@ -37,9 +35,46 @@
   .small{font-size:12.5px; color:var(--ink-soft); margin-top:14px; text-align:center;}
   .small a{color:var(--sage-dark);}
   @media (max-width:520px){ .card{padding:22px 18px;} h1{font-size:28px;} .tag{font-size:30px;} .strip{padding:18px 0 26px; margin-top:10px;} }
+
+  /* shared with the homepage */
+  @font-face{font-family:'Glacial Indifference'; src:url('fonts/GlacialIndifference-Regular.woff2') format('woff2'); font-weight:400; font-display:swap;}
+  @font-face{font-family:'Glacial Indifference'; src:url('fonts/GlacialIndifference-Bold.woff2') format('woff2'); font-weight:700; font-display:swap;}
+  header.top{position:sticky; top:0; z-index:20; background:rgba(255,253,250,.94); backdrop-filter:blur(6px); border-bottom:1px solid #e4dfd4;}
+  .top-in{max-width:1120px; margin:0 auto; padding:0 22px; height:64px; display:flex; align-items:center; gap:14px;}
+  .logo{display:block; width:128px; height:38px; background:url('logo.png') no-repeat left center/contain;}
+  .top-right{margin-left:auto; display:flex; gap:10px;}
+  .btn{display:inline-flex; align-items:center; border-radius:999px; padding:8px 16px; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:14px; text-decoration:none; border:1px solid transparent; width:auto;}
+  .btn-main{background:#f5ac9f; color:#5b3a33;}
+  .btn-main:hover{background:#f09888;}
+  .btn-ghost{background:#fff; color:#343834; border-color:#e4dfd4;}
+  .btn-ghost:hover{border-color:#6e8a70; color:#6e8a70;}
+  footer.foot{border-top:1px solid #e4dfd4; padding:28px 0 36px; font-size:14px; color:#6f675f; background:#fffdfa; opacity:1; text-align:left;}
+  .foot-in{max-width:1120px; margin:0 auto; padding:0 22px; display:flex; flex-wrap:wrap; gap:12px 26px; align-items:center; justify-content:space-between;}
+  .foot-in nav{display:flex; gap:18px; flex-wrap:wrap; background:none; border:0; padding:0;}
+  .foot-in a{color:#6f675f; margin:0;}
+  @media (max-width:520px){ .logo{width:104px;} .top-right .btn-ghost{display:none;} }
+
+  body{background:#fffdfa;}
+  .strip{background:transparent; border:0; padding:40px 0 60px; margin:0;}
+  .card{border-radius:20px; border-color:#e4dfd4; padding:32px 34px; box-shadow:0 18px 50px rgba(52,56,52,.08);}
+  h1{font-weight:700; letter-spacing:.02em;}
+  input, select, textarea{border-radius:12px; border-color:#d9d3c7; padding:12px 14px;}
+  form button{border-radius:999px; background:#f5ac9f; color:#5b3a33; font-weight:700;}
+  form button:hover{background:#f09888;}
+  .tag, .back{display:none;}
+  .done .back{display:inline-block;}
 </style>
 </head>
 <body>
+<header class="top">
+  <div class="top-in">
+    <a class="logo" href="/" aria-label="Tableau – home"></a>
+    <div class="top-right">
+      <a class="btn btn-ghost" href="/app?start=signin">Sign in</a>
+      <a class="btn btn-main" href="/app?start=signup">Start free</a>
+    </div>
+  </div>
+</header>
 <div class="strip">
 <div class="wrap">
   <a class="back" href="/">&larr; Back to Tableau</a>
@@ -76,7 +111,12 @@
   <p class="small">See also our <a href="/terms.html">Terms, refunds and privacy</a>.</p>
 </div>
 </div>
-<p class="tag">Familiar, with a spritz of magic.</p>
+<footer class="foot">
+  <div class="foot-in">
+    <div>Made in South Africa &middot; English &amp; Afrikaans &middot; Pay in Rand</div>
+    <nav><a href="/">Home</a><a href="/app?start=signin">Sign in</a><a href="/contact.html">Contact</a><a href="/terms.html">Terms &amp; privacy</a></nav>
+  </div>
+</footer>
 <script>
 const CONTACT_URL = 'https://tableau-contact.mash-stander.workers.dev';
 const opened = Date.now();

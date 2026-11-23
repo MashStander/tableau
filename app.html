@@ -1638,6 +1638,55 @@
   #landingScreen .landing-wrap{display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; padding:24px 14px !important; margin:0 !important;}
   #landingScreen .landing-card{box-sizing:border-box !important; width:100% !important; max-width:460px !important; flex:none !important; margin:0 auto !important;}
   @media (max-width:520px){ #landingScreen{align-items:flex-start !important;} #landingScreen .landing-wrap{padding:8px 4px !important;} }
+
+  /* ---- "Let's get started": same look as the homepage ---- */
+  #hubScreen{background:#fffdfa;}
+  #hubScreen .hub-band{background:transparent; border:0; padding-top:44px;}
+  #hubScreen h2#hubTitle{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-weight:700; font-size:clamp(28px,3.4vw,38px); letter-spacing:.02em; color:var(--ink);}
+  #hubScreen #hubSub{font-size:15.5px; color:#6f675f; margin-top:8px;}
+  #hubScreen .hub-cols{gap:22px; align-items:start;}
+  #hubScreen .hub-col{background:transparent !important; border:0 !important; padding:0 !important; box-shadow:none !important; display:flex; flex-direction:column; gap:14px;}
+  #hubScreen .hub-col-h{display:flex; align-items:center; gap:10px; font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-weight:700; font-size:19px; letter-spacing:.02em; color:var(--ink); margin:0 0 2px 4px; text-transform:none;}
+  #hubScreen .hub-col-h i{font-style:normal; width:32px; height:32px; border-radius:50%; background:var(--btn); color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-size:15px; display:flex; align-items:center; justify-content:center;}
+  #hubScreen .hub-card{background:#fff !important; border:1px solid #e4dfd4 !important; border-radius:18px !important; padding:20px 22px !important; box-shadow:0 10px 28px rgba(52,56,52,.06) !important; text-align:left; transition:border-color .15s, box-shadow .15s;}
+  #hubScreen button.hub-card:hover{border-color:var(--sage-dark) !important; box-shadow:0 12px 30px rgba(52,56,52,.1) !important;}
+  #hubScreen .hub-card.hub-first{border:2px solid #f5ac9f !important;}
+  #hubScreen .hub-card > b{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-weight:700; font-size:19px; letter-spacing:.02em; color:var(--ink);}
+  #hubScreen .hub-card > b small{background:#f5ac9f; color:#5b3a33; border-radius:999px; padding:2px 10px; font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:700; letter-spacing:.06em; vertical-align:3px;}
+  #hubScreen .hub-card > span{color:#6f675f; font-size:14.5px; line-height:1.55;}
+  #hubScreen .page-tagline{display:none;}
+  @media (max-width:900px){ #hubScreen .hub-band{padding-top:26px;} }
+
+  /* ---- signed-in welcome card ---- */
+  #landingIn .landing-welcome{color:#6f675f; font-size:14.5px; margin:-2px 0 20px;}
+  #landingIn .primary-btn, #landingIn .land-btn{display:block; width:100%; box-sizing:border-box; margin:0 0 10px; font-size:15.5px; padding:13px 18px;}
+  #landingIn .land-btn{background:#fff; border:1px solid #d9d3c7; color:var(--ink); font-weight:600;}
+  #landingIn .land-btn:hover{border-color:var(--sage-dark); color:var(--sage-dark);}
+  .li-plan{margin-top:18px; padding-top:16px; border-top:1px solid #ece6db; text-align:left;}
+  .li-plan-row{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:14px;}
+  #landingPlanLine{font-weight:700; color:var(--sage-dark);}
+  #landingSeePlans{font-size:13px; color:var(--sage-dark);}
+  #liCodeToggle{margin-top:8px;}
+  .li-code-row{display:flex; gap:8px; margin-top:10px;}
+  .li-code-row input{flex:1; min-width:0; font:inherit; font-size:15px; letter-spacing:.05em; text-transform:uppercase; padding:10px 12px; border:1px solid #d9d3c7; border-radius:10px;}
+  #landingIn .li-code-row .primary-btn{width:auto; margin:0; padding:0 18px; display:inline-block;}
+  #landingCodeMsg{font-size:12.5px; min-height:18px; margin-top:6px;}
+  #landingIn .auth-link{font-size:13px; color:var(--sage-dark);}
+
+  /* ---- "Your projects": same look as sign-in ---- */
+  #chartsScreen{background:#fffdfa;}
+  #chartsScreen .auth-card{border-radius:20px; border:1px solid #e4dfd4; box-shadow:0 18px 50px rgba(52,56,52,.08); max-width:560px; width:100% !important; box-sizing:border-box;}
+  #chartsScreen .auth-logo{width:128px; height:38px; background-position:left center; margin:0 0 18px;}
+  #chartsScreen .charts-head h2{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-weight:700; font-size:28px; letter-spacing:.02em;}
+  #chartsScreen .chart-row{background:#fff; border:1px solid #e4dfd4; border-radius:14px;}
+  #chartsScreen .chart-row button{border-radius:999px; padding:6px 14px;}
+  #chartsScreen .chart-row .cr-open{background:#f5ac9f; border-color:#f5ac9f; color:#5b3a33; font-weight:700;}
+  #chartsScreen .chart-row .cr-open:hover{background:#f09888; border-color:#f09888;}
+  #chartsScreen .new-chart-row{gap:8px;}
+  #chartsScreen .new-chart-row input{border-radius:12px; border:1px solid #d9d3c7; padding:12px 14px;}
+  #chartsScreen #btnNewCloudChart{border-radius:999px; background:#f5ac9f; border-color:#f5ac9f; color:#5b3a33; font-weight:700; white-space:nowrap;}
+  #chartsScreen #btnNewCloudChart:hover{background:#f09888;}
+  @media (max-width:520px){ #chartsScreen .auth-card{border:0; box-shadow:none; background:transparent; padding:18px 14px;} #chartsScreen .chart-row button{padding:8px 4px; min-width:0;} #chartsScreen .chart-row .cr-actions{gap:6px;} }
 </style>
 </head>
 <body>
@@ -1754,8 +1803,9 @@
   <p class="hint" id="hubSub">Three steps, in order. The same steps are in the menu at the top.</p>
   <div class="hub-cols">
    <div class="hub-col">
+    <div class="hub-col-h"><i>1</i>Guests &amp; tables</div>
     <div class="hub-card hub-first">
-      <b>1a. Your guest list <small>Start here</small></b>
+      <b>Your guest list <small>Start here</small></b>
       <ol class="hub-steps">
         <li><i>a</i><span>Download the <a id="hubDl">free Excel template</a>.</span></li>
         <li><i>b</i><span>Fill in names and groups. Keep the columns as they are.</span></li>
@@ -1764,17 +1814,19 @@
       <span>Or <a id="hubManual">type guests in one by one</a>.</span>
       <em id="hubStatGuests"></em>
     </div>
+    <button type="button" class="hub-card" data-hub="floorplan"><b>Your room</b><span>Place your tables on the floor plan first, to see how many fit. Then you know whether you need 6- or 8-seaters.</span><em id="hubStatFloor"></em></button>
+    <button type="button" class="hub-card" data-hub="tables"><b>Your tables &amp; seating</b><span>Add your tables and seat your guests.</span><em id="hubStatTables"></em></button>
    </div>
    <div class="hub-col">
-    <button type="button" class="hub-card" data-hub="tables"><b>1b. Your tables</b><span>Add your tables and seat your guests.</span><em id="hubStatTables"></em></button>
-    <button type="button" class="hub-card" data-hub="floorplan"><b>Floor plan <small>Optional</small></b><span>Show guests where their table is in the room.</span><em id="hubStatFloor"></em></button>
+    <div class="hub-col-h"><i>2</i>Guest page</div>
+    <button type="button" class="hub-card" data-hub="guestpage"><b>Your guest page</b><span>Colours, photo, programme, menu, gifts, photos and more.</span><em id="hubStatGuestPage"></em></button>
    </div>
    <div class="hub-col">
-    <button type="button" class="hub-card" data-hub="guestpage"><b>2. Your guest page</b><span>Programme, menu, gifts, photos and more.</span><em id="hubStatGuestPage"></em></button>
-    <button type="button" class="hub-card" data-hub="share"><b>3. Share</b><span>Publish, then print your QR code or send the link.</span><em id="hubStatShare"></em></button>
+    <div class="hub-col-h"><i>3</i>Share</div>
+    <button type="button" class="hub-card" data-hub="share"><b>Share it</b><span>Publish, then print your QR code or send the link. Send yourself a test link first if you like.</span><em id="hubStatShare"></em></button>
    </div>
    <div class="hub-col hub-col-plan">
-    <div class="hub-plan-head">Planning <span class="beta-tag">beta</span></div>
+    <div class="hub-col-h hub-plan-head">Planning <span class="beta-tag">beta</span></div>
     <button type="button" class="hub-card" data-hub="bridal" data-plan-need="2"><b>Bridal party page</b><span>Jobs, packing lists and a private link.</span><em id="hubStatBridal"></em></button>
     <button type="button" class="hub-card" data-hub="vendors" data-plan-need="2"><b>Vendors</b><span>Contact details your bridal party can tap.</span><em id="hubStatVendors"></em></button>
     <button type="button" class="hub-card" data-hub="photos" data-plan-need="2"><b>Group photos</b><span>Who is in each photo.</span><em id="hubStatPhotos"></em></button>
@@ -2247,21 +2299,22 @@
       <h2 class="si-h">Welcome back</h2>
       <div class="landing-welcome" id="landingWelcome"></div>
       <button class="primary-btn hidden" id="btnLandResume"></button>
-      <button class="ghost-btn land-btn" id="btnLandOpen">Open/delete an existing project</button>
+      <button class="ghost-btn land-btn" id="btnLandOpen">All my projects</button>
       <button class="ghost-btn land-btn" id="btnLandNew">Start a new project</button>
       <div id="landingNewRow" class="new-chart-row hidden">
         <input type="text" id="landingNewName" placeholder="Project name, e.g. Smith Wedding" maxlength="50" class="custom-num">
         <button class="primary-btn" id="btnLandCreate">Create</button>
       </div>
-      <div id="landingCodeBox" style="margin-top:18px; padding:14px 14px 12px; border:1px solid var(--line); border-radius:12px; background:#fbf9f5; text-align:left;">
-        <div id="landingPlanLine" style="font-size:13.5px; font-weight:600; color:var(--sage-dark); margin-bottom:4px;"></div>
-        <div style="font-size:12.5px; color:var(--ink-soft); line-height:1.5; margin-bottom:8px;">Have an access code for a paid plan? Type it here to unlock it.</div>
-        <div style="display:flex; gap:8px;">
-          <input type="text" id="landingCodeInput" placeholder="TBL-XXXX-XXXX" autocomplete="off" autocapitalize="characters" style="flex:1; min-width:0; font-size:15px; letter-spacing:.05em; text-transform:uppercase;">
-          <button type="button" class="primary-btn" id="landingCodeGo" style="width:auto; padding:0 18px;">Unlock</button>
+      <div id="landingCodeBox" class="li-plan">
+        <div class="li-plan-row"><span id="landingPlanLine"></span><a href="#" id="landingSeePlans">See plans</a></div>
+        <button type="button" class="si-link" id="liCodeToggle">Have an access code?</button>
+        <div id="liCodeWrap" class="hidden">
+          <div class="li-code-row">
+            <input type="text" id="landingCodeInput" placeholder="TBL-XXXX-XXXX" autocomplete="off" autocapitalize="characters">
+            <button type="button" class="primary-btn" id="landingCodeGo">Unlock</button>
+          </div>
+          <div id="landingCodeMsg"></div>
         </div>
-        <div id="landingCodeMsg" style="font-size:12.5px; min-height:18px; margin-top:6px;"></div>
-        <div style="font-size:12px; margin-top:2px;"><a href="#" id="landingSeePlans" style="color:var(--sage-dark);">See what each plan includes</a> &middot; <a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener" style="color:var(--sage-dark);">Live example</a> on your phone (bridal party code: <b>6064</b>)</div>
       </div>
       <div style="margin-top:16px;"><button class="auth-link" id="btnLandSignOut" type="button">Sign out</button> &middot; <a class="auth-link" href="/contact.html" target="_blank" rel="noopener">Contact us</a></div>
     </div>
@@ -10580,6 +10633,7 @@ async function redeemFromLanding(){
 document.getElementById('landingCodeGo').addEventListener('click', redeemFromLanding);
 document.getElementById('landingCodeInput').addEventListener('keydown', e=>{ if(e.key === 'Enter') redeemFromLanding(); });
 document.getElementById('landingSeePlans').addEventListener('click', e=>{ e.preventDefault(); openAccessModal(); });
+document.getElementById('liCodeToggle').addEventListener('click', ()=>{ const w = document.getElementById('liCodeWrap'); w.classList.toggle('hidden'); if(!w.classList.contains('hidden')) document.getElementById('landingCodeInput').focus(); });
 let accessNeed = 0;
 function openAccessModal(need, what){
   accessNeed = (typeof need === 'number') ? need : 0;
@@ -12896,7 +12950,7 @@ function showHub(first){
   hubStat('hubStatVendors', nv ? nv + (nv===1?' vendor added':' vendors added') : 'Not started yet', nv);
   hubStat('hubStatPhotos', np ? np + (np===1?' photo planned':' photos planned') : 'Not started yet', np);
   clUpdateStat();
-  document.getElementById('topSub').textContent = state.eventName || 'Your project';
+  updateTopSub();
   window.scrollTo(0,0);
 }
 function hideHub(){ hideEiPage(); hideBdPage(); hubOpen = false; document.getElementById('hubScreen').classList.add('hidden'); document.getElementById('guestScreen').classList.add('hidden'); }
