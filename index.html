@@ -61,12 +61,23 @@
 
   /* hero */
   .hero-img{display:block; width:100%; max-width:1180px; height:auto; margin:22px auto 0; padding:0 12px;}
-  .hero{text-align:center; padding:34px 0 56px;}
-  .hero h1{font-size:clamp(32px, 5.2vw, 56px); color:var(--ink);}
+  .hero{text-align:center; padding:34px 0 30px;}
+  .hero h1{font-size:clamp(32px, 5.2vw, 48px); color:var(--ink);}
+  /* computers and landscape tablets: the whole welcome (pictures, headline, buttons, scroll hint) fits on the first screen */
+  @media (min-width:761px) and (min-aspect-ratio:1/1){
+    .hero-img{width:auto; max-height:max(260px, calc(100vh - 470px)); margin-left:auto; margin-right:auto;}
+    .hero{padding-top:26px;}
+    .hero .sub{margin:10px auto 22px;}
+    .scroll-hint{margin-top:16px;}
+  }
   .hero .sub{font-size:clamp(17px, 2.2vw, 21px); color:var(--soft); margin:14px auto 28px; max-width:640px;}
   .hero .ctas{display:flex; gap:12px; justify-content:center; flex-wrap:wrap;}
   .hero .fine{font-size:13px; color:var(--soft); margin-top:14px;}
 
+  .scroll-hint{display:inline-flex; margin-top:26px; color:var(--sage-dark); opacity:.8; animation:hintBob 2.2s ease-in-out infinite;}
+  .scroll-hint:hover{opacity:1;}
+  @keyframes hintBob{0%,100%{transform:translateY(0);} 50%{transform:translateY(6px);}}
+  @media (prefers-reduced-motion: reduce){ .scroll-hint{animation:none;} }
   section{padding:72px 0;}
   section.alt{background:var(--linen);}
   .kicker{font-size:12.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--sage-dark); margin-bottom:10px;}
@@ -75,12 +86,12 @@
   .sec-head p{color:var(--soft); font-size:17px; margin:12px 0 0;}
 
   /* live example */
-  .demo{display:grid; grid-template-columns:1fr 360px; gap:56px; align-items:center;}
+  .demo{display:grid; grid-template-columns:1fr 403px; gap:56px; align-items:center;}
   .demo h2{font-size:clamp(26px, 3.4vw, 36px); margin-bottom:14px;}
   .demo p{color:var(--soft); font-size:17px; margin:0 0 14px;}
   .demo ol{padding-left:20px; margin:0 0 22px; color:var(--ink);}
   .demo ol li{margin:6px 0;}
-  .phone{width:340px; height:690px; border-radius:46px; background:#2b2b2b; padding:14px; box-shadow:0 30px 60px rgba(52,56,52,.18); margin:0 auto; position:relative;}
+  .phone{width:403px; height:780px; border-radius:46px; background:#2b2b2b; padding:14px; box-shadow:0 30px 60px rgba(52,56,52,.18); margin:0 auto; position:relative;}
   .phone iframe, .phone .ph-poster{width:100%; height:100%; border:0; border-radius:34px; background:#fff; display:block;}
   .phone .ph-poster{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; text-align:center; padding:24px; color:var(--soft); font-size:14px;}
   .demo-mobile{display:none;}
@@ -215,6 +226,9 @@
       <a class="btn btn-ghost" href="#example" data-t="seeExample">See a live example</a>
     </div>
     <div class="fine" data-t="heroFine">Free to start &middot; no card needed &middot; your guest page in English or Afrikaans</div>
+    <a class="scroll-hint" href="#example" aria-label="Scroll down to see more" data-t-aria="scrollHint">
+      <svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><circle cx="24" cy="24" r="21.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 19.5l8 7 8-7M16 25.5l8 7 8-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
   </div>
 </div>
 
@@ -482,6 +496,7 @@ function setLang(l){
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-t]').forEach(el=>{ const k = el.dataset.t, v = dict[k] != null ? dict[k] : EN[k]; if(v != null) el.innerHTML = v; });
   document.querySelectorAll('.lang button').forEach(b=> b.classList.toggle('on', b.dataset.lang === lang));
+  document.querySelector('.scroll-hint').setAttribute('aria-label', lang === 'af' ? 'Rol af om meer te sien' : 'Scroll down to see more');
   try{ localStorage.setItem('tableauHomeLang', lang); }catch(e){}
   /* the example couple: Ava & Jack in English, Mia & Henco in Afrikaans */
   document.querySelectorAll('.js-ex').forEach(a=> a.href = 'https://tableauevents.co.za/guest-view.html?event=' + exampleSlug());
@@ -512,6 +527,7 @@ setLang(lang);
   const load = ()=>{
     const f = document.createElement('iframe');
     f.src = 'guest-view.html?event=' + exampleSlug(); f.title = 'Example guest page'; f.loading = 'lazy';
+    f.addEventListener('load', ()=>{ try{ const st = f.contentDocument.createElement('style'); st.textContent = 'html{scrollbar-width:none}::-webkit-scrollbar{display:none}'; f.contentDocument.head.appendChild(st); }catch(e){} });
     ph.innerHTML = ''; ph.appendChild(f);
   };
   if('IntersectionObserver' in window){
