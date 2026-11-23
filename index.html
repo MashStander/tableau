@@ -230,8 +230,8 @@
         <li data-t="exStep3">Go back and open the programme, the menu and the rest.</li>
       </ol>
       <div class="demo-mobile">
-        <a href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener"><img src="example-preview.jpg" alt="The example guest page for Ava and Jack" loading="lazy"></a>
-        <p style="margin-top:14px;"><a class="btn btn-ghost" href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener" data-t="openExample">Open the example</a></p>
+        <a class="js-ex" href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener"><img src="example-preview.jpg" alt="The example guest page for Ava and Jack" loading="lazy"></a>
+        <p style="margin-top:14px;"><a class="btn btn-ghost js-ex" href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener" data-t="openExample">Open the example</a></p>
       </div>
     </div>
     <div class="phone" id="phone">
@@ -484,8 +484,12 @@ function setLang(l){
   document.querySelectorAll('[data-t]').forEach(el=>{ const k = el.dataset.t, v = dict[k] != null ? dict[k] : EN[k]; if(v != null) el.innerHTML = v; });
   document.querySelectorAll('.lang button').forEach(b=> b.classList.toggle('on', b.dataset.lang === lang));
   try{ localStorage.setItem('tableauHomeLang', lang); }catch(e){}
+  /* the example couple: Ava & Jack in English, Mia & Henco in Afrikaans */
+  document.querySelectorAll('.js-ex').forEach(a=> a.href = 'https://tableauevents.co.za/guest-view.html?event=' + exampleSlug());
+  const fr = document.querySelector('#phone iframe'); if(fr && !fr.src.includes(exampleSlug())) fr.src = 'guest-view.html?event=' + exampleSlug();
   markSignedIn();
 }
+function exampleSlug(){ return lang === 'af' ? 'mia-henco-vxwzv' : 'ava-jack-i9cpv'; }
 document.querySelectorAll('.lang button').forEach(b=> b.addEventListener('click', ()=> setLang(b.dataset.lang)));
 
 /* already signed in on this device? Then the buttons open her projects instead */
@@ -508,7 +512,7 @@ setLang(lang);
   if(getComputedStyle(ph).display === 'none') return;
   const load = ()=>{
     const f = document.createElement('iframe');
-    f.src = 'guest-view.html?event=ava-jack-i9cpv'; f.title = 'Example guest page'; f.loading = 'lazy';
+    f.src = 'guest-view.html?event=' + exampleSlug(); f.title = 'Example guest page'; f.loading = 'lazy';
     ph.innerHTML = ''; ph.appendChild(f);
   };
   if('IntersectionObserver' in window){
