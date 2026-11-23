@@ -968,6 +968,7 @@
   }
   .tbl-tip{font-size:13.5px; line-height:1.5; background:#fbf6ef; border:1px solid #efe3d3; border-left:3px solid var(--accent); border-radius:10px; padding:9px 12px; margin:-2px 0 14px; color:var(--ink);}
   .tbl-tip-link{border:0; background:none; padding:0; font:inherit; font-weight:600; color:var(--sage-dark); text-decoration:underline; cursor:pointer;}
+  .groups-clean{display:block; border:0; background:none; padding:0; margin:-2px 0 10px; font:inherit; font-size:12.5px; font-weight:600; color:var(--sage-dark); text-decoration:underline; cursor:pointer;}
   .bulk-quick{display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap;}
   .bulk-quick button{border:1px solid var(--line); background:#fff; border-radius:999px; padding:4px 12px; font:inherit; font-size:13px; cursor:pointer;}
   .bulk-quick button:hover{border-color:var(--sage-dark); color:var(--sage-dark);}
@@ -1655,6 +1656,18 @@
   #hubScreen .hub-card > b small{background:#f5ac9f; color:#5b3a33; border-radius:999px; padding:2px 10px; font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:700; letter-spacing:.06em; vertical-align:3px;}
   #hubScreen .hub-card > span{color:#6f675f; font-size:14.5px; line-height:1.55;}
   #hubScreen .page-tagline{display:none;}
+  /* balanced layout: step 1 (three cards) across the top, steps 2 and 3 side by side underneath */
+  #hubScreen .hub-cols{display:grid !important; grid-template-columns:1fr 1fr; gap:30px 22px; max-width:1180px; margin:0 auto;}
+  #hubScreen .hub-col:first-child{grid-column:1 / -1; display:grid !important; grid-template-columns:repeat(3, 1fr); gap:14px; align-items:stretch;}
+  #hubScreen .hub-col:first-child .hub-col-h{grid-column:1 / -1;}
+  #hubScreen .hub-cols{align-items:stretch;}
+  #hubScreen .hub-col:not(:first-child) .hub-card{flex:1;}
+  #hubScreen .hub-col:first-child .hub-card{height:100%; box-sizing:border-box;}
+  #hubScreen .hub-col-plan{grid-column:1 / -1;}
+  @media (max-width:860px){
+    #hubScreen .hub-cols{grid-template-columns:1fr;}
+    #hubScreen .hub-col:first-child{grid-template-columns:1fr;}
+  }
   @media (max-width:900px){ #hubScreen .hub-band{padding-top:26px;} }
 
   /* ---- signed-in welcome card ---- */
@@ -1765,6 +1778,7 @@
         <button class="dropdown-item hidden" id="btnMyCharts">My projects&hellip;</button>
         <button class="dropdown-item hidden" id="btnCopyProject">Copy this project&hellip;</button>
         <button class="dropdown-item hidden" id="btnAccessMenu">Plan &amp; payment&hellip;</button>
+        <button class="dropdown-item hidden" id="btnChangeEmail">Change my email&hellip;</button>
         <button class="dropdown-item" id="btnSave">Download backup</button>
         <button class="dropdown-item" id="btnLoad">Load from backup file</button>
         <button class="dropdown-item" id="btnExportCSV">Download guest list (Excel)</button>
@@ -2083,6 +2097,7 @@
         <span class="small-link" id="toggleAddGroup">+ add group</span>
       </h3>
       <p class="section-desc" id="groupsDesc">Seat whole groups at once, like family or friends.</p>
+      <button type="button" class="groups-clean hidden" id="groupsClean"></button>
       <div id="groupsBody">
         <div id="groupsList"></div>
         <form id="addGroupForm" class="hidden">
@@ -2398,6 +2413,25 @@
   </div>
 </div>
 
+<div id="emailModal" class="modal-overlay hidden" style="z-index:3000;">
+  <div class="modal-card" style="width:440px;">
+    <h3>Change my email</h3>
+    <div id="emStep1">
+      <p class="hint" style="margin-top:-4px;">You sign in with your email, so use one you&rsquo;ll keep. Your projects and your plan stay exactly as they are.</p>
+      <p class="hint" style="margin:0 0 6px;">Now: <b id="emNow"></b></p>
+      <input type="email" id="emNew" class="si-input" placeholder="Your new email address" autocomplete="email" style="text-align:left;">
+      <button type="button" class="si-btn" id="emSend">Send a code to my new email</button>
+    </div>
+    <div id="emStep2" class="hidden">
+      <p class="hint" style="margin-top:-4px;">We sent a code to <b id="emNewShow"></b>. Type it here to confirm the new address.</p>
+      <input type="text" id="emCode" class="si-input si-code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;">
+      <button type="button" class="si-btn" id="emVerify">Confirm my new email</button>
+      <p class="si-small"><button type="button" class="si-link" id="emBack">Use a different email</button></p>
+    </div>
+    <div id="emMsg" class="si-msg hidden"></div>
+    <div style="text-align:right; margin-top:14px;"><button type="button" class="ghost-btn" id="emClose">Close</button></div>
+  </div>
+</div>
 <div id="bulkTablesModal" class="modal-overlay hidden">
   <div class="modal-card" style="width:520px; max-height:90vh; overflow:auto;">
     <h3>Change several tables at once</h3>
@@ -5814,8 +5848,26 @@ document.getElementById('addGroupForm').addEventListener('submit', e=>{
   renderGroups(); renderGroupSelect(); renderGuestList();
 });
 
+/* tidy up: remove every group nobody is in (only offered once there are guests, so the starter groups aren't wiped before an import) */
+function updateGroupsClean(){
+  const b = document.getElementById('groupsClean'); if(!b) return;
+  const empty = state.groups.filter(g=> !state.guests.some(x=> x.groupId === g.id));
+  const show = state.guests.length > 0 && empty.length > 0 && empty.length < state.groups.length;
+  b.classList.toggle('hidden', !show);
+  if(show) b.textContent = empty.length === 1 ? 'Remove the 1 group with no guests' : 'Remove the ' + empty.length + ' groups with no guests';
+}
+document.getElementById('groupsClean').addEventListener('click', ()=>{
+  const empty = state.groups.filter(g=> !state.guests.some(x=> x.groupId === g.id));
+  if(!empty.length || empty.length >= state.groups.length) return;
+  pushUndo();
+  const gone = new Set(empty.map(g=> g.id));
+  state.groups = state.groups.filter(g=> !gone.has(g.id));
+  renderGroups(); renderGroupSelect(); renderGuestList();
+  toastUndo(empty.length === 1 ? '1 empty group removed.' : empty.length + ' empty groups removed.');
+});
 function renderGroups(){
   isDirty = true;
+  setTimeout(updateGroupsClean, 0);
   const wrap = document.getElementById('groupsList');
   wrap.innerHTML = '';
   state.groups.forEach(g=>{
@@ -5936,6 +5988,7 @@ let collapsedGroups = new Set();
 try{ collapsedGroups = new Set(JSON.parse(localStorage.getItem('tableauGroupsCollapsed') || '[]')); }catch(e){}
 function saveCollapsedGroups(){ try{ localStorage.setItem('tableauGroupsCollapsed', JSON.stringify([...collapsedGroups])); }catch(e){} }
 function renderGuestList(){
+  setTimeout(updateGroupsClean, 0);
   isDirty = true;
   const wrap = document.getElementById('guestListWrap');
   wrap.innerHTML = '';
@@ -7379,6 +7432,54 @@ document.getElementById('newTableTipGo').addEventListener('click', ()=>{
   document.getElementById('addTableModal').classList.add('hidden');
   if(typeof enterMain === 'function' && document.getElementById('seatingView') && document.getElementById('seatingView').offsetParent === null && !document.getElementById('floorPlanView').offsetParent) enterMain('seating');
   switchMainView('floorplan');
+});
+
+/* ===================== Change my email ===================== */
+let emNewAddr = '';
+function emMsgSet(t, kind){ const m = document.getElementById('emMsg'); m.textContent = t || ''; m.className = 'si-msg' + (kind ? ' ' + kind : ''); m.classList.toggle('hidden', !t); }
+function openEmailModal(){
+  if(!(sb && cloudUser)){ toast('Sign in first.'); return; }
+  document.getElementById('emNow').textContent = cloudUser.email || '';
+  document.getElementById('emNew').value = ''; document.getElementById('emCode').value = '';
+  document.getElementById('emStep1').classList.remove('hidden'); document.getElementById('emStep2').classList.add('hidden');
+  emMsgSet('');
+  document.getElementById('emailModal').classList.remove('hidden');
+  setTimeout(()=> document.getElementById('emNew').focus(), 50);
+}
+document.getElementById('btnChangeEmail').addEventListener('click', openEmailModal);
+document.getElementById('emClose').addEventListener('click', ()=> document.getElementById('emailModal').classList.add('hidden'));
+document.getElementById('emBack').addEventListener('click', ()=>{ document.getElementById('emStep2').classList.add('hidden'); document.getElementById('emStep1').classList.remove('hidden'); emMsgSet(''); });
+document.getElementById('emCode').addEventListener('input', e=>{ e.target.value = e.target.value.replace(/\D/g, ''); });
+document.getElementById('emSend').addEventListener('click', async ()=>{
+  emNewAddr = document.getElementById('emNew').value.trim().toLowerCase();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emNewAddr)){ emMsgSet('Please check the email address.', 'error'); return; }
+  if(emNewAddr === String(cloudUser.email || '').toLowerCase()){ emMsgSet('That is already your email address.', 'error'); return; }
+  const b = document.getElementById('emSend'); b.disabled = true;
+  try{
+    const r = await sb.auth.updateUser({email: emNewAddr});
+    if(r.error) throw r.error;
+    document.getElementById('emNewShow').textContent = emNewAddr;
+    document.getElementById('emStep1').classList.add('hidden'); document.getElementById('emStep2').classList.remove('hidden');
+    emMsgSet('');
+    setTimeout(()=> document.getElementById('emCode').focus(), 50);
+  }catch(err){
+    const m = String(err.message || '').toLowerCase();
+    emMsgSet(m.includes('already') ? 'There is already a Tableau account with that email. Use another address, or contact us.' : (m.includes('rate') || m.includes('security purposes')) ? 'Too many tries just now. Please wait a minute.' : 'Could not send the code. Check your internet and try again.', 'error');
+  }finally{ b.disabled = false; }
+});
+document.getElementById('emVerify').addEventListener('click', async ()=>{
+  const code = document.getElementById('emCode').value.replace(/\D/g, '');
+  if(code.length < 6){ emMsgSet('Type the whole code from the email.', 'error'); return; }
+  const b = document.getElementById('emVerify'); b.disabled = true;
+  try{
+    const r = await sb.auth.verifyOtp({email: emNewAddr, token: code, type: 'email_change'});
+    if(r.error) throw r.error;
+    const u = await sb.auth.getUser(); if(u.data && u.data.user) cloudUser = u.data.user;
+    document.getElementById('emailModal').classList.add('hidden');
+    updateAccountMenu();
+    toast('Done. From now on, sign in with ' + emNewAddr + '.', 7000);
+  }catch(err){ emMsgSet('That code didn’t work. Check it, or go back and send a new one.', 'error'); }
+  finally{ b.disabled = false; }
 });
 /* ===================== Change several tables at once ===================== */
 const isLongTable = t=> t.shape === 'rectangle' && !t.oneSide;
@@ -12475,6 +12576,7 @@ function updateAccountMenu(){
   document.getElementById('btnCopyProject').classList.toggle('hidden', !signedIn);
   document.getElementById('btnSignOut').classList.toggle('hidden', !signedIn);
   document.getElementById('btnAccessMenu').classList.toggle('hidden', !signedIn);
+  document.getElementById('btnChangeEmail').classList.toggle('hidden', !signedIn);
   document.getElementById('btnSignInMenu').classList.toggle('hidden', signedIn || !sb);
   document.body.classList.toggle('cloud-mode', signedIn && cloudEnabled);
   if(!(signedIn && cloudEnabled)) setCloudStatus('');
