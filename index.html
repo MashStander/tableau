@@ -60,8 +60,8 @@
   @media (max-width:520px){ .logo{width:104px;} #topStart{display:none;} header.top .wrap{gap:10px;} }
 
   /* hero */
-  .hero-img{display:block; width:100%; height:auto; aspect-ratio:1920/830; object-fit:cover; background:var(--linen);}
-  .hero{text-align:center; padding:44px 0 56px;}
+  .hero-img{display:block; width:100%; max-width:1180px; height:auto; margin:22px auto 0; padding:0 12px;}
+  .hero{text-align:center; padding:34px 0 56px;}
   .hero h1{font-size:clamp(32px, 5.2vw, 56px); color:var(--ink);}
   .hero .sub{font-size:clamp(17px, 2.2vw, 21px); color:var(--soft); margin:14px auto 28px; max-width:640px;}
   .hero .ctas{display:flex; gap:12px; justify-content:center; flex-wrap:wrap;}
@@ -201,9 +201,9 @@
 </header>
 
 <picture>
-  <source media="(max-aspect-ratio: 1/1)" srcset="landing-collage-phone.jpg">
-  <source media="(max-width:760px)" srcset="landing-collage-960.jpg">
-  <img class="hero-img" src="landing-collage.jpg" width="1920" height="830" alt="" fetchpriority="high">
+  <source media="(max-aspect-ratio: 1/1)" srcset="landing-collage-phone.jpg" width="1080" height="900">
+  <source media="(max-width:760px)" srcset="landing-collage-960.jpg" width="960" height="418">
+  <img class="hero-img" src="landing-collage.jpg" width="1488" height="648" alt="" fetchpriority="high">
 </picture>
 
 <div class="hero">

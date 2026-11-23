@@ -1599,6 +1599,42 @@
   /* coral for the few main actions */
   #btnLandResume, #accessBuyBtn1, #accessBuyBtn2{background:var(--accent) !important; border-color:var(--accent) !important; color:var(--accent-ink) !important; font-weight:600;}
   #btnLandResume:hover, #accessBuyBtn1:hover, #accessBuyBtn2:hover{background:var(--accent-hover) !important; border-color:var(--accent-hover) !important;}
+  /* new calm sign-in, matching the homepage */
+  #landingScreen{background:#fffdfa;}
+  #landingScreen .landing-card{width:460px; border-radius:20px; border:1px solid #e4dfd4; box-shadow:0 18px 50px rgba(52,56,52,.08); padding:28px 34px 26px; font-family:'Plus Jakarta Sans',sans-serif;}
+  #landingScreen .landing-logo, #landingScreen .landing-tag, #landingScreen .landing-sub, #landingScreen .landing-desktop-note, #landingScreen .landing-how, #landingScreen .page-tagline, #landingOut{display:none !important;}
+  .si-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:26px;}
+  .si-logo{display:block; width:128px; height:38px; background:url('logo.png') no-repeat left center/contain;}
+  .si-lang{display:inline-flex; border:1px solid #e4dfd4; border-radius:999px; overflow:hidden; background:#fff;}
+  .si-lang button{border:0; background:none; font:inherit; font-size:12.5px; font-weight:700; padding:5px 10px; cursor:pointer; color:#6f675f;}
+  .si-lang button.on{background:var(--btn); color:#fff;}
+  .si-h{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-weight:700; font-size:30px; letter-spacing:.02em; margin:0 0 8px; color:var(--ink);}
+  .si-sub{color:#6f675f; font-size:15px; line-height:1.55; margin:0 0 22px;}
+  .si-sub b{color:var(--ink); word-break:break-all;}
+  .si-input{display:block; width:100%; box-sizing:border-box; font:inherit; font-size:16px; padding:14px 16px; border:1px solid #d9d3c7; border-radius:12px; background:#fff; margin-bottom:12px; text-align:center;}
+  .si-input:focus{outline:none; border-color:var(--sage-dark); box-shadow:0 0 0 3px rgba(110,138,112,.15);}
+  .si-code{font-size:26px; letter-spacing:.35em; font-weight:700;}
+  .si-btn{display:block; width:100%; border:0; border-radius:999px; padding:14px 20px; background:#f5ac9f; color:#5b3a33; font:inherit; font-weight:700; font-size:16px; cursor:pointer;}
+  .si-btn:hover{background:#f09888;}
+  .si-btn:disabled{opacity:.6; cursor:default;}
+  .si-small{font-size:13px; color:#6f675f; margin:14px 0 0; line-height:1.5;}
+  .si-link{border:0; background:none; font:inherit; font-size:13px; color:var(--sage-dark); text-decoration:underline; cursor:pointer; padding:0;}
+  .si-link:disabled{color:#a39b92; text-decoration:none; cursor:default;}
+  .si-msg{margin:16px 0 0; padding:10px 14px; border-radius:10px; font-size:14px; line-height:1.45;}
+  .si-msg.error{background:#fdeeee; color:#a33b3b;}
+  .si-msg.ok{background:#eef4ec; color:var(--sage-dark);}
+  .si-foot{margin:18px 0 0; font-size:13px;}
+  .si-foot + .si-foot{margin-top:8px;}
+  #landingIn .primary-btn{background:#f5ac9f; color:#5b3a33; border-radius:999px; font-weight:700; padding:13px 18px; border:0;}
+  #landingIn .primary-btn:hover{background:#f09888;}
+  #landingIn .land-btn{border-radius:999px;}
+  @media (max-width:520px){ #landingScreen .landing-card{padding:22px 20px 22px; border:0; box-shadow:none; background:transparent;} .si-h{font-size:26px;} }
+  #landingScreen .landing-wrap, #landingScreen .landing-page{border:0 !important; box-shadow:none !important; background:transparent !important;}
+  #landingScreen{align-items:center !important;}
+  #landingScreen .landing-page{width:100% !important; max-width:none !important; margin:auto 0 !important;}
+  #landingScreen .landing-wrap{display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; padding:24px 14px !important; margin:0 !important;}
+  #landingScreen .landing-card{box-sizing:border-box !important; width:100% !important; max-width:460px !important; flex:none !important; margin:0 auto !important;}
+  @media (max-width:520px){ #landingScreen{align-items:flex-start !important;} #landingScreen .landing-wrap{padding:8px 4px !important;} }
 </style>
 </head>
 <body>
@@ -1618,6 +1654,7 @@
   var seen = false;
   try{ seen = sessionStorage.getItem('tableauSplashSeen') === '1'; sessionStorage.setItem('tableauSplashSeen', '1'); }catch(e){}
   if(window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) seen = true;   /* opened from the home screen icon */
+  seen = true;   /* the photo collage now lives on the homepage; the app opens straight on sign-in */
   if(seen){ sp.parentNode.removeChild(sp); return; }
   var done = false, started = false;
   function close(){
@@ -2154,6 +2191,34 @@
  <div class="landing-page">
   <div class="landing-wrap">
   <div class="auth-card landing-card">
+    <div class="si-top">
+      <a class="si-logo" href="/" aria-label="Tableau – home"></a>
+      <div class="si-lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="af">AF</button></div>
+    </div>
+    <!-- sign in with an email code: one form for new and returning brides -->
+    <div id="siBox" class="hidden">
+      <div id="siStep1">
+        <h2 class="si-h" id="siTitle">Welcome</h2>
+        <p class="si-sub" data-si="sub1">Type your email and we&rsquo;ll send you a code. No password needed. New here? This creates your free account.</p>
+        <form id="siForm1" autocomplete="on">
+          <input type="email" id="siEmail" class="si-input" autocomplete="email" required data-si-ph="emailPh" placeholder="Your email address">
+          <button type="submit" class="si-btn" id="siSend" data-si="send">Send me a code</button>
+        </form>
+      </div>
+      <div id="siStep2" class="hidden">
+        <h2 class="si-h" data-si="t2">Check your email</h2>
+        <p class="si-sub"><span data-si="sub2">We sent a code to</span> <b id="siEmailShow"></b></p>
+        <form id="siForm2" autocomplete="off">
+          <input type="text" id="siCode" class="si-input si-code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" pattern="[0-9]*" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;" aria-label="Code">
+          <button type="submit" class="si-btn" id="siVerify" data-si="verify">Sign in</button>
+        </form>
+        <p class="si-small"><span data-si="spam">Not there after a minute? Check your spam or promotions folder.</span></p>
+        <p class="si-small"><button type="button" class="si-link" id="siResend"></button> &middot; <button type="button" class="si-link" id="siChange" data-si="change">Use a different email</button></p>
+      </div>
+      <div id="siMsg" class="si-msg hidden"></div>
+      <p class="si-foot"><button type="button" class="si-link" id="siPassword" data-si="pw">Sign in with my password instead</button></p>
+      <p class="si-foot"><a class="si-link" href="/" data-si="home">&larr; Back to the homepage</a> &middot; <a class="si-link" href="/contact.html" target="_blank" rel="noopener" data-si="contact">Contact us</a></p>
+    </div>
     <div class="auth-logo landing-logo" role="img" aria-label="Tableau"></div>
     <p class="landing-tag">Familiar, with a spritz of magic.</p>
     <p class="landing-sub">Seat your guests, design the room and share one QR code with everything your guests need.</p>
@@ -2174,6 +2239,7 @@
     </div>
 
     <div id="landingIn" class="hidden">
+      <h2 class="si-h">Welcome back</h2>
       <div class="landing-welcome" id="landingWelcome"></div>
       <button class="primary-btn hidden" id="btnLandResume"></button>
       <button class="ghost-btn land-btn" id="btnLandOpen">Open/delete an existing project</button>
@@ -2227,7 +2293,7 @@
 <div id="authScreen" class="auth-screen hidden">
   <div class="auth-card">
     <div class="auth-logo" role="img" aria-label="Tableau"></div>
-    <button class="auth-link" id="authBack" type="button" style="margin-bottom:10px;">&larr; Back to home</button>
+    <button class="auth-link" id="authBack" type="button" style="margin-bottom:10px;">&larr; Back</button>
     <h2 id="authTitle">Welcome back</h2>
     <p class="auth-sub" id="authSub">Sign in to open your saved seating charts.</p>
     <div id="authMsg" class="auth-msg hidden"></div>
@@ -2243,9 +2309,7 @@
       <button class="auth-link" id="authToggleMode" type="button">Create an account</button>
       <button class="auth-link" id="authForgot" type="button">Forgot password?</button>
     </div>
-    <div class="auth-links" style="margin-top:20px; border-top:1px solid var(--line); padding-top:14px;">
-      <button class="auth-link" id="authSkip" type="button">Continue without an account</button>
-    </div>
+    <div class="hidden"><button class="auth-link" id="authSkip" type="button">Continue without an account</button></div>
   </div>
 </div>
 
@@ -10379,9 +10443,8 @@ async function buyPlan(tier){
     /* not signed in yet: account first, then straight back to buying */
     try{ sessionStorage.setItem('tableauBuyAfter', String(tier)); }catch(e){}
     ['planInfoModal','accessModal'].forEach(id=>{ const m = document.getElementById(id); if(m) m.classList.add('hidden'); });
-    if(typeof hideLanding === 'function') hideLanding();
-    showAuthScreen('signup');
-    document.getElementById('authSub').textContent = 'Create your free account first (or sign in if you have one). Then you can buy Premium.';
+    siSetMode('buy');
+    showLanding();
     return;
   }
   const btn = document.getElementById('accessBuyBtn' + tier);
@@ -10768,7 +10831,7 @@ document.getElementById('finderModal').addEventListener('click', e=>{
 });
 document.getElementById('btnFinderSignIn').addEventListener('click', ()=>{
   document.getElementById('finderModal').classList.add('hidden');
-  showAuthScreen('signin');
+  showLanding();
 });
 document.getElementById('btnFinderPublish').addEventListener('click', async ()=>{ await publishGuestPage(); if(/Published/.test(document.getElementById('finderStatus').textContent)) premAfterPublish(true); });
 document.getElementById('btnTestLink').addEventListener('click', makeTestLink);
@@ -12519,8 +12582,125 @@ async function signOutNow(){
 }
 document.getElementById('btnSignOut').addEventListener('click', signOutNow);
 document.getElementById('chartsSignOut').addEventListener('click', signOutNow);
-document.getElementById('btnSignInMenu').addEventListener('click', ()=> showAuthScreen('signin'));
+document.getElementById('btnSignInMenu').addEventListener('click', ()=> showLanding());
 
+
+/* ===================== Sign in with an email code ===================== */
+const SI_TXT = {
+  en: { welcome:'Welcome', signup:'Create your free account', signin:'Welcome back', buy:'First, your free account',
+        sub1:'Type your email and we’ll send you a code. No password needed. New here? This creates your free account.',
+        subBuy:'Type your email and we’ll send you a code. Then you can buy Premium.',
+        emailPh:'Your email address', send:'Send me a code', sending:'Sending…',
+        t2:'Check your email', sub2:'We sent a code to', verify:'Sign in', checking:'Checking…',
+        spam:'Not there after a minute? Check your spam or promotions folder.',
+        resendIn:'Send a new code in {s}s', resend:'Send a new code', change:'Use a different email', newSent:'A new code is on its way.',
+        pw:'Sign in with my password instead', home:'← Back to the homepage', contact:'Contact us',
+        badEmail:'Please check your email address.', badCode:'That code didn’t work. Check it, or send a new one.',
+        short:'Type the whole code from the email.', wait:'Too many tries just now. Please wait a minute and try again.',
+        offline:'No internet connection. Please check it and try again.', other:'Something went wrong. Please try again.' },
+  af: { welcome:'Welkom', signup:'Skep jou gratis rekening', signin:'Welkom terug', buy:'Eers jou gratis rekening',
+        sub1:'Tik jou e-posadres en ons stuur vir jou ’n kode. Geen wagwoord nodig nie. Nuut hier? Dit skep sommer jou gratis rekening.',
+        subBuy:'Tik jou e-posadres en ons stuur vir jou ’n kode. Daarna kan jy Premium koop.',
+        emailPh:'Jou e-posadres', send:'Stuur vir my ’n kode', sending:'Stuur…',
+        t2:'Kyk in jou e-pos', sub2:'Ons het ’n kode gestuur na', verify:'Meld aan', checking:'Kontroleer…',
+        spam:'Nog niks na ’n minuut nie? Kyk in jou spam- of promosie-vouer.',
+        resendIn:'Stuur ’n nuwe kode oor {s}s', resend:'Stuur ’n nuwe kode', change:'Gebruik ’n ander e-posadres', newSent:'’n Nuwe kode is op pad.',
+        pw:'Meld eerder met my wagwoord aan', home:'← Terug na die tuisblad', contact:'Kontak ons',
+        badEmail:'Kyk asseblief jou e-posadres na.', badCode:'Daardie kode werk nie. Kyk weer, of stuur ’n nuwe een.',
+        short:'Tik die hele kode uit die e-pos.', wait:'Te veel pogings so pas. Wag asseblief ’n minuut en probeer weer.',
+        offline:'Geen internetverbinding nie. Kyk asseblief en probeer weer.', other:'Iets het skeefgeloop. Probeer asseblief weer.' }
+};
+let siLang = 'en', siMode = 'welcome', siEmailAddr = '', siTimer = null, siLeft = 0;
+try{ siLang = localStorage.getItem('tableauHomeLang') || (/^af/i.test(navigator.language || '') ? 'af' : 'en'); }catch(e){}
+if(siLang !== 'af') siLang = 'en';
+const siT = k=> (SI_TXT[siLang][k] != null ? SI_TXT[siLang][k] : SI_TXT.en[k]);
+function siApplyLang(){
+  document.querySelectorAll('#siBox [data-si]').forEach(el=>{ el.textContent = siT(el.dataset.si); });
+  document.querySelectorAll('#siBox [data-si-ph]').forEach(el=>{ el.placeholder = siT(el.dataset.siPh); });
+  document.getElementById('siTitle').textContent = siT(siMode);
+  if(siMode === 'buy') document.querySelector('#siStep1 .si-sub').textContent = siT('subBuy');
+  document.querySelectorAll('.si-lang button').forEach(b=> b.classList.toggle('on', b.dataset.lang === siLang));
+  siResendLabel();
+}
+function siSetMode(m){ siMode = ['signup','signin','buy'].includes(m) ? m : 'welcome'; siApplyLang(); }
+document.querySelectorAll('.si-lang button').forEach(b=> b.addEventListener('click', ()=>{
+  siLang = b.dataset.lang === 'af' ? 'af' : 'en';
+  try{ localStorage.setItem('tableauHomeLang', siLang); }catch(e){}
+  siApplyLang();
+}));
+function siMsg(text, kind){ const m = document.getElementById('siMsg'); m.textContent = text || ''; m.className = 'si-msg' + (kind ? ' ' + kind : ''); m.classList.toggle('hidden', !text); }
+function siErr(err){
+  const m = String((err && err.message) || '').toLowerCase();
+  if(m.includes('rate limit') || m.includes('security purposes') || m.includes('too many')) return siT('wait');
+  if(m.includes('failed to fetch') || m.includes('network')) return siT('offline');
+  if(m.includes('expired') || m.includes('invalid') || m.includes('token')) return siT('badCode');
+  if(m.includes('email')) return siT('badEmail');
+  return siT('other');
+}
+function siReset(){
+  document.getElementById('siStep1').classList.remove('hidden');
+  document.getElementById('siStep2').classList.add('hidden');
+  document.getElementById('siSend').disabled = false;
+  siMsg(''); siApplyLang();
+}
+function siResendLabel(){
+  const b = document.getElementById('siResend'); if(!b) return;
+  b.disabled = siLeft > 0;
+  b.textContent = siLeft > 0 ? siT('resendIn').replace('{s}', siLeft) : siT('resend');
+}
+function siStartTimer(){
+  siLeft = 60; siResendLabel(); clearInterval(siTimer);
+  siTimer = setInterval(()=>{ siLeft--; siResendLabel(); if(siLeft <= 0) clearInterval(siTimer); }, 1000);
+}
+async function siSendCode(isResend){
+  if(!sb){ siMsg(siT('offline'), 'error'); return false; }
+  const btn = document.getElementById('siSend'); btn.disabled = true; btn.textContent = siT('sending');
+  const redirect = /^https?:$/.test(location.protocol) ? location.origin + location.pathname : undefined;
+  try{
+    const r = await sb.auth.signInWithOtp({email: siEmailAddr, options: Object.assign({shouldCreateUser: true}, redirect ? {emailRedirectTo: redirect} : {})});
+    if(r.error) throw r.error;
+    document.getElementById('siEmailShow').textContent = siEmailAddr;
+    document.getElementById('siStep1').classList.add('hidden');
+    document.getElementById('siStep2').classList.remove('hidden');
+    siMsg(isResend ? siT('newSent') : '', isResend ? 'ok' : '');
+    siStartTimer();
+    setTimeout(()=> document.getElementById('siCode').focus(), 50);
+    return true;
+  }catch(err){ siMsg(siErr(err), 'error'); return false; }
+  finally{ btn.disabled = false; btn.textContent = siT('send'); }
+}
+document.getElementById('siForm1').addEventListener('submit', e=>{
+  e.preventDefault();
+  siEmailAddr = document.getElementById('siEmail').value.trim().toLowerCase();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(siEmailAddr)){ siMsg(siT('badEmail'), 'error'); return; }
+  siSendCode(false);
+});
+document.getElementById('siResend').addEventListener('click', ()=>{ if(siLeft <= 0) siSendCode(true); });
+document.getElementById('siChange').addEventListener('click', ()=>{ document.getElementById('siCode').value = ''; siReset(); document.getElementById('siEmail').focus(); });
+document.getElementById('siCode').addEventListener('input', e=>{
+  e.target.value = e.target.value.replace(/\D/g, '');
+});
+document.getElementById('siForm2').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const code = document.getElementById('siCode').value.replace(/\D/g, '');
+  if(code.length < 6){ siMsg(siT('short'), 'error'); return; }
+  const btn = document.getElementById('siVerify'); btn.disabled = true; btn.textContent = siT('checking');
+  try{
+    const r = await sb.auth.verifyOtp({email: siEmailAddr, token: code, type: 'email'});
+    if(r.error) throw r.error;
+    cloudUser = r.data.user;
+    clearInterval(siTimer); siLeft = 0;
+    document.getElementById('siCode').value = '';
+    siMsg('');
+    afterSignIn();
+  }catch(err){ siMsg(siErr(err), 'error'); }
+  finally{ btn.disabled = false; btn.textContent = siT('verify'); }
+});
+document.getElementById('siPassword').addEventListener('click', ()=>{
+  hideLanding(); showAuthScreen('signin');
+  const em = document.getElementById('siEmail').value.trim(); if(em) document.getElementById('authEmail').value = em;
+});
+siApplyLang();
 /* ---- charts screen ---- */
 async function openChartsScreen(){
   if(!(sb && cloudUser)) return;
@@ -12884,7 +13064,10 @@ async function showLanding(){
   document.getElementById('landingNewRow').classList.add('hidden');
   const signedIn = !!(sb && cloudUser);
   document.getElementById('landingOut').classList.toggle('hidden', signedIn);
+  document.getElementById('siBox').classList.toggle('hidden', signedIn);
+  document.querySelector('.si-lang').classList.toggle('hidden', signedIn);   /* the app itself is in English for now */
   document.getElementById('landingIn').classList.toggle('hidden', !signedIn);
+  if(!signedIn) siReset();
   document.getElementById('landingScreen').classList.remove('hidden');
   updateAccountMenu();
   if(!signedIn) return;
@@ -12949,7 +13132,7 @@ function bootCloud(){
     showLanding();
     /* coming from the homepage's "Start free" or "Sign in": go straight to that form */
     const st = new URLSearchParams(location.search).get('start');
-    if(!(data && data.session) && (st === 'signup' || st === 'signin')) showAuthScreen(st);
+    if(!(data && data.session) && (st === 'signup' || st === 'signin')) siSetMode(st);
   }).catch(()=>{ showLanding(); });
   updateAccountMenu();
 }
