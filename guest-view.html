@@ -154,7 +154,7 @@
 
   .seat-headline{text-align:center; margin-bottom:16px;}
   .seat-headline .for-name{font-size:14px; color:var(--ink-soft);}
-  .seat-headline h2{font-size:28px; color:var(--rose); margin-top:2px;}
+  .seat-headline h2{font-size:28px; color:#6e8a70;   /* Tableau green */ margin-top:2px;}
   .seat-headline .table-detail{font-size:13px; color:var(--ink-soft); margin-top:4px;}
   .seg{display:flex; border:1px solid var(--line); border-radius:24px; overflow:hidden; margin:0 auto 16px; background:var(--linen);}
   .seg button{flex:1; border:none; background:none; padding:10px 8px; font-size:14.5px; font-family:'Plus Jakarta Sans',sans-serif; color:var(--ink-soft); cursor:pointer;}
@@ -408,7 +408,7 @@
   </div>
 
   <div class="a2hs-wrap hidden" id="a2hsWrap">
-    <button type="button" class="a2hs-btn" id="a2hsBtn"><span class="a2hs-ic">📲</span><span><b id="a2hsTitle">Save this page to my phone</b><small id="a2hsSub">Open it with one tap on the day</small></span></button>
+    <button type="button" class="a2hs-btn" id="a2hsBtn"><span><b id="a2hsTitle">Save this page to my phone</b><small id="a2hsSub">Open it with one tap on the day</small></span></button>
   </div>
   <div class="a2hs-sheet hidden" id="a2hsSheet" role="dialog" aria-modal="true">
     <div class="a2hs-card">
@@ -700,18 +700,18 @@ function renderSections(){
   const dj = info.songs && info.songs.dj;
   document.getElementById('sgDj').classList.toggle('hidden', !(dj && dj.name));
   if(dj && dj.name){
-    document.getElementById('sgDjH').textContent = '\uD83C\uDFA7 ' + tr('sgDjH');
+    document.getElementById('sgDjH').textContent = tr('sgDjH');
     document.getElementById('sgDjName').textContent = dj.name;
     const a = document.getElementById('sgDjLink'), ok = /^https:\/\//i.test(dj.link || '');
     a.classList.toggle('hidden', !ok);
     if(ok){
       a.href = dj.link;
       const m = dj.link.match(/instagram\.com\/([^\/?#]+)/i);
-      a.textContent = m ? '\uD83D\uDCF7 @' + m[1] : (/facebook\.com/i.test(dj.link) ? '\uD83D\uDC4D Facebook' : '\uD83C\uDF10 ' + dj.link.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, ''));
+      a.textContent = m ? 'Instagram @' + m[1] : (/facebook\.com/i.test(dj.link) ? 'Facebook' : dj.link.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, ''));
     }
     const ph = document.getElementById('sgDjPhone'), digits = (dj.phone || '').replace(/[^\d+]/g, '');
     ph.classList.toggle('hidden', digits.length < 9);
-    if(digits.length >= 9){ ph.href = 'tel:' + digits; ph.textContent = '\uD83D\uDCDE ' + tr('sgDjBook') + ': ' + dj.phone; }
+    if(digits.length >= 9){ ph.href = 'tel:' + digits; ph.textContent = tr('sgDjBook') + ': ' + dj.phone; }
   }
   SG_LIST_ON = !!(info.songs && info.songs.list);
   document.getElementById('sgListBox').classList.add('hidden');
@@ -873,7 +873,7 @@ function renderLetterGrid(){
 }
 function showGroup(i, list){
   document.getElementById('groupTitle').textContent = LETTER_GROUPS[i];
-  document.getElementById('groupHint').textContent = '\uD83D\uDC46 ' + tr('tapName');
+  document.getElementById('groupHint').textContent = tr('tapName');
   const box = document.getElementById('groupList');
   box.innerHTML = '';
   list.slice().sort((a,b)=> sortKey(a).localeCompare(sortKey(b)) || a.name.localeCompare(b.name)).forEach(g=>{
@@ -892,7 +892,7 @@ function showGroup(i, list){
 /* ---------- guest page language (fixed wording) ---------- */
 const TXT = {
   en: {
-    subSeat:'Search your name or browse by letter', subSeatBrowse:'Browse all names by letter', homeSearchPh:'Type your name to find your seat\u2026', subProgram:'The order of the day', subMenu:'What is being served', subNotes:'Words, songs and readings', subSongs:'Ask for a song for the dance floor', songsTitle:'Song requests', sgSong:'Song', sgArtist:'Artist (optional)', sgName:'Your name (optional)', sgSend:'Send my request', sgThanks:'Thank you! \uD83C\uDFB6 Your song is on the list. Add another?', sgFail:'Sorry, that did not go through. Please try again.', sgNeed:'Please type the name of the song.', sgMine:'You asked for', sgLimit:'That\u2019s plenty of requests from this phone. Thank you!', sgPreview:'This is a preview, so requests are not sent.', sgSending:'Sending\u2026', sgDjH:'Your DJ tonight', sgDjBook:'Bookings', sgListH:'Requested so far', sgPlayed:'Played', sgListEmpty:'No requests yet. Be the first!', sgLikeT:'Me too', notesTitle:'A note from us',
+    subSeat:'Search your name or browse by letter', subSeatBrowse:'Browse all names by letter', homeSearchPh:'Type your name to find your seat\u2026', subProgram:'The order of the day', subMenu:'What is being served', subNotes:'Words, songs and readings', subSongs:'Ask for a song for the dance floor', songsTitle:'Song requests', sgSong:'Song', sgArtist:'Artist (optional)', sgName:'Your name (optional)', sgSend:'Send my request', sgThanks:'Thank you! Your song is on the list. Add another?', sgFail:'Sorry, that did not go through. Please try again.', sgNeed:'Please type the name of the song.', sgMine:'You asked for', sgLimit:'That\u2019s plenty of requests from this phone. Thank you!', sgPreview:'This is a preview, so requests are not sent.', sgSending:'Sending\u2026', sgDjH:'Your DJ tonight', sgDjBook:'Bookings', sgListH:'Requested so far', sgPlayed:'Played', sgListEmpty:'No requests yet. Be the first!', sgLikeT:'Me too', notesTitle:'A note from us',
     subGifts:'Banking details', subPhotos:'Share your pictures from the day', subLinks:'Website and more',
     back:'← Home', searchAgain:'← Home', homeChip:'Home',
     seatPrompt:'Type your name to see where you’re sitting.', searchPh:'Start typing your name…',
@@ -915,17 +915,17 @@ const TXT = {
     bpType:'Please type your 4-digit code.', bpWrong:'That code is not right. Please check it with the bride or groom.',
     bpNet:'Could not check the code. Please check your internet connection.', close:'Close',
     a2Title:'Save this page to my phone', a2Sub:'Open it with one tap on the day', a2How:'Add it to your home screen', ok:'OK',
-    a2Ios:['Tap the <span class="key">Share</span> button <span class="key">⬆︎</span> (at the bottom in Safari, or the top right in Chrome).', 'Scroll down and tap <span class="key">Add to Home Screen</span>.', 'Tap <span class="key">Add</span>. The page now has its own icon on your phone.'],
+    a2Ios:['Tap the <span class="key">Share</span> button (the square with an arrow, at the bottom in Safari, or the top right in Chrome).', 'Scroll down and tap <span class="key">Add to Home Screen</span>.', 'Tap <span class="key">Add</span>. The page now has its own icon on your phone.'],
     a2Android:['Tap the <span class="key">⋮</span> menu at the top right of your browser.', 'Tap <span class="key">Add to Home screen</span> or <span class="key">Install app</span>.', 'Tap <span class="key">Add</span> or <span class="key">Install</span>. The page now has its own icon on your phone.'],
     a2InNote:'You opened this page inside another app (like Instagram, Facebook or WhatsApp), and it can\u2019t save pages. Open it in your normal browser first:',
-    a2InAndroid:['Tap the <span class="key">\u22EE</span> menu at the top right of this screen.', 'Tap <span class="key">Open in Chrome</span> (or <span class="key">Open in browser</span>).', 'In Chrome, tap <span class="key">\uD83D\uDCF2 Save this page to my phone</span> again.'],
-    a2InIos:['Tap the <span class="key">\u22EF</span> menu (top right or bottom right of this screen).', 'Tap <span class="key">Open in external browser</span> or <span class="key">Open in Safari</span>.', 'In Safari, tap <span class="key">\uD83D\uDCF2 Save this page to my phone</span> again.'],
+    a2InAndroid:['Tap the <span class="key">\u22EE</span> menu at the top right of this screen.', 'Tap <span class="key">Open in Chrome</span> (or <span class="key">Open in browser</span>).', 'In Chrome, tap <span class="key">Save this page to my phone</span> again.'],
+    a2InIos:['Tap the <span class="key">\u22EF</span> menu (top right or bottom right of this screen).', 'Tap <span class="key">Open in external browser</span> or <span class="key">Open in Safari</span>.', 'In Safari, tap <span class="key">Save this page to my phone</span> again.'],
     a2Chrome:'Open in Chrome now',
     months:['January','February','March','April','May','June','July','August','September','October','November','December'],
     days:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
   },
   af: {
-    subSeat:'Tik jou naam of soek onder die gepaste letter', subSeatBrowse:'Blaai deur al die name volgens letter', homeSearchPh:'Tik jou naam om jou sitplek te vind\u2026', subProgram:'Die verloop van die dag', subMenu:'Wat word bedien?', subNotes:'Woorde, liedere en voorlesings', subSongs:'Vra vir \u2019n liedjie vir die dansvloer', songsTitle:'Liedjieversoeke', sgSong:'Liedjie', sgArtist:'Kunstenaar (opsioneel)', sgName:'Jou naam (opsioneel)', sgSend:'Stuur my versoek', sgThanks:'Dankie! \uD83C\uDFB6 Jou liedjie is op die lys. Nog een?', sgFail:'Jammer, dit het nie deurgegaan nie. Probeer asseblief weer.', sgNeed:'Tik asseblief die liedjie se naam.', sgMine:'Jy het gevra vir', sgLimit:'Dis genoeg versoeke van hierdie foon af. Dankie!', sgPreview:'Dit is \u2019n voorskou, so versoeke word nie gestuur nie.', sgSending:'Stuur\u2026', sgDjH:'Jou DJ vanaand', sgDjBook:'Besprekings', sgListH:'Reeds gevra', sgPlayed:'Gespeel', sgListEmpty:'Nog geen versoeke nie. Wees die eerste!', sgLikeT:'Ek ook', notesTitle:"'n Boodskap van ons",
+    subSeat:'Tik jou naam of soek onder die gepaste letter', subSeatBrowse:'Blaai deur al die name volgens letter', homeSearchPh:'Tik jou naam om jou sitplek te vind\u2026', subProgram:'Die verloop van die dag', subMenu:'Wat word bedien?', subNotes:'Woorde, liedere en voorlesings', subSongs:'Vra vir \u2019n liedjie vir die dansvloer', songsTitle:'Liedjieversoeke', sgSong:'Liedjie', sgArtist:'Kunstenaar (opsioneel)', sgName:'Jou naam (opsioneel)', sgSend:'Stuur my versoek', sgThanks:'Dankie! Jou liedjie is op die lys. Nog een?', sgFail:'Jammer, dit het nie deurgegaan nie. Probeer asseblief weer.', sgNeed:'Tik asseblief die liedjie se naam.', sgMine:'Jy het gevra vir', sgLimit:'Dis genoeg versoeke van hierdie foon af. Dankie!', sgPreview:'Dit is \u2019n voorskou, so versoeke word nie gestuur nie.', sgSending:'Stuur\u2026', sgDjH:'Jou DJ vanaand', sgDjBook:'Besprekings', sgListH:'Reeds gevra', sgPlayed:'Gespeel', sgListEmpty:'Nog geen versoeke nie. Wees die eerste!', sgLikeT:'Ek ook', notesTitle:"'n Boodskap van ons",
     subGifts:'Bankbesonderhede', subPhotos:'Deel jou foto’s van die dag', subLinks:'Webwerf en meer',
     back:'← Tuis', searchAgain:'← Tuis', homeChip:'Tuis',
     seatPrompt:'Tik jou naam om te sien waar jy sit.', searchPh:'Begin om jou naam te tik…',
@@ -948,11 +948,11 @@ const TXT = {
     bpType:'Tik asseblief jou 4-syfer-kode.', bpWrong:'Daardie kode is nie reg nie. Kontroleer dit asseblief by die bruid of bruidegom.',
     bpNet:'Kon nie die kode kontroleer nie. Kontroleer asseblief jou internetverbinding.', close:'Maak toe',
     a2Title:'Stoor hierdie bladsy op my foon', a2Sub:'Maak dit op die dag met een tik oop', a2How:'Voeg dit by jou tuisskerm', ok:'Reg so',
-    a2Ios:['Tik die <span class="key">Deel</span>-knoppie <span class="key">⬆︎</span> (onderaan in Safari, of regs bo in Chrome).', 'Rol af en tik <span class="key">Add to Home Screen</span> (Voeg by tuisskerm).', 'Tik <span class="key">Add</span>. Die bladsy het nou sy eie ikoon op jou foon.'],
+    a2Ios:['Tik die <span class="key">Deel</span>-knoppie (die vierkant met \u2019n pyltjie, onderaan in Safari, of regs bo in Chrome).', 'Rol af en tik <span class="key">Add to Home Screen</span> (Voeg by tuisskerm).', 'Tik <span class="key">Add</span>. Die bladsy het nou sy eie ikoon op jou foon.'],
     a2Android:['Tik die <span class="key">⋮</span>-kieslys regs bo in jou blaaier.', 'Tik <span class="key">Add to Home screen</span> of <span class="key">Install app</span>.', 'Tik <span class="key">Add</span> of <span class="key">Install</span>. Die bladsy het nou sy eie ikoon op jou foon.'],
     a2InNote:'Jy het hierdie bladsy binne \u2019n ander app oopgemaak (soos Instagram, Facebook of WhatsApp), en dit kan nie bladsye stoor nie. Maak dit eers in jou gewone blaaier oop:',
-    a2InAndroid:['Tik die <span class="key">\u22EE</span>-kieslys regs bo op hierdie skerm.', 'Tik <span class="key">Open in Chrome</span> (of <span class="key">Open in browser</span>).', 'Tik in Chrome weer op <span class="key">\uD83D\uDCF2 Stoor hierdie bladsy op my foon</span>.'],
-    a2InIos:['Tik die <span class="key">\u22EF</span>-kieslys (regs bo of regs onder op hierdie skerm).', 'Tik <span class="key">Open in external browser</span> of <span class="key">Open in Safari</span>.', 'Tik in Safari weer op <span class="key">\uD83D\uDCF2 Stoor hierdie bladsy op my foon</span>.'],
+    a2InAndroid:['Tik die <span class="key">\u22EE</span>-kieslys regs bo op hierdie skerm.', 'Tik <span class="key">Open in Chrome</span> (of <span class="key">Open in browser</span>).', 'Tik in Chrome weer op <span class="key">Stoor hierdie bladsy op my foon</span>.'],
+    a2InIos:['Tik die <span class="key">\u22EF</span>-kieslys (regs bo of regs onder op hierdie skerm).', 'Tik <span class="key">Open in external browser</span> of <span class="key">Open in Safari</span>.', 'Tik in Safari weer op <span class="key">Stoor hierdie bladsy op my foon</span>.'],
     a2Chrome:'Maak nou in Chrome oop',
     months:['Januarie','Februarie','Maart','April','Mei','Junie','Julie','Augustus','September','Oktober','November','Desember'],
     days:['Sondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrydag','Saterdag']
@@ -1125,7 +1125,7 @@ function renderMatches(raw, list, hint, pick){
   list.innerHTML = ''; hint.classList.add('hidden');
   if(q.length < 2) return;
   const matches = (SEAT_DATA.guests || []).filter(g => g.name.toLowerCase().includes(q)).slice(0, 12);
-  if(matches.length){ hint.textContent = '\uD83D\uDC46 ' + tr('tapName'); hint.classList.remove('hidden'); }
+  if(matches.length){ hint.textContent = tr('tapName'); hint.classList.remove('hidden'); }
   if(matches.length === 0){
     list.innerHTML = '<div class="no-results">' + escapeHtml(tr('noResults')) + '</div>';
     return;
@@ -1399,7 +1399,7 @@ async function sgLoadList(){
     if(y.played){ const p = document.createElement('span'); p.className = 'sg-played'; p.textContent = '✓ ' + tr('sgPlayed'); li.appendChild(p); }
     else {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'sg-like'; b.title = tr('sgLikeT');
-      b.textContent = '👍 ' + y.n; b.disabled = liked.has(y.k);
+      b.textContent = '+' + y.n; b.disabled = liked.has(y.k);
       b.addEventListener('click', async ()=>{
         b.disabled = true;
         let ok = false;
@@ -1408,7 +1408,7 @@ async function sgLoadList(){
           ok = r.ok && (await r.json()) === true;
         }catch(e){}
         if(!ok){ b.disabled = false; return; }
-        y.n++; b.textContent = '👍 ' + y.n; b.classList.add('on');
+        y.n++; b.textContent = '+' + y.n; b.classList.add('on');
         const s2 = sgLikedSet(); s2.add(y.k); try{ localStorage.setItem(sgKey() + ':liked', JSON.stringify([...s2])); }catch(e){}
       });
       li.appendChild(b);
