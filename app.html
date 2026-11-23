@@ -966,6 +966,8 @@
     color:rgba(255,255,255,.55); font-family:'Lora',serif; font-size:15px; letter-spacing:.5px;
     flex-shrink:0; padding:0 12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
+  .tbl-tip{font-size:13.5px; line-height:1.5; background:#fbf6ef; border:1px solid #efe3d3; border-left:3px solid var(--accent); border-radius:10px; padding:9px 12px; margin:-2px 0 14px; color:var(--ink);}
+  .tbl-tip-link{border:0; background:none; padding:0; font:inherit; font-weight:600; color:var(--sage-dark); text-decoration:underline; cursor:pointer;}
   .bulk-quick{display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap;}
   .bulk-quick button{border:1px solid var(--line); background:#fff; border-radius:999px; padding:4px 12px; font:inherit; font-size:13px; cursor:pointer;}
   .bulk-quick button:hover{border-color:var(--sage-dark); color:var(--sage-dark);}
@@ -2372,6 +2374,7 @@
 <div id="addTableModal" class="modal-overlay hidden">
   <div class="modal-card">
     <h3 id="addTableModalTitle">Add a table</h3>
+    <p class="tbl-tip hidden" id="newTableTip"><b>Tip:</b> not sure how many tables fit in your venue? Place them on the floor plan first. It decides whether you need 6- or 8-seaters, or seats at the ends. <button type="button" class="tbl-tip-link" id="newTableTipGo">Go to the floor plan</button></p>
     <div class="field-row">
       <label id="newTableNameLabel">Table name <span style="font-weight:400; color:var(--ink-soft);">(optional)</span></label>
       <input type="text" id="newTableName" placeholder="e.g. Table 2, Family Table" maxlength="40" style="width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:3px; font-family:'Plus Jakarta Sans',sans-serif; font-size:14px;">
@@ -6555,6 +6558,9 @@ function loadTableDefaults(){
 
 function openAddTableModal(){
   editingTableId = null;
+  /* the room decides how many tables fit, so suggest the floor plan first (not when she's already there) */
+  { const fpHasTables = !!(state.floorPlan && state.floorPlan.items && state.floorPlan.items.some(i=> i.kind === 'table'));
+    document.getElementById('newTableTip').classList.toggle('hidden', !!fpAddAfterModal || fpHasTables); }
   document.getElementById('addTableModalTitle').textContent = 'Add a table';
   document.getElementById('btnConfirmAddTable').textContent = 'Add table';
   document.getElementById('newTableName').value = '';
@@ -7313,6 +7319,11 @@ function placeGuestAt(guestId, side, index){
 }
 
 
+document.getElementById('newTableTipGo').addEventListener('click', ()=>{
+  document.getElementById('addTableModal').classList.add('hidden');
+  if(typeof enterMain === 'function' && document.getElementById('seatingView') && document.getElementById('seatingView').offsetParent === null && !document.getElementById('floorPlanView').offsetParent) enterMain('seating');
+  switchMainView('floorplan');
+});
 /* ===================== Change several tables at once ===================== */
 const isLongTable = t=> t.shape === 'rectangle' && !t.oneSide;
 function tableKindLabel(t){ return t.shape === 'round' ? 'round' : t.shape === 'u' ? 'U-shape' : t.oneSide ? 'bridal' : 'long'; }

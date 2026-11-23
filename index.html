@@ -102,6 +102,11 @@
     .demo-mobile .btn{width:100%;}
   }
 
+  .ex-note{font-size:15px !important; background:#fff; border:1px solid var(--line); border-left:3px solid var(--sage); border-radius:10px; padding:10px 14px; color:var(--ink) !important;}
+  .ex-switch{display:inline-flex; border:1px solid var(--line); border-radius:999px; background:#fff; padding:3px; margin-top:6px; flex-wrap:wrap;}
+  .ex-switch button{border:0; background:none; font:inherit; font-size:14px; font-weight:600; padding:8px 14px; border-radius:999px; cursor:pointer; color:var(--soft);}
+  .ex-switch button.on{background:var(--btn); color:#fff;}
+  .ex-switch-note{font-size:13.5px !important; margin-top:8px !important;}
   /* features */
   .cols{display:grid; grid-template-columns:1fr 1fr; gap:26px;}
   .col{background:#fff; border:1px solid var(--line); border-radius:18px; padding:30px 30px 22px;}
@@ -122,6 +127,9 @@
   .step p{margin:0; color:var(--soft);}
   @media (max-width:800px){ .steps{grid-template-columns:1fr;} }
 
+  .tip{margin:26px auto 0; max-width:820px; background:#fff; border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:14px; padding:16px 20px;}
+  .tip b{display:block; margin-bottom:4px;}
+  .tip span{color:var(--soft);}
   /* on the day */
   .day{display:grid; grid-template-columns:1fr 1fr; gap:50px; align-items:center;}
   .day h2{font-size:clamp(26px, 3.4vw, 36px); margin-bottom:14px;}
@@ -136,6 +144,10 @@
   .room .t.bt{left:30%; top:5%; width:40%; height:11%; aspect-ratio:auto; border-radius:3px; white-space:nowrap;}
   .room .df{position:absolute; left:36%; top:30%; width:28%; height:40%; border:1px solid #c9d3c4; background:repeating-linear-gradient(45deg,#eef2ec,#eef2ec 7px,#e2e9df 7px,#e2e9df 14px); display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--sage-dark); font-weight:600;}
   .room .door{position:absolute; bottom:-2px; left:44%; width:12%; height:4px; background:#fdfbf6;}
+  .day-shots{display:grid; grid-template-columns:1.1fr 1fr; gap:16px; align-items:start;}
+  .day-shots figure{margin:0;}
+  .day-shots img{width:100%; height:auto; display:block; border-radius:16px; border:1px solid var(--line); box-shadow:0 14px 34px rgba(52,56,52,.09); background:#fff;}
+  .day-shots figcaption{text-align:center; font-size:13px; font-weight:600; color:var(--soft); margin-top:8px;}
   @media (max-width:800px){ .day{grid-template-columns:1fr; gap:26px;} }
 
   /* sound familiar */
@@ -243,8 +255,14 @@
         <li data-t="exStep2">See the table, who else sits there, and a map with a star.</li>
         <li data-t="exStep3">Go back and open the programme, the menu and the rest.</li>
       </ol>
+      <p class="ex-note" data-t="exSignal">No signal at the venue? Send the link on WhatsApp the day before, so guests can look up their table before they arrive.</p>
+      <div class="ex-switch" role="group" aria-label="Choose an example">
+        <button type="button" data-ex="basic" class="on" data-t="exBasic">Ready-made pages</button>
+        <button type="button" data-ex="full" data-t="exFull">With uploaded Canva designs</button>
+      </div>
+      <p class="ex-switch-note" data-t="exSwitchNote">Ready-made: type in your programme and menu and Tableau lays them out. Or upload your own designs from Canva.</p>
       <div class="demo-mobile">
-        <p style="margin-top:6px;"><a class="btn btn-main js-ex" href="https://tableauevents.co.za/guest-view.html?event=ava-jack-i9cpv" target="_blank" rel="noopener" data-t="openExample">Open the example</a></p>
+        <p style="margin-top:6px;"><a class="btn btn-main js-ex" href="https://tableauevents.co.za/guest-view.html?event=ava-jack-s3ws4" target="_blank" rel="noopener" data-t="openExample">Open the example</a></p>
       </div>
     </div>
     <div class="phone" id="phone">
@@ -289,10 +307,11 @@
       <h2 data-t="howTitle">Three steps. Then enjoy your day.</h2>
     </div>
     <div class="steps">
-      <div class="step"><div class="n">1</div><h3 data-t="s1">Guests &amp; tables</h3><p data-t="s1s">Add your guest list, set up your tables and seat everyone. Draw your venue if you like.</p></div>
+      <div class="step"><div class="n">1</div><h3 data-t="s1">Guests &amp; tables</h3><p data-t="s1s">Add your guest list, draw your venue and set up your tables. Then seat everyone.</p></div>
       <div class="step"><div class="n">2</div><h3 data-t="s2">Guest page</h3><p data-t="s2s">Choose your colours and photo, and add the programme, menu and anything else guests should know.</p></div>
       <div class="step"><div class="n">3</div><h3 data-t="s3">Share</h3><p data-t="s3s">Print one QR code on your welcome sign, menus or table cards. Or send the link on WhatsApp.</p></div>
     </div>
+    <div class="tip"><b data-t="tipTitle">Tip from Mash: start with the floor plan</b><span data-t="tipText">Before you decide on 6- or 8-seaters, or seats at the ends, place your tables on the floor plan first. With 120 guests we needed 20 tables without end seats, and they simply didn&rsquo;t fit in our hall. Checking the room first saves you from seating everyone twice.</span></div>
   </div>
 </section>
 
@@ -304,20 +323,9 @@
       <p data-t="dayText1">Guests scan the QR code at the door, type their name and see their table on a map of the room, marked with a star.</p>
       <p data-t="dayText2">Ouma finds her seat without having to ask. Your varsity friends find theirs while they&rsquo;re still in the car park. And nobody needs to come and ask you.</p>
     </div>
-    <div class="map-card" aria-hidden="true">
-      <div class="who" data-t="mapWho">Anna Botha sits at</div>
-      <div class="tbl" data-t="mapTable">Table 4</div>
-      <div class="room">
-        <div class="t" style="left:8%; top:10%;">1</div>
-        <div class="t" style="left:8%; top:44%;">2</div>
-        <div class="t" style="left:8%; top:78%;">3</div>
-        <div class="t me" style="left:80%; top:10%;">4</div>
-        <div class="t" style="left:80%; top:44%;">5</div>
-        <div class="t" style="left:80%; top:78%;">6</div>
-        <div class="t bt" data-t="mapBridal">Bridal table</div>
-        <div class="df" data-t="mapDance">Dance floor</div>
-        <div class="door"></div>
-      </div>
+    <div class="day-shots">
+      <figure><img class="js-shot" data-en="day-map-en.jpg" data-af="day-map-af.jpg" src="day-map-en.jpg" alt="A guest's table marked with a star on the map of the room" loading="lazy" width="536" height="939"><figcaption data-t="shotMap">Where is my table?</figcaption></figure>
+      <figure><img class="js-shot" data-en="day-list-en.jpg" data-af="day-list-af.jpg" src="day-list-en.jpg" alt="The list of guests at the same table" loading="lazy" width="492" height="647"><figcaption data-t="shotList">Who is at my table?</figcaption></figure>
     </div>
   </div>
 </section>
@@ -434,13 +442,19 @@ const AF = {
   navFeatures:'Funksies', navHow:'Hoe dit werk', navPricing:'Pryse', navFaq:'Vrae',
   signIn:'Meld aan', startFree:'Begin gratis', startFreeUp:'Begin gratis, gradeer later op', myProjects:'My projekte', openApp:'Maak Tableau oop',
   headline:'Een QR-kode. Alles wat jul gaste nodig het.',
-  subline:'Hul sitplek, die program, die spyskaart en meer.',
+  subline:'Hul tafel, die program, die spyskaart en meer.',
   seeExample:'Sien ’n lewendige voorbeeld',
   heroFine:'Gratis om te begin &middot; geen kaart nodig nie &middot; jul gastebladsy in Engels of Afrikaans',
   exKicker:'Probeer dit self', exTitle:'Dit is wat jul gaste sien',
   exText:'’n Regte gastebladsy van ons voorbeeldtroue. Jul gaste skandeer die QR-kode by die deur, en dit maak op hul foon oop. Geen app om af te laai nie.',
   exStep1:'Tik ’n naam, of soek volgens letter.', exStep2:'Sien die tafel, wie nog daar sit, en ’n kaart met ’n sterretjie.', exStep3:'Gaan terug en maak die program, die spyskaart en die res oop.',
-  openExample:'Maak die voorbeeld oop', loadingEx:'Die voorbeeld laai&hellip;',
+  openExample:'Maak die voorbeeld oop',
+  exSignal:'Geen sein by die venue nie? Stuur die skakel die dag voor die troue op WhatsApp, sodat gaste hul tafel kan opsoek voordat hulle opdaag.',
+  exBasic:'Gereedgemaakte bladsye', exFull:'Met opgelaaide Canva-ontwerpe',
+  exSwitchNote:'Gereedgemaak: tik jul program en spyskaart in en Tableau sit dit mooi uit. Of laai jul eie ontwerpe uit Canva op.',
+  tipTitle:'Wenk van Mash: begin met die vloerplan',
+  tipText:'Voordat julle op 6- of 8-sitplektafels besluit, of sitplekke aan die koppe, plaas eers jul tafels op die vloerplan. Met 120 gaste het ons 20 tafels sonder kopsitplekke nodig gehad, en dit het eenvoudig nie in ons saal gepas nie. As julle eers die saal nagaan, hoef julle nie almal twee keer te plaas nie.',
+  shotMap:'Waar is my tafel?', shotList:'Wie sit aan my tafel?', loadingEx:'Die voorbeeld laai&hellip;',
   featKicker:'Alles op een plek', featTitle:'Minder admin vir julle. Minder verwarring vir jul gaste.',
   forGuests:'Vir jul gaste', forGuestsLead:'Een bladsy op hul foon, van die parkeerterrein tot op die dansvloer.',
   g1:'Kry hul sitplek in sekondes', g1s:'Tik ’n naam en sien die tafel, wie daar sit, en ’n kaart met ’n sterretjie.',
@@ -448,17 +462,17 @@ const AF = {
   g3:'Geskenke en bankbesonderhede', g3s:'Met ’n Kopieer-knoppie by elke reël. Geen WhatsApp-vrae meer nie.',
   g4:'Foto’s en liedjieversoeke', g4s:'Een tik na jul gedeelde album, en ’n lys liedjieversoeke vir die DJ.',
   g5:'In hul eie taal', g5s:'Jul gastebladsy in Engels of Afrikaans, of in jul eie woorde.',
-  forYou:'Vir julle', forYouLead:'Beplan die sitplekke en die saal sonder sigbladstres.',
-  y1:'Sitplekplan', y1s:'Laai jul gastelys uit Excel in en sleep gaste na hul sitplekke, op jul rekenaar of foon.',
+  forYou:'Vir julle', forYouLead:'Beplan die sitplekke en die saal sonder om met Excel te sukkel.',
+  y1:'Sitplekplan', y1s:'Voer jul gastelys uit Excel in en sleep gaste na hul sitplekke, op jul rekenaar of foon.',
   y2:'Vloerplan van jul venue', y2s:'Tafels, dansvloer, kroeg, deure, kamers en die stoep. Probeer verskillende uitlegte voor julle besluit.',
   y3:'Nooit weer herdruk nie', y3s:'Skuif ’n sitplek of verander ’n tyd, en jul gaste sien dit dadelik. Die QR-kode bly dieselfde.',
   y4:'Kyk eers op jul eie foon', y4s:'Stuur vir julleself ’n toetsskakel en sien presies wat jul gaste gaan sien.',
-  y5:'Meer as net die troue', y5s:'Gebruik dit ook vir die verlowingspartytjie, kombuistee en die repetisie-ete.',
+  y5:'Meer as net die troue', y5s:'Gebruik dit ook vir die verlowingspartytjie, kombuistee en familie-bymekaarkomste voor die groot dag.',
   howKicker:'Hoe dit werk', howTitle:'Drie stappe. Dan geniet julle die dag.',
-  s1:'Gaste &amp; tafels', s1s:'Voeg jul gastelys by, stel jul tafels op en gee almal ’n sitplek. Teken jul venue as julle wil.',
+  s1:'Gaste &amp; tafels', s1s:'Voeg jul gastelys by, teken jul venue en stel jul tafels op. Gee dan almal ’n sitplek.',
   s2:'Gastebladsy', s2s:'Kies jul kleure en foto, en voeg die program, spyskaart en enigiets anders by wat gaste moet weet.',
-  s3:'Deel', s3s:'Druk een QR-kode op jul welkomsbord, spyskaarte of tafelkaartjies. Of stuur die skakel op WhatsApp.',
-  dayKicker:'Op die dag', dayTitle:'Geen gedrang om die sitplekbord nie',
+  s3:'Deel', s3s:'Druk een QR-kode op jul welkombord, spyskaarte of tafelkaartjies. Of stuur die skakel op WhatsApp.',
+  dayKicker:'Op die dag', dayTitle:'Geen samedromming om die tafellys nie',
   dayText1:'Gaste skandeer die QR-kode by die deur, tik hul naam en sien hul tafel op ’n kaart van die saal, gemerk met ’n sterretjie.',
   dayText2:'Ouma kry haar sitplek sonder om te vra. Jul <i>varsity</i>-pelle kry hulle s’n terwyl hulle nog op die parkeerterrein is. En niemand hoef vir julle te kom vra nie.',
   mapWho:'Anna Botha sit by', mapTable:'Tafel 4', mapBridal:'Bruidstafel', mapDance:'Dansvloer',
@@ -466,12 +480,12 @@ const AF = {
   p1q:'&ldquo;Waar sit ek?&rdquo;', p1a:'Veertig gaste om een sitplekbord by die deur. Met Tableau kry elke gas hul sitplek op hul eie foon.',
   p2q:'&ldquo;Wat was die bankbesonderhede nou weer?&rdquo;', p2a:'Dieselfde WhatsApp-vraag, oor en oor. Sit dit een keer op jul gastebladsy, met ’n Kopieer-knoppie.',
   p3q:'Die tye het verander nadat julle gedruk het', p3a:'Werk die program in Tableau by. Gaste sien die nuwe tye op dieselfde QR-kode.',
-  p4q:'’n Sitplekplan in ’n sigblad', p4a:'Sleep gaste na hul sitplekke, sien wie nog nie ’n plek het nie, en skuif ’n hele gesin in een slag.',
+  p4q:'’n Sitplekplan in Excel', p4a:'Sleep gaste na hul sitplekke, sien wie nog nie ’n plek het nie, en skuif ’n hele gesin in een slag.',
   priceKicker:'Pryse', priceTitle:'Betaal een keer. Geen intekening nie.', priceSub:'Begin gratis. Gradeer op wanneer julle die ekstras op jul gastebladsy wil hê.',
   freePer:'So lank as wat julle wil', f1:'Sitplekplan met groepe', f2:'Vloerplan, met verskillende uitlegte om te vergelyk', f3:'Gastebladsy: sitplekvinder met ’n tafelkaart', f4:'Jul eie kleure en voorbladfoto', f5:'Een QR-kode om te druk of te deel',
   ribbon:'Alles op jul gastebladsy', premPer:'Eenmalig, vir tot 4 geleenthede',
   freeName:'Gratis', pr1:'Alles in die gratis plan', pr2:'Program en spyskaart op jul gastebladsy', pr3:'Geskenke en bankbesonderhede, met Kopieer-knoppies', pr4:'Foto-album, liedjieversoeke, skakels en ’n boodskap van julle',
-  pr5:'Tot 4 geleenthede: troue, verlowingspartytjie, kombuistee, repetisie-ete', pr6:'18 maande om te wysig. Jul gastebladsye bly daarna aanlyn.',
+  pr5:'Tot 4 geleenthede: troue, verlowingspartytjie, kombuistee, familie-bymekaarkoms', pr6:'18 maande om te wysig. Jul gastebladsye bly daarna aanlyn.',
   plansNote:'Probeer elke Premium-afdeling terwyl julle opstel. Julle betaal eers wanneer julle dit met jul gaste deel. Veilige betaling in Rand deur PayFast.',
   faqTitle:'Goed om te weet',
   q1:'Moet my gaste ’n app aflaai?', a1:'Nee. Hulle skandeer die QR-kode met hul foonkamera en die bladsy maak in hul blaaier oop. As hulle wil, kan hulle dit op hul tuisskerm stoor.',
@@ -501,9 +515,17 @@ function setLang(l){
   /* the example couple: Ava & Jack in English, Mia & Henco in Afrikaans */
   document.querySelectorAll('.js-ex').forEach(a=> a.href = 'https://tableauevents.co.za/guest-view.html?event=' + exampleSlug());
   const fr = document.querySelector('#phone iframe'); if(fr && !fr.src.includes(exampleSlug())) fr.src = 'guest-view.html?event=' + exampleSlug();
+  document.querySelectorAll('.js-shot').forEach(im=>{ const f = im.dataset[lang] || im.dataset.en; if(!im.src.endsWith(f)) im.src = f; });
   markSignedIn();
 }
-function exampleSlug(){ return lang === 'af' ? 'mia-henco-vxwzv' : 'ava-jack-i9cpv'; }
+let exKind = 'basic';
+const EX_SLUGS = {en:{basic:'ava-jack-s3ws4', full:'ava-jack-i9cpv'}, af:{basic:'mia-henco-0t54v', full:'mia-henco-vxwzv'}};
+function exampleSlug(){ return EX_SLUGS[lang === 'af' ? 'af' : 'en'][exKind]; }
+document.querySelectorAll('.ex-switch button').forEach(b=> b.addEventListener('click', ()=>{
+  exKind = b.dataset.ex;
+  document.querySelectorAll('.ex-switch button').forEach(x=> x.classList.toggle('on', x === b));
+  setLang(lang);
+}));
 document.querySelectorAll('.lang button').forEach(b=> b.addEventListener('click', ()=> setLang(b.dataset.lang)));
 
 /* already signed in on this device? Then the buttons open her projects instead */
