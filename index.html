@@ -63,21 +63,19 @@
   .hero-img{display:block; width:100%; max-width:1180px; height:auto; margin:22px auto 0; padding:0 12px;}
   .hero{text-align:center; padding:34px 0 30px;}
   .hero h1{font-size:clamp(32px, 5.2vw, 48px); color:var(--ink);}
+  /* only on short laptop screens: shrink the pictures a little so the headline still peeks into view */
+  @media (min-width:761px) and (min-aspect-ratio:1/1) and (max-height:800px){ .hero-img{width:auto; max-height:max(380px, calc(100vh - 250px)); margin-left:auto; margin-right:auto;} }
   /* computers and landscape tablets: the whole welcome (pictures, headline, buttons, scroll hint) fits on the first screen */
-  @media (min-width:761px) and (min-aspect-ratio:1/1){
-    .hero-img{width:auto; max-height:max(260px, calc(100vh - 470px)); margin-left:auto; margin-right:auto;}
-    .hero{padding-top:26px;}
-    .hero .sub{margin:10px auto 22px;}
-    .scroll-hint{margin-top:16px;}
-  }
   .hero .sub{font-size:clamp(17px, 2.2vw, 21px); color:var(--soft); margin:14px auto 28px; max-width:640px;}
   .hero .ctas{display:flex; gap:12px; justify-content:center; flex-wrap:wrap;}
   .hero .fine{font-size:13px; color:var(--soft); margin-top:14px;}
 
-  .scroll-hint{display:inline-flex; margin-top:26px; color:var(--sage-dark); opacity:.8; animation:hintBob 2.2s ease-in-out infinite;}
-  .scroll-hint:hover{opacity:1;}
-  @keyframes hintBob{0%,100%{transform:translateY(0);} 50%{transform:translateY(6px);}}
-  @media (prefers-reduced-motion: reduce){ .scroll-hint{animation:none;} }
+  /* scroll hint: floats at the bottom of the first screen on every device, and fades once she starts scrolling */
+  .scroll-hint{position:fixed; left:50%; bottom:18px; margin-left:-24px; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(255,253,250,.92); box-shadow:0 4px 16px rgba(52,56,52,.12); color:var(--sage-dark); z-index:15; transition:opacity .35s;}
+  .scroll-hint svg{animation:hintBob 2.2s ease-in-out infinite;}
+  .scroll-hint.gone{opacity:0; pointer-events:none;}
+  @keyframes hintBob{0%,100%{transform:translateY(-2px);} 50%{transform:translateY(3px);}}
+  @media (prefers-reduced-motion: reduce){ .scroll-hint svg{animation:none;} }
   section{padding:72px 0;}
   section.alt{background:var(--linen);}
   .kicker{font-size:12.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--sage-dark); margin-bottom:10px;}
@@ -223,7 +221,8 @@
   </div>
 </header>
 
-<picture>
+<div class="hero-wrap">
+<picture class="hero-pic">
   <source media="(max-aspect-ratio: 1/1)" srcset="landing-collage-phone.jpg" width="1080" height="900">
   <source media="(max-width:760px)" srcset="landing-collage-960.jpg" width="960" height="418">
   <img class="hero-img" src="landing-collage.jpg" width="1488" height="648" alt="" fetchpriority="high">
@@ -242,6 +241,7 @@
       <svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><circle cx="24" cy="24" r="21.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 19.5l8 7 8-7M16 25.5l8 7 8-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
   </div>
+</div>
 </div>
 
 <section class="alt" id="example">
@@ -541,6 +541,9 @@ function markSignedIn(){
   const ts = document.getElementById('topStart'); ts.textContent = d.openApp; ts.href = '/app';
 }
 setLang(lang);
+{ const sh = document.querySelector('.scroll-hint');
+  const onS = ()=>{ if(window.scrollY > 60){ sh.classList.add('gone'); window.removeEventListener('scroll', onS); } };
+  window.addEventListener('scroll', onS, {passive:true}); onS(); }
 
 /* the live example loads only when it scrolls into view, and only on screens wide enough to show the phone */
 (function(){
