@@ -247,6 +247,7 @@
   .sg-like{flex:0 0 auto; border:1px solid var(--sage); background:#fff; color:var(--sage-dark); border-radius:20px; padding:5px 12px; font:inherit; font-size:14px; cursor:pointer;}
   .sg-like.on, .sg-like:disabled{background:var(--sage); color:#fff; opacity:1;}
   .sg-played{flex:0 0 auto; font-size:12.5px; color:var(--ink-soft, #6b6b6b);}
+  .offline-note{background:#f3efe6; color:#6b6358; font-size:12.5px; text-align:center; padding:7px 14px; border:1px solid #e4ddcf; border-radius:8px; margin-bottom:8px;}
   .menu-p{text-align:center; padding:6px 0; font-size:15px; line-height:1.45;}
   .link-btn{display:block; text-align:center; padding:13px 14px; border:1px solid var(--sage); border-radius:10px; color:var(--sage-dark); text-decoration:none; font-weight:500; margin-bottom:10px;}
   .album-btn{background:var(--sage); color:#fff; border-color:var(--sage-dark);}
@@ -935,7 +936,7 @@ const TXT = {
     guest1:' guest', guestN:' guests', tapName:'Tap your name to see your table and who you\u2019re sitting with.',
     seatedAt:'{name} is seated at', unassigned:'(unassigned)',
     atTable1:'1 guest at this table', atTableN:'{n} guests at this table', noTable:'No table yet — please ask a host.',
-    segMap:'Where is my table?', segMates:'Who is at my table?', starNote:'The star marks your table.', zoomIn:'Zoom in', zoomOut:'Zoom out',
+    segMap:'Where is my table?', segMates:'Who is at my table?', starNote:'The star marks your table.', zoomIn:'Zoom in', zoomOut:'Zoom out', offline:'No signal \u2013 showing the version saved on your phone ({when}).',
     mapKey:'Map key', tables:'Tables',
     noResults:'No matching name found. Check the spelling, or ask a host.',
     emptyData:'The seating plan hasn’t been published yet — please check back closer to the event.',
@@ -968,7 +969,7 @@ const TXT = {
     guest1:' gas', guestN:' gaste', tapName:'Tik op jou naam om jou tafel te sien en wie saam met jou sit.',
     seatedAt:'{name} sit by', unassigned:'(nog nie toegeken nie)',
     atTable1:'1 gas aan hierdie tafel', atTableN:'{n} gaste aan hierdie tafel', noTable:'Nog geen tafel nie — vra asseblief een van die gashere.',
-    segMap:'Waar is my tafel?', segMates:'Wie sit aan my tafel?', starNote:'Die ster wys jou tafel.', zoomIn:'Zoem in', zoomOut:'Zoem uit',
+    segMap:'Waar is my tafel?', segMates:'Wie sit aan my tafel?', starNote:'Die ster wys jou tafel.', zoomIn:'Zoem in', zoomOut:'Zoem uit', offline:'Geen sein nie \u2013 dit is die weergawe wat op jou foon gestoor is ({when}).',
     mapKey:'Kaartsleutel', tables:'Tafels',
     noResults:'Geen naam gevind nie. Kontroleer die spelling, of vra een van die gashere.',
     emptyData:'Die sitplekplan is nog nie gepubliseer nie — kyk asseblief weer nader aan die tyd.',
@@ -1102,15 +1103,51 @@ function loadData(){
   }
   const done = json => { if(json){ SEAT_DATA = json; } applyData(); };
   if(!EVENT_SLUG){ loadFromFile().then(done).catch(()=> applyData()); return; }
+  /* No signal at the venue: show the copy saved on this phone the last time the page opened, then update it when the internet answers. */
+  const KEY = 'tableauGuest:' + EVENT_SLUG;
+  let saved = null;
+  try{ saved = JSON.parse(localStorage.getItem(KEY) || 'null'); }catch(e){}
+  const firstLoad = !loadData.ran; loadData.ran = true;
+  if(saved && saved.data && firstLoad){ SEAT_DATA = saved.data; applyData(); }
+  if(!firstLoad) saved = {at: saved && saved.at, data: SEAT_DATA};   /* already showing something: only replace it if it changed */
+  const ctrl = 'AbortController' in window ? new AbortController() : null;
+  const timer = setTimeout(()=>{ if(ctrl) ctrl.abort(); }, 15000);
   fetch(SB_URL + '/rest/v1/rpc/get_published', {
-    method: 'POST',
+    method: 'POST', signal: ctrl ? ctrl.signal : undefined,
     headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
     body: JSON.stringify({p_slug: EVENT_SLUG})
   })
     .then(r => { if(!r.ok) throw new Error('rpc failed'); return r.json(); })
-    .then(json => { if(!json) throw new Error('not published'); done(json); })
-    .catch(()=> loadFromFile().then(done).catch(()=> applyData()));
+    .then(json => {
+      clearTimeout(timer);
+      if(!json){ try{ localStorage.removeItem(KEY); }catch(e){} if(saved){ SEAT_DATA = {eventName:'', floorPlan:null, tables:[], guests:[], info:{}}; } saved = null; throw new Error('not published'); }   /* taken offline by the couple */
+      hideOffline();
+      const fresh = JSON.stringify(json);
+      try{ localStorage.setItem(KEY, JSON.stringify({at: Date.now(), data: json})); }catch(e){}
+      if(saved && saved.data && JSON.stringify(saved.data) === fresh) return;   /* nothing changed */
+      const was = currentGuest && !document.getElementById('seatView').classList.contains('hidden') ? currentGuest : null;
+      done(json);
+      if(was){ const g = (SEAT_DATA.guests || []).find(x=> x.name === was.name); if(g){ const back = returnTo; showSection('seat'); showSeat(g, back); } }
+    })
+    .catch(()=>{
+      clearTimeout(timer);
+      if(saved && saved.data){ if(saved.at) showOffline(saved.at); return; }
+      loadFromFile().then(done).catch(()=> applyData());
+    });
 }
+
+/* a small note when the page is showing the copy saved on the phone */
+function showOffline(at){
+  let n = document.getElementById('offlineNote');
+  if(!n){ n = document.createElement('div'); n.id = 'offlineNote'; n.className = 'offline-note'; document.body.prepend(n); }
+  let when = '';
+  try{ const d = new Date(at), loc = lang() === 'af' ? 'af-ZA' : 'en-ZA';
+    const sameDay = d.toDateString() === new Date().toDateString();
+    when = (sameDay ? '' : d.toLocaleDateString(loc, {day:'numeric', month:'long'}) + ' ') + d.toLocaleTimeString(loc, {hour:'2-digit', minute:'2-digit', hour12:false}); }catch(e){}
+  n.textContent = tr('offline', {when});
+}
+function hideOffline(){ const n = document.getElementById('offlineNote'); if(n) n.remove(); }
+window.addEventListener('online', ()=>{ if(document.getElementById('offlineNote')) loadData(); });
 
 function init(){
   applyData();
