@@ -20,7 +20,7 @@
     --ink-soft:#7a7068;
     --sage:#94ab96;
     --sage-dark:#6e8a70;
-    --hi-line:#b59544; --hi-text:#9a7a2e; --hi-tint:#f8f1de;   /* the couple's highlight: date, times, your table (gold by default) */
+    --hi-line:#b59544; --hi-text:#8f7b4c; --hi-tint:#f8f1de;   /* the couple's highlight: date, times, your table (gold by default) */
     --wood:#f4d284;
     --wood-dark:#d4a832;
     --line:#ddd9cc;
@@ -789,7 +789,7 @@ function applyTheme(info){
   root.setProperty('--sage-dark', nameCol);
   root.setProperty('--sage-mid', shade(accent, 0.9));
   /* highlight colour for the date, programme times and the guest's own table */
-  const HI = {gold:['#b59544','#9a7a2e','#f8f1de'], charcoal:['#4a4744','#3f3d3a','#ecebea'], silver:['#9ba0a6','#7b8188','#eef0f2'],
+  const HI = {gold:['#b59544','#8f7b4c','#f8f1de'], charcoal:['#4a4744','#3f3d3a','#ecebea'], silver:['#9ba0a6','#7b8188','#eef0f2'],
               warm:['#b09a7c','#8f7656','#f5efe6'], cool:['#a9a397','#7f7a70','#f0eeea']};
   const hi = HI[info.highlight] || HI.gold;
   root.setProperty('--hi-line', hi[0]); root.setProperty('--hi-text', hi[1]); root.setProperty('--hi-tint', hi[2]);
