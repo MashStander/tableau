@@ -870,6 +870,8 @@
   body.cloud-mode #btnReset{display:none !important;}
   .ei-swatches{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
   .ei-hi{display:flex; flex-wrap:wrap; gap:6px;}
+  .ei-pdf-row{display:grid !important; grid-template-columns:minmax(0,1fr) auto 30px; gap:8px; align-items:center; margin-bottom:6px;}
+  .ei-pdf-view{font-size:13px; color:var(--sage-dark); font-weight:600; white-space:nowrap;}
   .ei-hi-opt{display:inline-flex; align-items:center; gap:7px; border:1px solid var(--line); background:var(--white); border-radius:999px; padding:5px 12px 5px 6px; font:inherit; font-size:13px; color:var(--ink); cursor:pointer;}
   .ei-hi-opt i{width:18px; height:18px; border-radius:50%; display:inline-block;}
   .ei-hi-opt.on{border-color:var(--ink); box-shadow:0 0 0 1px var(--ink) inset; font-weight:600;}
@@ -2828,11 +2830,16 @@
     </div>
 
     <div class="ei-block" data-sec="links">
-      <h4>Links</h4>
+      <h4>Links &amp; info</h4>
       <label>Your wedding website, gift registry, directions&hellip; Each one has the words guests will tap, and the web address it opens.</label>
       <div id="eiLinkRows"></div>
       <button type="button" class="ghost-btn" id="eiAddLink">+ Add a link</button>
       <textarea id="eiLinks" class="hidden"></textarea>
+      <label style="margin-top:18px;">PDF documents: checkout times, info about the area, accommodation, a map&hellip; Guests tap the name to open it.</label>
+      <div id="eiPdfRows"></div>
+      <button type="button" class="ghost-btn" id="eiAddPdf">+ Upload a PDF</button>
+      <span class="ei-count" id="eiPdfNote" style="margin-left:8px;">Up to 5 PDFs, 10 MB each.</span>
+      <input type="file" id="eiPdfFile" accept="application/pdf,.pdf" class="hidden">
     </div>
 
     <div id="eiSignInNote" class="hidden" style="font-size:12.5px; color:var(--danger); margin-bottom:10px;">Sign in to your account to upload pictures.</div>
@@ -9742,7 +9749,7 @@ const EI_IMG_MAX = 4;
 function eiMax(sec){ return sec === 'cover' ? 1 : EI_IMG_MAX; }
 const EI_COLOURS = ['#dbc2bd','#b0706a','#ec9cb5','#747474','#667b93','#2f4a6b','#7c8a70','#888077','#e6d07e'];
 const EI_BUCKET = 'event-files';
-let eiImages = {cover:[], program:[], menu:[], notes:[], bank:[]}, eiNewPaths = [], eiRemoved = [], eiTarget = null, eiBusy = 0;
+let eiImages = {cover:[], program:[], menu:[], notes:[], bank:[]}, eiNewPaths = [], eiRemoved = [], eiTarget = null, eiBusy = 0, eiPdfs = [];
 
 function eiCanUpload(){ return !!(sb && cloudUser); }
 
@@ -9897,6 +9904,7 @@ function openEventInfoModal(){
   const im = info.images || {};
   eiImages = {cover:(im.cover||[]).slice(), program:(im.program||[]).slice(), menu:(im.menu||[]).slice(), notes:(im.notes||[]).slice(), bank:(im.bank||[]).slice()};
   eiNewPaths = []; eiRemoved = []; eiBusy = 0;
+  eiPdfs = (info.linkFiles || []).map(f=> Object.assign({}, f)); renderEiPdfs();
   eiCoverPos = info.coverPos ? {z:info.coverPos.z||1, x:info.coverPos.x||0, y:info.coverPos.y||0} : {z:1, x:0, y:0};
   renderEiImages();
   eiLastSig = eiSig();
@@ -9945,6 +9953,7 @@ function collectEiInfo(){
   LABEL_KEYS.forEach(([k, id])=>{ const el = document.getElementById(id); if(el && el.value.trim()) labels[k] = el.value.trim(); });
   info.labels = labels;
   { const sel = document.getElementById('eiLabelLang'), v = sel.value; info.labelLang = (v === 'en' || v === 'af') ? v : (sel.dataset.base || 'en'); }
+  info.linkFiles = eiPdfs.map(f=> ({label:f.label, url:f.url, path:f.path}));
   info.songsOn = document.getElementById('eiSongsOn').checked;
   info.songsList = document.getElementById('eiSongsList').checked;
   return info;
@@ -9981,6 +9990,52 @@ function syncLinkRows(){
   });
   document.getElementById('eiLinks').value = lines.join('\n');
 }
+/* ---- PDFs under Links & info ---- */
+const EI_PDF_MAX = 5, EI_PDF_MB = 10;
+function renderEiPdfs(){
+  const box = document.getElementById('eiPdfRows'); if(!box) return; box.innerHTML = '';
+  eiPdfs.forEach((f, i)=>{
+    const r = document.createElement('div'); r.className = 'ei-link-row ei-pdf-row';
+    const a = document.createElement('input'); a.type = 'text'; a.className = 'custom-num'; a.maxLength = 60;
+    a.placeholder = 'Button text, e.g. Checkout times'; a.value = f.label || '';
+    a.addEventListener('input', ()=>{ f.label = a.value; eiChanged(); });
+    const v = document.createElement('a'); v.href = f.url; v.target = '_blank'; v.rel = 'noopener'; v.className = 'ei-pdf-view'; v.textContent = 'View PDF';
+    const x = document.createElement('button'); x.type = 'button'; x.className = 'fi-del'; x.textContent = '✕'; x.title = 'Remove this PDF';
+    x.addEventListener('click', ()=>{ if(f.path) eiRemoved.push(f.path); eiPdfs.splice(i, 1); renderEiPdfs(); eiChanged(); });
+    r.append(a, v, x); box.appendChild(r);
+  });
+  const btn = document.getElementById('eiAddPdf');
+  btn.disabled = !eiCanUpload() || eiPdfs.length >= EI_PDF_MAX || eiBusy > 0;
+  btn.textContent = eiBusy > 0 && eiTarget === 'pdf' ? 'Uploading…' : (eiPdfs.length ? '+ Upload another PDF' : '+ Upload a PDF');
+  document.getElementById('eiPdfNote').textContent = !eiCanUpload() ? 'Sign in to upload PDFs.' : (eiPdfs.length >= EI_PDF_MAX ? 'That’s the maximum of 5 PDFs.' : 'Up to 5 PDFs, 10 MB each.');
+}
+document.getElementById('eiAddPdf').addEventListener('click', ()=>{
+  if(!eiCanUpload()){ toast('Sign in to upload PDFs.'); return; }
+  document.getElementById('eiPdfFile').click();
+});
+document.getElementById('eiPdfFile').addEventListener('change', async e=>{
+  const file = e.target.files && e.target.files[0]; e.target.value = '';
+  if(!file) return;
+  if(!(file.type === 'application/pdf' || /\.pdf$/i.test(file.name))){ toast('That file is not a PDF.'); return; }
+  if(file.size > EI_PDF_MB * 1024 * 1024){ toast('That PDF is bigger than 10 MB. In Canva, download it as “PDF Standard” to make it smaller.', 8000); return; }
+  if(eiPdfs.length >= EI_PDF_MAX) return;
+  eiTarget = 'pdf'; eiBusy++; renderEiPdfs();
+  try{
+    const path = cloudUser.id + '/' + Date.now().toString(36) + Math.random().toString(36).slice(2,8) + '.pdf';
+    const up = await sb.storage.from(EI_BUCKET).upload(path, file, {contentType:'application/pdf', cacheControl:'31536000', upsert:false});
+    if(up.error) throw up.error;
+    const url = sb.storage.from(EI_BUCKET).getPublicUrl(path).data.publicUrl;
+    const label = file.name.replace(/\.pdf$/i, '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
+    eiPdfs.push({label, url, path}); eiNewPaths.push(path);
+    toast('PDF uploaded. Check the button text guests will see.');
+  }catch(err){
+    const m = (err && err.message || '').toLowerCase();
+    toast(/mime|type.*not.*(allowed|supported)|invalid.*type/.test(m) ? 'PDF uploads still need switching on in Supabase (Storage → event-files → allow application/pdf).' :
+          (m.indexOf('size') > -1 || m.indexOf('too large') > -1 || m.indexOf('exceed') > -1) ? 'That PDF is too big for your storage settings in Supabase.' :
+          'Could not upload that PDF (' + (err && err.message ? err.message : 'unknown problem') + ').', 9000);
+  }
+  eiBusy--; renderEiPdfs(); eiChanged();
+});
 function addLinkRow(t, u){
   const r = document.createElement('div'); r.className = 'ei-link-row';
   const a = document.createElement('input'); a.type = 'text'; a.className = 'custom-num'; a.placeholder = 'Link text, e.g. Our wedding website'; a.value = t || '';
@@ -10015,15 +10070,18 @@ function renderEiSwatches(){
   box.innerHTML = '';
   EI_COLOURS.forEach(c=>{
     const b = document.createElement('button');
-    b.type = 'button'; b.className = 'ei-swatch' + (c === cur ? ' on' : ''); b.style.background = c; b.title = c;
+    b.type = 'button'; b.className = 'ei-swatch' + (c === cur ? ' on' : ''); b.style.background = eiShade(c, 0.72); b.title = 'The colour of your names on the guest page';
     b.addEventListener('click', ()=>{ document.getElementById('eiAccent').value = c; renderEiSwatches(); updateEiFontSample(); });
     box.appendChild(b);
   });
   const custom = document.createElement('label');
   custom.className = 'ei-swatch ei-swatch-custom' + (EI_COLOURS.indexOf(cur) < 0 ? ' on' : ''); custom.title = 'Pick your own colour';
-  const inp = document.createElement('input'); inp.type = 'color'; inp.value = cur;
-  inp.addEventListener('input', ()=>{ document.getElementById('eiAccent').value = inp.value; updateEiFontSample(); });
-  inp.addEventListener('change', ()=>{ document.getElementById('eiAccent').value = inp.value; renderEiSwatches(); updateEiFontSample(); });
+  /* she picks the colour her names will be; the guest page darkens the stored colour by 0.72, so store it lighter */
+  const inp = document.createElement('input'); inp.type = 'color'; inp.value = /^#[0-9a-f]{6}$/i.test(cur) ? eiShade(cur, 0.72) : '#596350';
+  const unshade = hex=>{ const n = parseInt(hex.slice(1), 16); return '#' + [16, 8, 0].map(sh=> Math.min(255, Math.round(((n >> sh) & 255) / 0.72)).toString(16).padStart(2, '0')).join(''); };
+  if(EI_COLOURS.indexOf(cur) < 0 && /^#[0-9a-f]{6}$/i.test(cur)) custom.style.background = eiShade(cur, 0.72);
+  inp.addEventListener('input', ()=>{ document.getElementById('eiAccent').value = unshade(inp.value); updateEiFontSample(); });
+  inp.addEventListener('change', ()=>{ document.getElementById('eiAccent').value = unshade(inp.value); renderEiSwatches(); updateEiFontSample(); });
   custom.appendChild(inp); box.appendChild(custom);
 }
 function removeFromStorage(paths){
@@ -10067,6 +10125,7 @@ function buildEventInfoForExport(){
     if(url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
     return {label, url};
   }).filter(x=>x.url);
+  (info.linkFiles || []).forEach(f=>{ if(f && f.url) links.push({label:(f.label || '').trim() || 'Info (PDF)', url:f.url, pdf:true}); });
   const bank = splitLines(info.bank).map(l=>{ const [label,value] = splitPair(l); return {label, value}; });
   const im = info.images || {};
   const urls = k => (im[k] || []).map(x=>x.url);
@@ -10468,7 +10527,7 @@ const EI_SECS = [
   {k:'gifts',    t:'Gifts & banking details', d:'Guests get a Copy button for each line.', g:'gifts'},
   {k:'photos',   t:'Photos & videos',         d:'A button that opens your shared album.', g:'photos'},
   {k:'songs',    t:'Song requests',           d:'Guests ask for songs for the dance floor. You get one list for your DJ.', g:'songs'},
-  {k:'links',    t:'Links',                   d:'Your wedding website, registry or directions.', g:'links'},
+  {k:'links',    t:'Links & info',            d:'Your wedding website, registry, directions, or a PDF with practical info.', g:'links'},
   {k:'signs',    t:'Welcome sign to print',   d:'A2 Canva designs that match your menu and programme.', g:''}
 ];
 let eiCurrent = '', eiLastSig = '', eiSaveTimer = null, eiPubTimer = null, eiPvTimer = null;
@@ -10494,7 +10553,7 @@ function eiStatus(k){
   else if(k === 'gifts'){ const x = eiLines('eiBank'); t = withPics(x ? n(x, 'line', 'lines') : (eiVal('eiBankNote') ? 'Note added' : ''), 'bank'); }
   else if(k === 'photos'){ t = eiVal('eiAlbumUrl') ? 'Album linked' : ''; }
   else if(k === 'songs'){ const on = document.getElementById('eiSongsOn').checked, c = eiSongRows ? eiSongRows.length : 0; return on ? {t: 'On' + (c ? ' \u00B7 ' + c + (c === 1 ? ' request' : ' requests') : ''), done:true} : {t:'Off \u2013 hidden from guests', done:false}; }
-  else if(k === 'links'){ const x = eiVal('eiLinks').split('\n').filter(l=> l.trim()).length; t = x ? n(x, 'link', 'links') : ''; }
+  else if(k === 'links'){ const x = eiVal('eiLinks').split('\n').filter(l=> l.trim()).length, f = eiPdfs.length; t = [x ? n(x, 'link', 'links') : '', f ? n(f, 'PDF', 'PDFs') : ''].filter(Boolean).join(', '); }
   else if(k === 'signs'){ return {t:'Canva templates', done:false}; }
   else if(k === 'language'){
     const sel = document.getElementById('eiLabelLang');
@@ -10876,7 +10935,7 @@ const PLAN_INFO = {
     '<b>A note from us:</b> a thank-you note, the words of the worship song, a reading, your vows or your love story.',
     '<b>Gifts &amp; banking details:</b> guests get a Copy button for each line.',
     '<b>Photos &amp; videos:</b> a button that opens your shared album, so guests can add their photos.',
-    '<b>Links:</b> your wedding website, registry or directions.',
+    '<b>Links &amp; info:</b> your wedding website, registry, directions, or a PDF such as checkout times or info about the area.',
     'Guests see it all by scanning the same QR code. You never reprint anything.']},
   2: {title: 'Full planner', img: 'full', bullets: [
     '<b>Everything in Premium:</b> upload your menu, programme and banking details so guests have them right on their phones, plus Canva templates (welcome sign, menu and programme), the Excel guest list template, seating chart, floor plan layout and a QR code for your guests. On top of that, the Full planner adds:',
@@ -11105,7 +11164,7 @@ document.getElementById('btnFinderQr').addEventListener('click', async ()=>{
   const dm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(inf.date || '');
   const MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   const dateText = dm ? (+dm[3]) + ' ' + MN[+dm[2]-1] + ' ' + dm[1] : '';
-  const accent = /^#[0-9a-f]{6}$/i.test(inf.accent || '') ? inf.accent : '';
+  const accent = /^#[0-9a-f]{6}$/i.test(inf.accent || '') ? eiShade(inf.accent, 0.72) : '';   /* same colour as the names on the guest page */
   const c = drawFinderQr(link, title, dateText, accent);
   downloadBlobUrl(c.toDataURL('image/png'), 'tableau-qr-' + finderSlug(title) + '.png');
   toast('QR code downloaded — print it for your signage.');
