@@ -154,7 +154,7 @@
 
   .seat-headline{text-align:center; margin-bottom:16px;}
   .seat-headline .for-name{font-size:14px; color:var(--ink-soft);}
-  .seat-headline h2{font-size:28px; color:#6e8a70;   /* Tableau green */ margin-top:2px;}
+  .seat-headline h2{font-size:28px; color:var(--hi-text); margin-top:2px;}
   .seat-headline .table-detail{font-size:13px; color:var(--ink-soft); margin-top:4px;}
   .seg{display:flex; border:1px solid var(--line); border-radius:24px; overflow:hidden; margin:0 auto 16px; background:var(--linen);}
   .seg button{flex:1; border:none; background:none; padding:10px 8px; font-size:14.5px; font-family:'Plus Jakarta Sans',sans-serif; color:var(--ink-soft); cursor:pointer;}
@@ -756,8 +756,11 @@ function shade(hex, f){
 function applyTheme(info){
   const root = document.documentElement.style;
   const accent = /^#[0-9a-f]{6}$/i.test(info.accent || '') ? info.accent : '#7c8a70';
-  root.setProperty('--sage', accent);
-  root.setProperty('--sage-dark', shade(accent, 0.72));
+  const nameCol = shade(accent, 0.72);   /* the couple's names */
+  /* buttons and frames: the names' colour, a little softer, so they never clash with it */
+  const mixW = (hex, f)=>{ const n = parseInt(hex.slice(1), 16); return '#' + [16, 8, 0].map(sh=> Math.round(((n >> sh) & 255) * f + 255 * (1 - f)).toString(16).padStart(2, '0')).join(''); };
+  root.setProperty('--sage', mixW(nameCol, 0.82));
+  root.setProperty('--sage-dark', nameCol);
   root.setProperty('--sage-mid', shade(accent, 0.9));
   /* highlight colour for the date, programme times and the guest's own table */
   const HI = {gold:['#b59544','#9a7a2e','#f8f1de'], charcoal:['#4a4744','#3f3d3a','#ecebea'], silver:['#9ba0a6','#7b8188','#eef0f2'],
