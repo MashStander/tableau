@@ -10078,7 +10078,10 @@ function renderEiSwatches(){
   custom.className = 'ei-swatch ei-swatch-custom' + (EI_COLOURS.indexOf(cur) < 0 ? ' on' : ''); custom.title = 'Pick your own colour';
   /* she picks the colour her names will be; the guest page darkens the stored colour by 0.72, so store it lighter */
   const inp = document.createElement('input'); inp.type = 'color'; inp.value = /^#[0-9a-f]{6}$/i.test(cur) ? eiShade(cur, 0.72) : '#596350';
-  const unshade = hex=>{ const n = parseInt(hex.slice(1), 16); return '#' + [16, 8, 0].map(sh=> Math.min(255, Math.round(((n >> sh) & 255) / 0.72)).toString(16).padStart(2, '0')).join(''); };
+  /* scale all three channels by the same amount, so a light colour keeps its hue (pink stays pink) and just comes out a little deeper */
+  const unshade = hex=>{ const n = parseInt(hex.slice(1), 16), ch = [16, 8, 0].map(sh=> (n >> sh) & 255);
+    const f = Math.min(1 / 0.72, 255 / Math.max(1, ...ch));
+    return '#' + ch.map(v=> Math.min(255, Math.round(v * f)).toString(16).padStart(2, '0')).join(''); };
   if(EI_COLOURS.indexOf(cur) < 0 && /^#[0-9a-f]{6}$/i.test(cur)) custom.style.background = eiShade(cur, 0.72);
   inp.addEventListener('input', ()=>{ document.getElementById('eiAccent').value = unshade(inp.value); updateEiFontSample(); });
   inp.addEventListener('change', ()=>{ document.getElementById('eiAccent').value = unshade(inp.value); renderEiSwatches(); updateEiFontSample(); });
