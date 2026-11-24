@@ -736,7 +736,13 @@
   /* programme and menu fill-in boxes */
   .fi-head{display:grid; gap:6px; font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-soft); margin:8px 0 4px;}
   .fi-head i{text-transform:none; letter-spacing:0; font-style:normal;}
-  .fi-prog{grid-template-columns:84px minmax(0,1.4fr) minmax(0,1fr) 30px;}
+  .fi-prog{grid-template-columns:84px minmax(0,1.4fr) minmax(0,1fr) 30px 30px;}
+  .fi-mv{display:flex; flex-direction:column; gap:2px;}
+  .fi-mv button{border:1px solid var(--line); background:var(--paper); color:var(--ink-soft); font-size:10px; line-height:1; height:18px; padding:0; border-radius:5px; cursor:pointer;}
+  .fi-mv button:hover:not(:disabled){color:var(--sage-dark); border-color:var(--sage);}
+  .fi-mv button:disabled{opacity:.3; cursor:default;}
+  .fi-sort{display:none; margin:-4px 0 10px; padding-left:2px;}
+  .fi-sort.show{display:block;}
   .fi-row{display:grid; gap:6px; margin-bottom:6px; align-items:center;}
   .fi-row .custom-num, .fi-course .custom-num{width:100% !important; box-sizing:border-box; margin:0;}
   .fi-time{text-align:center;}
@@ -753,6 +759,8 @@
     .fi-head.fi-prog{display:none;}
     .fi-row.fi-prog{grid-template-columns:76px minmax(0,1fr) 30px; border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:8px;}
     .fi-row.fi-prog .fi-where{grid-column:1 / 3;}
+    .fi-row.fi-prog .fi-del{grid-column:3; grid-row:1;}
+    .fi-row.fi-prog .fi-mv{grid-column:3; grid-row:2;}
   }
   .ei-dj{margin-top:16px; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:14px 16px;}
   .ei-dj h5{font-size:14px; margin:0 0 6px; color:var(--ink);}
@@ -861,6 +869,10 @@
   }
   body.cloud-mode #btnReset{display:none !important;}
   .ei-swatches{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+  .ei-hi{display:flex; flex-wrap:wrap; gap:6px;}
+  .ei-hi-opt{display:inline-flex; align-items:center; gap:7px; border:1px solid var(--line); background:var(--white); border-radius:999px; padding:5px 12px 5px 6px; font:inherit; font-size:13px; color:var(--ink); cursor:pointer;}
+  .ei-hi-opt i{width:18px; height:18px; border-radius:50%; display:inline-block;}
+  .ei-hi-opt.on{border-color:var(--ink); box-shadow:0 0 0 1px var(--ink) inset; font-weight:600;}
   .ei-swatch{width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0; box-shadow:0 0 0 1px var(--line);}
   .ei-swatch.on{border-color:var(--ink); box-shadow:0 0 0 2px var(--white) inset;}
   .ei-swatch-custom{position:relative; overflow:hidden; background:conic-gradient(#e0a0a0,#e0d090,#a0d0a0,#90b8e0,#c0a0e0,#e0a0a0);}
@@ -2661,9 +2673,12 @@
         </div>
       </div>
       <div style="height:12px;"></div>
-      <label>Colour of buttons and highlights</label>
+      <label>Colour of your names and buttons</label>
       <div class="ei-swatches" id="eiSwatches"></div>
       <input type="color" id="eiAccent" value="#7c8a70" style="display:none;">
+      <label style="margin-top:12px;">Colour of the date, programme times and each guest’s own table</label>
+      <div class="ei-hi" id="eiHiChoices"></div>
+      <input type="hidden" id="eiHighlight" value="gold">
       <label style="margin-top:12px;">Font of the big title</label>
       <select id="eiFont" class="custom-num" style="margin-bottom:6px; width:100%;"><option value="dynalight">Dynalight</option><option value="windsong">WindSong</option><option value="bodoni">Bodoni Moda</option><option value="italiana">Italiana</option><option value="raleway">Raleway</option><option value="ephesis">Ephesis</option></select>
       <div id="eiFontSample" style="text-align:center; font-size:34px; line-height:1.2; padding:6px 0 10px; color:var(--sage-dark); overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">Your event</div>
@@ -2675,9 +2690,10 @@
 
     <div class="ei-block" data-sec="program">
       <h4>Programme</h4>
-      <div class="fi-head fi-prog"><span>Time</span><span>What</span><span>Where <i>(optional)</i></span><span></span></div>
+      <div class="fi-head fi-prog"><span>Time</span><span>What</span><span>Where <i>(optional)</i></span><span></span><span></span></div>
       <div class="fi-list" id="fiProgram"></div>
       <button type="button" class="ghost-btn fi-add" id="fiProgramAdd">+ Add an item</button>
+      <div class="fi-sort" id="fiProgSort"><button type="button" class="fi-link" id="fiProgSortBtn" style="padding-left:0">Put the items in time order</button></div>
       <textarea id="eiProgram" hidden></textarea>
       <div class="ei-imgs" id="eiImgs-program"></div>
       <button type="button" class="ghost-btn ei-add-img" data-sec="program">+ Add a picture</button>
@@ -9720,7 +9736,7 @@ function renderEiTemplates(){
   });
 }
 renderEiTemplates();
-const EI_FIELDS = {welcome:'eiWelcome', verse:'eiVerse', program:'eiProgram', menu:'eiMenu', notes:'eiNotes', songsNote:'eiSongsNote', songsDjName:'eiSongsDjName', songsDjLink:'eiSongsDjLink', songsDjPhone:'eiSongsDjPhone', songsDjKey:'eiSongsDjKey', links:'eiLinks', bankNote:'eiBankNote', bank:'eiBank', date:'eiDate', accent:'eiAccent', fontStyle:'eiFont', listBy:'eiListBy', albumUrl:'eiAlbumUrl', albumNote:'eiAlbumNote'};
+const EI_FIELDS = {welcome:'eiWelcome', verse:'eiVerse', program:'eiProgram', menu:'eiMenu', notes:'eiNotes', songsNote:'eiSongsNote', songsDjName:'eiSongsDjName', songsDjLink:'eiSongsDjLink', songsDjPhone:'eiSongsDjPhone', songsDjKey:'eiSongsDjKey', links:'eiLinks', bankNote:'eiBankNote', bank:'eiBank', date:'eiDate', accent:'eiAccent', highlight:'eiHighlight', fontStyle:'eiFont', listBy:'eiListBy', albumUrl:'eiAlbumUrl', albumNote:'eiAlbumNote'};
 const EI_SECTIONS = ['cover','program','menu','notes','bank'];
 const EI_IMG_MAX = 4;
 function eiMax(sec){ return sec === 'cover' ? 1 : EI_IMG_MAX; }
@@ -9862,7 +9878,8 @@ function openEventInfoModal(){
   document.getElementById('eiFont').value = eiFontKey(info.fontStyle);
   document.getElementById('eiListBy').value = info.listBy || 'last';
   document.getElementById('eiEventName').value = state.eventName || '';
-  renderEiSwatches(); updateEiFontSample();
+  if(!document.getElementById('eiHighlight').value) document.getElementById('eiHighlight').value = 'gold';
+  renderEiSwatches(); renderEiHi(); updateEiFontSample();
   // Load custom section labels
   const lbl = info.labels || {};
   ['Seat','Program','Menu','Notes','Songs','Gifts','Photos','Links','TableMates'].forEach(k=>{
@@ -9980,6 +9997,18 @@ function renderLinkRows(){
   if(!lines.length) addLinkRow('', '');
 }
 document.getElementById('eiAddLink').addEventListener('click', ()=> addLinkRow('', ''));
+const EI_HI = [['gold','Gold','#b59544'],['charcoal','Charcoal','#4a4744'],['silver','Silver','#9ba0a6'],['warm','Warm beige','#b09a7c'],['cool','Cool beige','#a9a397']];
+function renderEiHi(){
+  const box = document.getElementById('eiHiChoices'), inp = document.getElementById('eiHighlight');
+  const cur = EI_HI.some(h=> h[0] === inp.value) ? inp.value : 'gold';
+  box.innerHTML = '';
+  EI_HI.forEach(([k, name, c])=>{
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'ei-hi-opt' + (k === cur ? ' on' : '');
+    b.innerHTML = '<i style="background:' + c + '"></i>' + name;
+    b.addEventListener('click', ()=>{ inp.value = k; inp.dispatchEvent(new Event('input', {bubbles:true})); renderEiHi(); });
+    box.appendChild(b);
+  });
+}
 function renderEiSwatches(){
   const box = document.getElementById('eiSwatches');
   const cur = document.getElementById('eiAccent').value.toLowerCase();
@@ -10046,6 +10075,7 @@ function buildEventInfoForExport(){
     verse: (info.verse||'').trim(),
     date: info.date || '',
     accent: info.accent || '',
+    highlight: info.highlight || 'gold',
     fontStyle: eiFontKey(info.fontStyle),
     listBy: info.listBy || 'last',
     program, programDays, menu, links,
@@ -10323,21 +10353,64 @@ function fiProgRows(){
 function fiProgWrite(rows){
   fiSync('eiProgram', rows.filter(r=> r.what.trim() || r.time.trim()).map(r=> (r.time.trim() + ' | ' + r.what.trim() + (r.where.trim() ? ' | ' + r.where.trim() : ''))).join('\n'));
 }
-function fiProgRender(addBlank){
+/* minutes since the start of the day; times before 06:00 count as after midnight (00:30 comes after 22:00) */
+function fiTimeKey(t){
+  const m = String(t || '').match(/(\d{1,2})\s*(?:[:.hH]\s*(\d{2}))?/); if(!m) return null;
+  let h = +m[1], mi = +(m[2] || 0); if(h > 24 || mi > 59) return null;
+  if(/pm/i.test(t) && h < 12) h += 12; if(/am/i.test(t) && h === 12) h = 0;
+  return (h < 6 ? h + 24 : h) * 60 + mi;
+}
+/* sort by time; an item without a time stays with the item above it */
+function fiProgSorted(rows){
+  const groups = []; rows.forEach(r=>{ const k = fiTimeKey(r.time); if(k === null && groups.length) groups[groups.length - 1].rows.push(r); else groups.push({k, rows:[r]}); });
+  const keyed = groups.map((g, i)=> ({g, i, k: g.k === null ? -1 : g.k}));
+  keyed.sort((a, b)=> a.k - b.k || a.i - b.i);
+  return [].concat(...keyed.map(x=> x.g.rows));
+}
+function fiProgOutOfOrder(rows){ const ks = rows.map(r=> fiTimeKey(r.time)).filter(k=> k !== null); return ks.some((k, i)=> i && k < ks[i - 1]); }
+function fiProgRender(addBlank, focusSel){
   const box = document.getElementById('fiProgram'); box.innerHTML = '';
   const rows = fiProgRows(); if(!rows.length || addBlank) rows.push({time:'', what:'', where:''});
   const focusLast = addBlank;
-  const save = ()=> fiProgWrite([...box.querySelectorAll('.fi-row')].map(r=> ({time:r.children[0].value, what:r.children[1].value, where:r.children[2].value})));
+  const read = ()=> [...box.querySelectorAll('.fi-row')].map(r=> ({time:r.children[0].value, what:r.children[1].value, where:r.children[2].value}));
+  const sortBox = document.getElementById('fiProgSort');
+  const checkOrder = ()=> sortBox.classList.toggle('show', fiProgOutOfOrder(read()));
+  const save = ()=>{ fiProgWrite(read()); checkOrder(); };
+  const move = (i, dir)=>{
+    const all = read(), j = i + dir; if(j < 0 || j >= all.length) return;
+    [all[i], all[j]] = [all[j], all[i]]; fiProgWrite(all);
+    fiProgRender(false, {row:j, btn: dir < 0 ? 0 : 1});
+  };
   rows.forEach((r, i)=>{
     const row = document.createElement('div'); row.className = 'fi-row fi-prog';
     const t = fiInput('fi-time', '14:00', r.time, 12), w = fiInput('fi-what', i === 0 ? 'Ceremony' : 'What happens', r.what), p = fiInput('fi-where', i === 0 ? 'The chapel' : 'Where', r.where);
     const d = fiDel('Remove this item');
+    const mv = document.createElement('div'); mv.className = 'fi-mv';
+    const up = document.createElement('button'), dn = document.createElement('button');
+    up.type = dn.type = 'button'; up.textContent = '▲'; dn.textContent = '▼';
+    up.title = 'Move up'; dn.title = 'Move down'; up.setAttribute('aria-label', 'Move up'); dn.setAttribute('aria-label', 'Move down');
+    up.disabled = i === 0; dn.disabled = i === rows.length - 1;
+    up.addEventListener('click', ()=> move(i, -1)); dn.addEventListener('click', ()=> move(i, 1));
+    mv.append(up, dn);
     [t, w, p].forEach(x=> x.addEventListener('input', e=>{ e.stopPropagation(); save(); }));
     d.addEventListener('click', ()=>{ row.remove(); save(); fiProgRender(); });
-    row.append(t, w, p, d); box.appendChild(row);
+    row.append(t, w, p, mv, d); box.appendChild(row);
   });
+  checkOrder();
   if(focusLast){ const l = box.querySelector('.fi-row:last-child .fi-time'); if(l) l.focus(); }
+  if(focusSel){ const r = box.children[focusSel.row]; const b = r && r.querySelectorAll('.fi-mv button')[focusSel.btn]; if(b && !b.disabled) b.focus(); else if(r) r.querySelector('.fi-what').focus(); }
 }
+document.getElementById('fiProgSortBtn').addEventListener('click', ()=>{
+  const box = document.getElementById('fiProgram');
+  const all = [...box.querySelectorAll('.fi-row')].map(r=> ({time:r.children[0].value, what:r.children[1].value, where:r.children[2].value}));
+  const before = document.getElementById('eiProgram').value;
+  fiProgWrite(fiProgSorted(all)); fiProgRender();
+  toast('Programme put in time order.', 7000);
+  const el = document.getElementById('toast');
+  const u = document.createElement('button'); u.type = 'button'; u.className = 'toast-undo'; u.textContent = 'Undo';
+  u.addEventListener('click', ()=>{ fiSync('eiProgram', before); fiProgRender(); el.classList.remove('show'); });
+  el.appendChild(u);
+});
 document.getElementById('fiProgramAdd').addEventListener('click', ()=> fiProgRender(true));
 /* menu */
 function fiMenuCourses(){
