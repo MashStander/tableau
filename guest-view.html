@@ -994,6 +994,18 @@ const TXT = {
     days:['Sondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrydag','Saterdag']
   }
 };
+/* Afrikaans guest pages: the app's standard English names for things in the room are shown in Afrikaans.
+   A name the couple typed themselves (anything not in this list) stays exactly as they typed it. */
+const GV_AF_ITEMS = {'dance floor':'Dansvloer', 'dancefloor':'Dansvloer', 'restroom':'Toilette', 'restrooms':'Toilette', 'toilets':'Toilette', 'toilet':'Toilet',
+  'door':'Deur', 'french doors':'Franse deure', 'sliding doors':'Skuifdeure', 'stacking doors':'Voudeure', 'entrance':'Ingang', 'exit':'Uitgang',
+  'gift table':'Geskenktafel', 'gifts table':'Geskenktafel', 'cake table':'Koektafel', 'photo booth':'Fotohokkie',
+  'head table':'Hooftafel', 'main table':'Hooftafel', 'bridal table':'Bruidstafel', 'kids table':'Kindertafel', "kids' table":'Kindertafel',
+  'stage':'Verhoog', 'deck':'Dek', 'garden':'Tuin', 'lawn':'Grasperk', 'kitchen':'Kombuis', 'welcome table':'Welkomstafel',
+  'guest book':'Gasteboek', 'sweets table':'Lekkergoedtafel', 'dessert table':'Nageregtafel', 'coffee station':'Koffiestasie', 'band':'Orkes'};
+function gvItemLabel(l){
+  if(lang() !== 'af') return l;
+  return GV_AF_ITEMS[String(l).trim().toLowerCase()] || l;
+}
 function lang(){ const l = ((typeof SEAT_DATA !== 'undefined' && SEAT_DATA && SEAT_DATA.info) || {}).lang; return TXT[l] ? l : 'en'; }
 function tr(key, vars){ let v = TXT[lang()][key]; if(v === undefined) v = TXT.en[key]; if(typeof v === 'string' && vars) Object.keys(vars).forEach(k=> v = v.split('{' + k + '}').join(vars[k])); return v; }
 function applyStaticText(){
@@ -1358,7 +1370,7 @@ function renderFloorPlan(guest){
     el.style.width = (item.w*scale) + 'px';
     el.style.height = (isDoor(item.kind) ? Math.max(4, 0.13*scale) : item.h*scale) + 'px';
     const lb = document.createElement('span'); lb.className = 'fp-label'; lb.textContent = item.kind === 'table' ? gvTableLabel(item) :
-      (isDoor(item.kind) || item.kind === 'wall') ? '' : (item.label || '');
+      (isDoor(item.kind) || item.kind === 'wall') ? '' : gvItemLabel(item.label || '');
     if(item.rot){
       el.style.transform = 'rotate(' + item.rot + 'deg)';
       lb.style.transform = 'rotate(' + (-item.rot) + 'deg)';

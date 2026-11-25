@@ -224,10 +224,14 @@
 
 <div class="hero-wrap">
 <picture class="hero-pic">
-  <source media="(max-aspect-ratio: 1/1)" srcset="landing-collage-phone.jpg" width="1080" height="900">
-  <source media="(max-width:760px)" srcset="landing-collage-960.jpg" width="960" height="418">
-  <img class="hero-img" src="landing-collage.jpg" width="1488" height="648" alt="" fetchpriority="high">
+  <source class="js-hero" data-f="phone" media="(max-aspect-ratio: 1/1)" srcset="hero-en-phone.jpg" width="1080" height="900">
+  <source class="js-hero" data-f="960" media="(max-width:760px)" srcset="hero-en-960.jpg" width="960" height="415">
+  <img class="hero-img js-hero" data-f="" src="hero-en.jpg" width="1920" height="830" alt="Tableau guest pages on phones: find your seat on the room map, the programme and the menu" fetchpriority="high">
 </picture>
+<script>/* Afrikaans visitors: load the Afrikaans hero straight away, not the English one first */
+try{ var hl = localStorage.getItem('tableauHomeLang') || (/^af/i.test(navigator.language || '') ? 'af' : 'en');
+  if(hl === 'af') document.querySelectorAll('.js-hero').forEach(function(el){ var f = 'hero-af' + (el.dataset.f ? '-' + el.dataset.f : '') + '.jpg'; if(el.tagName === 'SOURCE') el.setAttribute('srcset', f); else el.src = f; }); }catch(e){}
+</script>
 
 <div class="hero">
   <div class="wrap">
@@ -522,6 +526,8 @@ function setLang(l){
   /* the example couple: Ava & Jack in English, Mia & Henco in Afrikaans */
   document.querySelectorAll('.js-ex').forEach(a=> a.href = 'https://tableauevents.co.za/guest-view.html?event=' + exampleSlug());
   const fr = document.querySelector('#phone iframe'); if(fr && !fr.src.includes(exampleSlug())) fr.src = 'guest-view.html?frame=1&event=' + exampleSlug();
+  document.querySelectorAll('.js-hero').forEach(el=>{ const f = 'hero-' + lang + (el.dataset.f ? '-' + el.dataset.f : '') + '.jpg';
+    if(el.tagName === 'SOURCE'){ if(el.getAttribute('srcset') !== f) el.setAttribute('srcset', f); } else if(!el.src.endsWith(f)) el.src = f; });
   document.querySelectorAll('.js-shot').forEach(im=>{ const f = im.dataset[lang] || im.dataset.en; if(!im.src.endsWith(f)) im.src = f; });
   markSignedIn();
 }
