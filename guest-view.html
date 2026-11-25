@@ -486,8 +486,19 @@ let CURRENT_SEC = '';   // the screen to reopen when a guest comes back from an 
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+/* Pictures and PDFs are stored at Supabase. Instagram's built-in browser refuses to load them from there,
+   so on the live site they load through our own address, media.tableauevents.co.za (a small Cloudflare worker).
+   If that address doesn't answer, the picture falls back to the Supabase address. */
+const STORE_PREFIX = SB_URL + '/storage/v1/object/public/';
+const MEDIA_PREFIX = 'https://media.tableauevents.co.za/';
+const USE_MEDIA = /(^|\.)tableauevents\.co\.za$/i.test(location.hostname);
+function viaMedia(u){
+  u = String(u || '');
+  return USE_MEDIA && u.indexOf(STORE_PREFIX + 'event-files/') === 0 ? MEDIA_PREFIX + u.slice(STORE_PREFIX.length) : u;
+}
+function fromMedia(u){ u = String(u || ''); return u.indexOf(MEDIA_PREFIX) === 0 ? STORE_PREFIX + u.slice(MEDIA_PREFIX.length) : u; }
 function imgs(info, key){
-  return ((info.images && info.images[key]) || []).filter(u => /^https:\/\//i.test(u));
+  return ((info.images && info.images[key]) || []).filter(u => /^https:\/\//i.test(u)).map(viaMedia);
 }
 
 /* ---------- navigation ---------- */
@@ -638,8 +649,8 @@ function addImages(container, urls, alt){
   urls.forEach(u=>{
     const im = document.createElement('img');
     im.className = 'doc-img'; im.src = u; im.alt = alt; im.loading = 'lazy';
-    im.addEventListener('click', ()=> openLightbox(u));
-    im.addEventListener('error', ()=>{ const m = document.createElement('div'); m.className = 'img-hint'; m.textContent = tr('imgFail'); im.replaceWith(m); });
+    im.addEventListener('click', ()=> openLightbox(im.src));
+    im.addEventListener('error', ()=>{ if(im.src.indexOf(MEDIA_PREFIX) === 0){ im.src = fromMedia(im.src); return; } const m = document.createElement('div'); m.className = 'img-hint'; m.textContent = tr('imgFail'); im.replaceWith(m); });
     wrap.appendChild(im);
   });
   container.appendChild(wrap);
@@ -765,7 +776,7 @@ function renderSections(){
     if(!/^https?:\/\//i.test(l.url)) return;
     const a = document.createElement('a'); a.className = 'link-btn'; a.href = l.url; a.rel = 'noopener';
     a.textContent = l.label;
-    if(l.pdf){ a.target = '_blank'; const t = document.createElement('span'); t.className = 'pdf-tag'; t.textContent = 'PDF'; a.appendChild(t); }
+    if(l.pdf){ a.href = viaMedia(l.url); a.target = '_blank'; const t = document.createElement('span'); t.className = 'pdf-tag'; t.textContent = 'PDF'; a.appendChild(t); }
     links.appendChild(a);
   });
 }
@@ -862,7 +873,7 @@ function renderHeader(info){
     let tries = 0;
     cover.onload = ()=>{ frame.classList.remove('cover-failed'); applyCoverFrame(cover, pos); };
     /* if the photo can't load (some in-app browsers), try once more fresh; then hide the frame rather than show an empty box */
-    cover.onerror = ()=>{ tries++; if(tries === 1) cover.src = covers[0] + (covers[0].indexOf('?') > -1 ? '&' : '?') + 'r=' + Date.now(); else frame.classList.add('hidden'); };
+    cover.onerror = ()=>{ tries++; if(tries === 1 && fromMedia(covers[0]) !== covers[0]) cover.src = fromMedia(covers[0]); else frame.classList.add('hidden'); };
     cover.src = covers[0];
     if(cover.complete && cover.naturalWidth) applyCoverFrame(cover, pos);
     frame.classList.remove('hidden');

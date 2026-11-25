@@ -2,7 +2,7 @@
 // Once a guest has opened their wedding's page with signal, the page, its fonts and pictures are kept on the phone.
 // The seating data itself is kept by guest-view.html (in the phone's storage), so this file only handles files.
 // The app and the website are never stored here: they always load fresh from the internet.
-const CACHE = 'tableau-guest-v1';
+const CACHE = 'tableau-guest-v2';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil((async () => {
@@ -14,6 +14,7 @@ self.addEventListener('activate', e => e.waitUntil((async () => {
 const isGuestPage = url => url.origin === self.location.origin && /^\/(guest-view(\.html)?|dj(\.html)?)$/.test(url.pathname);
 const isKeepable = url =>
   (/\.supabase\.co$/.test(url.hostname) && url.pathname.indexOf('/storage/v1/object/public/') === 0) ||
+  url.hostname === 'media.tableauevents.co.za' ||
   (url.origin === self.location.origin && /\.(png|jpe?g|webp|svg|ico|json)$/i.test(url.pathname));
 
 /* the guest page: try the internet first; if there is no answer within 4 seconds (weak signal), use the saved copy */
