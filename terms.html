@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Terms & Conditions — Tableau Events</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --sage: #7a8c6e;
@@ -39,17 +41,56 @@
   @media print {
     header, nav, footer { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
+
+  /* shared with the homepage */
+  @font-face{font-family:'Glacial Indifference'; src:url('fonts/GlacialIndifference-Regular.woff2') format('woff2'); font-weight:400; font-display:swap;}
+  @font-face{font-family:'Glacial Indifference'; src:url('fonts/GlacialIndifference-Bold.woff2') format('woff2'); font-weight:700; font-display:swap;}
+  header.top{position:sticky; top:0; z-index:20; background:rgba(255,253,250,.94); backdrop-filter:blur(6px); border-bottom:1px solid #e4dfd4;}
+  .top-in{max-width:1120px; margin:0 auto; padding:0 22px; height:64px; display:flex; align-items:center; gap:14px;}
+  .logo{display:block; width:128px; height:38px; background:url('logo.png') no-repeat left center/contain;}
+  .top-right{margin-left:auto; display:flex; gap:10px;}
+  .btn{display:inline-flex; align-items:center; border-radius:999px; padding:8px 16px; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:14px; text-decoration:none; border:1px solid transparent; width:auto;}
+  .btn-main{background:#f5ac9f; color:#5b3a33;}
+  .btn-main:hover{background:#f09888;}
+  .btn-ghost{background:#fff; color:#343834; border-color:#e4dfd4;}
+  .btn-ghost:hover{border-color:#6e8a70; color:#6e8a70;}
+  footer.foot{border-top:1px solid #e4dfd4; padding:28px 0 36px; font-size:14px; color:#6f675f; background:#fffdfa; opacity:1; text-align:left;}
+  .foot-in{max-width:1120px; margin:0 auto; padding:0 22px; display:flex; flex-wrap:wrap; gap:12px 26px; align-items:center; justify-content:space-between;}
+  .foot-in nav{display:flex; gap:18px; flex-wrap:wrap; background:none; border:0; padding:0;}
+  .foot-in a{color:#6f675f; margin:0;}
+  @media (max-width:520px){ .logo{width:104px;} .top-right .btn-ghost{display:none;} }
+
+  body{font-family:'Plus Jakarta Sans',sans-serif; font-weight:500; background:#fffdfa; color:#343834;}
+  .doc-head{max-width:760px; margin:0 auto; padding:40px 24px 0;}
+  header.top{padding:0 !important; text-align:left; color:#343834;}
+  .doc-head h1{line-height:1.15; font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-weight:700; font-size:clamp(28px,4vw,38px); letter-spacing:.02em;}
+  .doc-head p{color:#6f675f; margin-top:6px; font-size:15px;}
+  nav.toc{background:none; border:0; text-align:left; max-width:760px; margin:16px auto 0; padding:0 24px; display:flex; gap:10px; flex-wrap:wrap;}
+  nav.toc a{display:inline-block; margin:0; border:1px solid #e4dfd4; border-radius:999px; padding:6px 14px; font-size:13.5px; font-weight:600; color:#6e8a70; background:#fff; text-decoration:none;}
+  nav.toc a:hover{border-color:#6e8a70;}
+  .container{padding-top:16px;}
+  h2{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-weight:700; letter-spacing:.02em; font-size:24px; color:#343834; border-bottom-color:#e4dfd4;}
+  h3{font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;}
+  p, li{font-size:15px;}
+  .plan-table th{background:#7d9479;}
+  .plan-table tr:nth-child(even) td{background:#f4f1ec;}
+  .highlight{background:#f4f1ec; border-left-color:#94ab96;}
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Tableau Events</h1>
-  <p>tableauevents.co.za</p>
+<header class="top">
+  <div class="top-in">
+    <a class="logo" href="/" aria-label="Tableau – home"></a>
+    <div class="top-right">
+      <a class="btn btn-ghost" href="/app?start=signin">Sign in</a>
+      <a class="btn btn-main" href="/app?start=signup">Start free</a>
+    </div>
+  </div>
 </header>
+<div class="doc-head"><h1>Terms, refunds &amp; privacy</h1><p>The fine print, in plain language.</p></div>
 
-<nav>
-  <a href="/">← Back to Tableau</a>
+<nav class="toc">
   <a href="#terms">Terms &amp; Conditions</a>
   <a href="#refund">Refund Policy</a>
   <a href="#privacy">Privacy</a>
@@ -74,17 +115,17 @@
     <tr><td><strong>Premium</strong></td><td>R299 once-off</td><td>Everything in Free, plus the full guest page (programme, menu, a note from you, gifts and banking details, guest photo album, song requests, links and Canva template sets) for up to 4 events, such as your wedding, engagement party, kitchen tea and rehearsal dinner</td></tr>
   </table>
 
-  <p>Premium is a <strong>once-off payment</strong>. It covers up to 4 events, and you have 18 months from purchase to set them up and edit them. An event uses Premium the first time you publish it with Premium sections and confirm. Guest pages stay online after the 18 months. Test links (valid for 48 hours) never use an event. Premium does not renew and you will never be charged again. Planning tools (bridal party page, vendors, group photos, checklist) are in beta and are not sold at the moment; couples who bought the Guest Page Plan or Full Planner earlier keep everything they paid for. All plans are digital services. No physical goods are delivered.</p>
+  <p>Premium is a <strong>once-off payment</strong>. It covers up to 4 events, which you can start any time within 18 months from purchase. An event is one occasion with its own guest page (for example the wedding or the kitchen tea); it uses Premium the first time you publish it with Premium sections and confirm. Changes to an event never use another one. After the 18 months your events stay online and you can keep updating them; you just can&rsquo;t start new Premium events. Buying Premium again adds 4 more events and another 18 months. Test links (valid for 48 hours) never use an event. Premium does not renew and you will never be charged again. Planning tools (bridal party page, vendors, group photos, checklist) are in beta and are not sold at the moment; couples who bought the Guest Page Plan or Full Planner earlier keep everything they paid for. All plans are digital services. No physical goods are delivered.</p>
 
   <h3>2. Account Registration</h3>
-  <p>You must provide accurate information when creating an account. You are responsible for keeping your login credentials secure. One account per wedding event.</p>
+  <p>You must provide accurate information when creating an account. You are responsible for keeping your login credentials secure. One account per person; you can keep several projects (for example your wedding and your kitchen tea) in it.</p>
 
   <h3>3. Acceptable Use</h3>
   <p>You agree not to misuse the platform, attempt to access other users' data, or use the Service for any unlawful purpose. We reserve the right to suspend accounts that violate these terms.</p>
 
   <h3>4. Payments</h3>
   <p>Payments for paid plans are processed securely via <strong>PayFast</strong>. By making a payment, you authorise PayFast to process your transaction in accordance with their terms. Tableau Events does not store your card or banking details. Each payment is a single, once-off charge; there are no debit orders or recurring payments.</p>
-  <p>After a successful payment, an access code is emailed to the address you entered. The code can be used once, on one account.</p>
+  <p>After a successful payment, Premium is switched on for the account you were signed in with when you paid, and a confirmation is emailed to you. If it can't be switched on automatically, an access code is emailed instead. The code can be used once, on one account.</p>
 
   <h3>5. Data &amp; Privacy</h3>
   <p>Your wedding data (guest list, seating arrangements, bridal party information) is stored securely in our database. We do not sell or share your personal data with third parties, except as required to provide the Service (e.g. payment processing). See our <a href="#privacy">Privacy section</a> below.</p>
@@ -127,7 +168,7 @@
 
   <!-- ===== SHIPPING ===== -->
   <h2>Shipping Policy</h2>
-  <p>Tableau Events is a fully digital service. No physical goods are sold or shipped. After a successful payment, your access code is emailed to you straight away. Enter it in the app to unlock your plan immediately. If the email has not arrived within an hour, check your spam folder or contact us.</p>
+  <p>Tableau Events is a fully digital service. No physical goods are sold or shipped. After a successful payment, Premium is switched on for your account straight away, usually within seconds, and a confirmation is emailed to you. If that ever fails, we email you an access code to enter in the app instead. If nothing has arrived within an hour, check your spam folder or contact us.</p>
 
   <!-- ===== PRIVACY ===== -->
   <h2 id="privacy">Privacy</h2>
@@ -151,8 +192,11 @@
 
 </div>
 
-<footer>
-  &copy; 2026 Tableau Events &nbsp;·&nbsp; <a href="/">tableauevents.co.za</a>
+<footer class="foot">
+  <div class="foot-in">
+    <div>Made in South Africa &middot; English &amp; Afrikaans &middot; Pay in Rand</div>
+    <nav><a href="/">Home</a><a href="/app?start=signin">Sign in</a><a href="/contact.html">Contact</a><a href="/terms.html">Terms &amp; privacy</a></nav>
+  </div>
 </footer>
 
 </body>

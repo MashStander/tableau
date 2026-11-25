@@ -10789,10 +10789,12 @@ async function buyPlan(tier){
     const res = await fetch('https://tableau-payfast-initiate.mash-stander.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tier, email: cloudUser.email, firstName: cloudUser.user_metadata?.display_name || '' }),
+      body: JSON.stringify({ tier, email: cloudUser.email, firstName: cloudUser.user_metadata?.display_name || '', userId: cloudUser.id }),
     });
     if(!res.ok) throw new Error('initiate failed');
     const { url, params } = await res.json();
+    /* remember the plan before paying, so on return we can tell when the new Premium has arrived */
+    try{ sessionStorage.setItem('tableauPaySnap', JSON.stringify({tier: accessTier, max: accessEventsMax, exp: accessExpires})); }catch(e){}
     const form = document.createElement('form');
     form.method = 'POST'; form.action = url;
     Object.entries(params).forEach(([k,v])=>{ const i = document.createElement('input'); i.type='hidden'; i.name=k; i.value=v; form.appendChild(i); });
@@ -10802,13 +10804,33 @@ async function buyPlan(tier){
     toast('Could not connect to payment. Check your internet and try again.', 5000);
   }
 }
+/* Back from PayFast: Premium is switched on by the payment itself. Wait for it to arrive (usually seconds). */
+async function waitForPremium(){
+  const nap = ms=> new Promise(r=> setTimeout(r, ms));
+  for(let i = 0; i < 30 && !(sb && cloudUser); i++) await nap(500);
+  if(!(sb && cloudUser)){ toast('Payment successful 🎉 Sign in with the same email to see Premium on your account.', 12000); return; }
+  let snap = null; try{ snap = JSON.parse(sessionStorage.getItem('tableauPaySnap') || 'null'); sessionStorage.removeItem('tableauPaySnap'); }catch(e){}
+  toast('Payment received ✓ Switching Premium on…', 120000);
+  for(let i = 0; i < 40; i++){
+    await checkAccess();
+    const arrived = !snap ? accessTier >= 1 :
+      accessTier > (snap.tier || 0) ||
+      (snap.max != null && accessEventsMax != null && accessEventsMax > snap.max) ||
+      (snap.exp && accessExpires && new Date(accessExpires) > new Date(snap.exp));
+    if(arrived){
+      toast('Premium is on ✓ ' + (accessEventsMax != null ? 'You can use it for ' + premLeft() + ' more event' + (premLeft() === 1 ? '' : 's') + '. ' : '') + 'Publish your guest page so your guests get everything.', 12000);
+      return;
+    }
+    await nap(3000);
+  }
+  toast('Your payment went through, but switching Premium on is taking longer than usual. We’ve emailed you a code as a backup: enter it under Account → Plan & payment.', 20000);
+}
 // Handle return from PayFast
 (function(){
   const p = new URLSearchParams(location.search);
   if(p.get('payment') === 'success'){
     history.replaceState({}, '', location.pathname);
-    // Show toast after a short delay so the page has loaded
-    setTimeout(()=> toast('Payment successful! 🎉 Check your email for your Premium code (it can take a minute or two), then enter it under Account → Plan & payment.', 12000), 800);
+    setTimeout(waitForPremium, 800);
   } else if(p.get('payment') === 'cancelled'){
     history.replaceState({}, '', location.pathname);
     setTimeout(()=> toast('Payment cancelled — no charge was made.', 5000), 800);
