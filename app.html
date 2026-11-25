@@ -606,7 +606,7 @@
 
 
   /* guest page editor: small section chips */
-  .ei-tiles{display:flex !important; flex-wrap:wrap; gap:8px; margin-bottom:14px; scroll-margin-top:calc(var(--tb-h, 60px) + 8px);}
+  #eiTiles{display:flex !important; flex-wrap:wrap; gap:8px; margin-bottom:14px; scroll-margin-top:calc(var(--tb-h, 60px) + 8px);}   /* guest page editor only; the bridal party tiles must still hide */
   .ei-chip{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:#fff; color:var(--ink); border-radius:999px; padding:8px 14px; font:inherit; font-size:13.5px; cursor:pointer; line-height:1.2;}
   .ei-chip:hover{border-color:var(--sage);}
   .ei-chip i{font-style:normal; font-size:11px; font-weight:700; color:var(--sage-dark);}
@@ -11813,8 +11813,13 @@ function bdOpenSec(k){
   if(k === 'vendors') vnRender();
   if(k === 'photos') phRender();
   requestAnimationFrame(()=> m.querySelectorAll('textarea.j-task, textarea.k-what').forEach(bpAutosize));
-  if(window.innerWidth < 760) document.getElementById('bdSecHead').scrollIntoView({block:'start'});
-  else window.scrollTo(0,0);
+  /* bring the section you tapped into view, so you see the form, not only the preview changing */
+  requestAnimationFrame(()=>{
+    const head = document.getElementById('bdSecHead');
+    const bar = document.getElementById('topbar');
+    const off = (bar && getComputedStyle(bar).position.match(/sticky|fixed/) ? bar.getBoundingClientRect().height : 0) + 12;
+    window.scrollTo({top: Math.max(0, head.getBoundingClientRect().top + window.scrollY - off), behavior:'smooth'});
+  });
   bdRefreshPhone(true);
 }
 function showBdPage(sec){
