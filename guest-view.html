@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Event guide</title>
+<meta property="og:title" content="Find your seat · Vind jou sitplek">
+<meta property="og:description" content="Tap your name to find your table, plus the programme, menu and more. · Tik jou naam en vind jou tafel, die program, spyskaart en meer.">
+<meta property="og:image" content="https://tableauevents.co.za/guest-preview.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="manifest" href="guest-manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,6 +20,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Corinthia:wght@400;700&display=swap" rel="stylesheet">
 <style>
+  /* Instagram, Facebook and some Android phones enlarge all text, which breaks the layout. Keep text at the size it was designed for. */
+  html{-webkit-text-size-adjust:100%; text-size-adjust:100%;}
+
   :root{
     --paper:#fffefb;
     --linen:#f2efea;
@@ -102,7 +112,7 @@
 
   /* ---- cover, names, date ---- */
   .cover-frame{position:relative; width:100%; aspect-ratio:2/1; overflow:hidden; border-radius:14px; margin:0 0 16px; box-shadow:0 2px 10px rgba(0,0,0,.08); background:var(--linen);}
-  .cover-frame img{display:block; user-select:none;}
+  .cover-frame img{display:block; user-select:none; position:absolute; left:0; top:0; width:100%; height:100%; object-fit:cover;}   /* fills the frame even before it is positioned */
   .header .welcome{font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 4px;}
   .header .date-line{margin-top:6px; font-size:15px; color:var(--hi-text); letter-spacing:.04em;}
   .header .countdown{margin-top:3px; font-size:13px; color:var(--hi-text); font-weight:500;}
@@ -517,7 +527,13 @@ function showSection(name, how){
     }
   }catch(e){}
 }
+let wantHome = false;   // Home was tapped: whatever page of history we land on, show home
 window.addEventListener('popstate', e=>{
+  if(wantHome){
+    wantHome = false;
+    try{ history.replaceState({sec:'home', d:0}, '', location.pathname + location.search); }catch(err){}
+    showSection('home', {fromHistory:true}); return;
+  }
   const sec = e.state && e.state.sec;
   if(sec && (sec === 'home' || availableSections.indexOf(sec) > -1)) showSection(sec, {fromHistory:true});
   else showSection(availableSections.length > 1 ? 'home' : 'seat', {fromHistory:true});
@@ -528,7 +544,11 @@ function updateSeatBack(){
 }
 /* "Home": back to the start screen (or, if there is only Find my seat, back to the name search) */
 function goHome(){
-  if(availableSections.length > 1 && history.state && history.state.d === 1){ history.back(); return; }   // same as the phone's Back button
+  if(availableSections.length > 1 && history.state && history.state.d === 1){
+    wantHome = true; history.back();
+    setTimeout(()=>{ if(wantHome){ wantHome = false; showSection('home', {replace:true}); } }, 500);   // some in-app browsers ignore Back
+    return;
+  }   // same as the phone's Back button, but always lands on home
   showSection(availableSections.length > 1 ? 'home' : 'seat', {replace:true});
 }
 document.querySelectorAll('.homeBack').forEach(b=> b.addEventListener('click', goHome));
@@ -839,7 +859,10 @@ function renderHeader(info){
   const frame = document.getElementById('coverFrame');
   if(covers.length){
     const pos = info.coverPos || null;
-    cover.onload = ()=> applyCoverFrame(cover, pos);
+    let tries = 0;
+    cover.onload = ()=>{ frame.classList.remove('cover-failed'); applyCoverFrame(cover, pos); };
+    /* if the photo can't load (some in-app browsers), try once more fresh; then hide the frame rather than show an empty box */
+    cover.onerror = ()=>{ tries++; if(tries === 1) cover.src = covers[0] + (covers[0].indexOf('?') > -1 ? '&' : '?') + 'r=' + Date.now(); else frame.classList.add('hidden'); };
     cover.src = covers[0];
     if(cover.complete && cover.naturalWidth) applyCoverFrame(cover, pos);
     frame.classList.remove('hidden');

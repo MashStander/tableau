@@ -29,6 +29,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Ephesis&display=swap" rel="stylesheet">
 <style>
+  /* Instagram, Facebook and some Android phones enlarge all text, which breaks the layout. Keep text at the size it was designed for. */
+  html{-webkit-text-size-adjust:100%; text-size-adjust:100%;}
+
   @font-face{font-family:'Glacial Indifference'; src:url('fonts/GlacialIndifference-Regular.woff2') format('woff2'); font-weight:400; font-display:swap;}
   @font-face{font-family:'Glacial Indifference'; src:url('fonts/GlacialIndifference-Bold.woff2') format('woff2'); font-weight:700; font-display:swap;}
   @font-face{font-family:'Corinthia'; src:url('fonts/Corinthia-Regular.woff2') format('woff2'); font-weight:400; font-display:swap;}
@@ -166,6 +169,7 @@
   .plan.best{border:2px solid var(--btn); position:relative;}
   .plan .ribbon{position:absolute; top:-13px; left:30px; background:var(--btn); color:#fff; font-size:12px; font-weight:700; border-radius:999px; padding:3px 12px;}
   .plan h3{font-size:22px;}
+  .plan .per-value{font-size:13.5px; color:var(--sage-dark, #4a5e3a); font-weight:600; margin:6px 0 0;}
   .plan .price{font-family:'Glacial Indifference',sans-serif; font-size:44px; font-weight:700; margin:8px 0 0;}
   .plan .per{color:var(--soft); font-size:14px; margin-bottom:18px;}
   .event-def{font-size:13px; color:var(--soft); background:var(--linen); border-radius:10px; padding:9px 12px; margin:-6px 0 16px; line-height:1.45;}
@@ -382,6 +386,7 @@ try{ var hl = localStorage.getItem('tableauHomeLang') || (/^af/i.test(navigator.
         <h3>Premium</h3>
         <div class="price">R299</div>
         <div class="per" data-t="premPer">Once-off, for up to 4 events</div>
+        <div class="per-value" data-t="premValue">That’s less than R75 an event, and less than a printed seating board.</div>
         <p class="event-def" data-t="eventDef">An event is one occasion with its own guest page, like the wedding or the kitchen tea. It counts the first time you share it with Premium sections.</p>
         <ul>
           <li data-t="pr1">Everything in Free</li>
@@ -498,7 +503,7 @@ const AF = {
   p4q:'’n Sitplekplan in Excel', p4a:'Sleep gaste na hul sitplekke, sien wie nog nie ’n plek het nie, en skuif ’n hele gesin in een slag.',
   priceKicker:'Pryse', priceTitle:'Betaal een keer. Geen maandelikse fooie nie.', priceSub:'Begin gratis. Gradeer op wanneer julle die ekstras op jul gastebladsy wil hê.',
   freePer:'So lank as wat julle wil', f1:'Sitplekplan met groepe', f2:'Vloerplan, met verskillende uitlegte om te vergelyk', f3:'Gastebladsy: sitplekvinder met ’n tafelkaart', f4:'Jul eie kleure en voorbladfoto', f5:'’n QR-kode vir elke projek, om te druk of te deel',
-  ribbon:'Alles op jul gastebladsy', premPer:'Eenmalig, vir tot 4 geleenthede', eventDef:'’n Geleentheid is een okkasie met sy eie gastebladsy, soos die troue of die kombuistee. Dit tel die eerste keer wat julle dit met Premium-afdelings deel.',
+  ribbon:'Alles op jul gastebladsy', premPer:'Eenmalig, vir tot 4 geleenthede', premValue:'Dis minder as R75 per geleentheid, en minder as ’n gedrukte sitplekbord.', eventDef:'’n Geleentheid is een okkasie met sy eie gastebladsy, soos die troue of die kombuistee. Dit tel die eerste keer wat julle dit met Premium-afdelings deel.',
   freeName:'Gratis', pr1:'Alles in die gratis plan', pr2:'Program en spyskaart op jul gastebladsy', pr3:'Geskenke en bankbesonderhede, met Kopieer-knoppies', pr4:'Foto-album, liedjieversoeke, skakels en ’n boodskap van julle af', prPick:'Gebruik alles, of net wat julle nodig het, soos net die program en spyskaart',
   pr5:'Tot 4 geleenthede: troue, verlowingspartytjie, kombuistee, familie-bymekaarkoms', pr6:'Begin jul geleenthede enige tyd binne 18 maande. Hulle bly aanlyn, en julle kan dit steeds bywerk.',
   plansNote:'Probeer elke Premium-afdeling terwyl julle opstel. Julle betaal eers wanneer julle dit met jul gaste deel. Veilige betaling in Rand deur PayFast.',
