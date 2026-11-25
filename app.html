@@ -511,6 +511,14 @@
   .ei-left{min-width:0;}
   .ei-main{min-width:0;}
   .ei-tiles{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px;}
+  .bd-share-box{background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin:0 0 22px;}
+  .bd-share-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px;}
+  .bd-share-box .bp-linkrow{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+  .bd-share-box .bp-linkrow input{flex:1 1 260px; min-width:0;}
+  .bd-share-box #bpShare > div:nth-child(2){flex-wrap:wrap;}
+  .bd-share-box #bpShare > div:nth-child(2) > div{flex:1 1 220px; min-width:0;}
+  @media (max-width:560px){ .bd-share-box{padding:14px;} .bd-share-head .primary-btn{width:100%;} .bd-share-box .bp-linkrow .ghost-btn{flex:1 1 auto;} }
+  .bd-share-head h4{margin:0; font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-weight:400; letter-spacing:.05em; font-size:22px; color:var(--sage-dark);}
   .ei-tile{background:#fff; border-color:var(--sage); border-radius:12px; min-height:150px;}
   .ei-tile b{font-family:'Glacial Indifference','Plus Jakarta Sans',sans-serif; font-weight:400; letter-spacing:.05em; font-size:18px; color:var(--sage-dark);}
   .ei-tile span{flex:1 1 auto;}
@@ -2883,13 +2891,30 @@
    <div class="ei-head-actions">
     <span class="bp-try">Preview the day at <input type="time" id="bpTryTime" class="custom-num" style="width:110px;" title="Pick a time to see what the page shows then. Leave it empty to use the real time."></span>
     <button type="button" class="ghost-btn" id="bpPreview">Open preview in a new tab</button>
-    <button type="button" class="primary-btn" id="bpPublish">Publish bridal party page</button>
     <span id="bdSaveState" class="ei-save-state"></span>
    </div>
   </div>
   <div class="ei-note-publish" style="margin:26px 0 26px; background:#fdeceb; border:1px solid #f1b9b3; border-left:5px solid #c0392b; border-radius:10px; padding:11px 14px; font-size:13.5px; line-height:1.55; color:#7a231b;">
    <b style="color:#b0281c;">&#9888;&#65039; Remember:</b> your bridal party only sees what you have published. After changing anything here, click <b>Publish bridal party page</b> again. Anyone with the link can read it, so share it only with your bridal party.
   </div>
+   <div class="bd-share-box" id="bpSecShare">
+    <div class="bd-share-head"><h4>Publish and share</h4><button type="button" class="primary-btn" id="bpPublish">Publish bridal party page</button></div>
+
+      <div id="bpSignedOut" class="hidden bp-warn">Sign in to publish this page and get a link. Your work here is saved with your project.</div>
+      <div id="bpShare">
+        <div class="bp-linkrow"><input type="text" id="bpLink" class="custom-num" readonly placeholder="Click Publish to get your link"><button type="button" class="ghost-btn" id="bpCopy">Copy link</button><button type="button" class="ghost-btn" id="bpOpenPage">Open page</button><button type="button" class="ghost-btn" id="bpQrDl">Download QR code</button></div>
+        <div style="display:flex; gap:14px; align-items:flex-start; margin-top:10px;">
+          <img id="bpQrImg" alt="QR code" style="width:120px; height:120px; border:1px solid var(--line); background:#fff; visibility:hidden;">
+          <div style="font-size:12.5px; color:var(--ink-soft); line-height:1.5;">
+            <div><b>Bridal party code (4 digits):</b></div>
+            <div class="bp-code-row"><input type="text" id="bpCodeInput" inputmode="numeric" maxlength="4" placeholder="e.g. 4821" autocomplete="off"><button type="button" class="ghost-btn" id="bpCodeGen">Generate one</button></div>
+            <ul class="steps"><li>Type your own 4 digits, or tap <b>Generate</b>.</li><li>Your bridal party types it at the bottom of the guest page (&ldquo;Bridal party? Go to your page&rdquo;).</li><li>It is a convenience code, not a vault. Don&rsquo;t reuse a PIN from elsewhere.</li></ul>
+            <div><b>Status:</b> <span id="bpStatus">Not published yet</span></div>
+            <div style="margin-top:6px;">Anyone with this link can read the page, so share it only with your bridal party and leave out private details. After changing anything here, click <b>Publish</b> again.</div>
+          </div>
+        </div>
+      </div>
+         </div>
    <div id="bpModal" class="bp-card bd-main">
     <div id="bdTiles" class="ei-tiles"></div>
     <div id="bdSecHead" class="ei-sec-head hidden"><button type="button" class="ghost-btn" id="bdBackTiles">&larr; All sections</button><span id="bdSecCount"></span></div>
@@ -2996,26 +3021,6 @@
       <div id="bpUnassigned"></div>
       <div class="bp-tpl-title" style="margin-top:12px;">Deleted jobs and packing items</div>
       <div id="bpDeleted"></div>
-      </div>
-    </div>
-
-    <div class="ei-block bp-sec bd-sec" data-sec="share" id="bpSecShare">
-      <h4 class="bp-sech">Share it</h4>
-      <div class="bp-secbody">
-      <div id="bpSignedOut" class="hidden bp-warn">Sign in to publish this page and get a link. Your work here is saved with your project.</div>
-      <div id="bpShare">
-        <div class="bp-linkrow"><input type="text" id="bpLink" class="custom-num" readonly placeholder="Click Publish to get your link"><button type="button" class="ghost-btn" id="bpCopy">Copy link</button><button type="button" class="ghost-btn" id="bpOpenPage">Open page</button><button type="button" class="ghost-btn" id="bpQrDl">Download QR code</button></div>
-        <div style="display:flex; gap:14px; align-items:flex-start; margin-top:10px;">
-          <img id="bpQrImg" alt="QR code" style="width:120px; height:120px; border:1px solid var(--line); background:#fff; visibility:hidden;">
-          <div style="font-size:12.5px; color:var(--ink-soft); line-height:1.5;">
-            <div><b>Bridal party code (4 digits):</b></div>
-            <div class="bp-code-row"><input type="text" id="bpCodeInput" inputmode="numeric" maxlength="4" placeholder="e.g. 4821" autocomplete="off"><button type="button" class="ghost-btn" id="bpCodeGen">Generate one</button></div>
-            <ul class="steps"><li>Type your own 4 digits, or tap <b>Generate</b>.</li><li>Your bridal party types it at the bottom of the guest page (&ldquo;Bridal party? Go to your page&rdquo;).</li><li>It is a convenience code, not a vault. Don&rsquo;t reuse a PIN from elsewhere.</li></ul>
-            <div><b>Status:</b> <span id="bpStatus">Not published yet</span></div>
-            <div style="margin-top:6px;">Anyone with this link can read the page, so share it only with your bridal party and leave out private details. After changing anything here, click <b>Publish</b> again.</div>
-          </div>
-        </div>
-      </div>
       </div>
     </div>
 
@@ -11662,8 +11667,8 @@ function bpRefreshShare(){
   document.getElementById('bpLink').value = link;
   const ci = document.getElementById('bpCodeInput'); if(document.activeElement !== ci) ci.value = bpData().code || '';
   const img = document.getElementById('bpQrImg');
-  if(link){ img.src = drawFinderQr(link, '').toDataURL('image/png'); img.style.visibility = 'visible'; }
-  else { img.removeAttribute('src'); img.style.visibility = 'hidden'; }
+  if(link){ img.src = drawFinderQr(link, '').toDataURL('image/png'); img.style.visibility = 'visible'; img.style.display = ''; }
+  else { img.removeAttribute('src'); img.style.visibility = 'hidden'; img.style.display = 'none'; }
 }
 function bpCollect(){
   const b = bpData();
@@ -11753,7 +11758,7 @@ const BD_SECS = [
   {k:'vendors', t:'Vendors',              d:'Hair, make-up, catering and more, with Call and WhatsApp buttons.'},
   {k:'photos',  t:'Group photos',         d:'Who is in each group photo, when and where.'},
   {k:'un',      t:'Deleted & unassigned', d:'Jobs nobody has yet, and things you deleted.'},
-  {k:'share',   t:'Share it',             d:'Your private link, QR code and 4-digit code.'}
+
 ];
 let bdCurrent = '', bdSaveTimer = null, bdPvTimer = null;
 function bdPageOpen(){ const el = document.getElementById('bdScreen'); return !!el && !el.classList.contains('hidden'); }
@@ -11884,7 +11889,7 @@ function bdRefreshPhone(now){
   });
 })();
 document.getElementById('btnBridal').addEventListener('click', openBp);
-document.getElementById('btnPublishBridal').addEventListener('click', ()=>{ if(needPlan(2, 'The bridal party page')) showBdPage('share'); });
+document.getElementById('btnPublishBridal').addEventListener('click', ()=>{ if(needPlan(2, 'The bridal party page')){ showBdPage(); requestAnimationFrame(()=> document.getElementById('bpSecShare').scrollIntoView({behavior:'smooth', block:'center'})); } });
 document.getElementById('btnNavTables').addEventListener('click', ()=> enterMain('seating'));   /* guest list first; the page itself offers "Set up your first table" */
 document.getElementById('btnNavFloor').addEventListener('click', ()=> enterMain('floorplan'));
 document.getElementById('btnNavChecklist').addEventListener('click', openChecklist);
