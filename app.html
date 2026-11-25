@@ -936,6 +936,10 @@
     .new-chart-row input, .new-chart-row button{width:100%; box-sizing:border-box; margin-left:0 !important; margin-right:0 !important;}
   }
   .chart-del{color:var(--danger) !important;}
+  .charts-bin{margin-top:16px; border-top:1px solid var(--line); padding-top:10px;}
+  .charts-bin summary{cursor:pointer; font-size:14px; font-weight:600; color:var(--ink-soft); padding:4px 0;}
+  .charts-bin-hint{font-size:12.5px; color:var(--ink-soft); margin:4px 0 8px;}
+  .chart-row.is-deleted .cr-name{color:var(--ink-soft);}
   .charts-empty{color:var(--ink-soft); font-size:14px; padding:14px 0 18px; text-align:center;}
   .new-chart-row{display:flex; gap:8px; margin-top:16px;}
   .new-chart-row input{flex:1; margin-bottom:0 !important;}
@@ -1598,7 +1602,7 @@
   #toast{
     position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
     background:var(--ink); color:#fff; padding:10px 18px; border-radius:4px; font-size:13px;
-    opacity:0; transition:all .25s; pointer-events:none; max-width:420px; text-align:center;
+    opacity:0; transition:all .25s; pointer-events:none; max-width:420px; text-align:center; z-index:5000;   /* always above screens and pop-ups */
   }
   #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
   #toast.show:has(.toast-undo){pointer-events:auto;}
@@ -2868,9 +2872,9 @@
 
 <div id="delProjModal" class="modal-overlay hidden" style="z-index:950;">
   <div class="modal-card" style="width:440px;">
-    <h3>Delete this project?</h3>
+    <h3 id="delProjTitle">Delete this project?</h3>
     <p id="delProjText" style="font-size:14px; line-height:1.55; margin:0 0 12px;"></p>
-    <label style="font-size:13px; color:var(--ink-soft);">To confirm, type <b>DELETE</b> in the box</label>
+    <label id="delProjLabel" style="font-size:13px; color:var(--ink-soft);">To confirm, type <b>DELETE</b> in the box</label>
     <input type="text" id="delProjInput" class="custom-num" autocomplete="off" style="width:100%; box-sizing:border-box; margin:6px 0 16px;">
     <div class="modal-actions">
       <button class="ghost-btn" id="delProjCancel">Keep it</button>
@@ -13069,6 +13073,7 @@ document.getElementById('siPassword').addEventListener('click', ()=>{
 });
 siApplyLang();
 /* ---- charts screen ---- */
+const BIN_DAYS = 30;
 async function openChartsScreen(){
   if(!(sb && cloudUser)) return;
   if(cloudEnabled && currentChartId) await saveCloudNow();
@@ -13076,11 +13081,20 @@ async function openChartsScreen(){
   document.getElementById('chartsScreen').classList.remove('hidden');
   const list = document.getElementById('chartsList');
   list.innerHTML = '<div class="charts-empty">Loading…</div>';
-  const res = await sb.from('charts').select('id,name,updated_at').order('updated_at', {ascending:false});
+  /* "Recently deleted" needs the deleted_at column (recently-deleted.sql). Without it, deleting works the old way. */
+  let res = await sb.from('charts').select('id,name,updated_at,deleted_at').order('updated_at', {ascending:false});
+  binReady = !res.error;
+  if(res.error) res = await sb.from('charts').select('id,name,updated_at').order('updated_at', {ascending:false});
   list.innerHTML = '';
   if(res.error){ list.innerHTML = '<div class="charts-empty">Could not load your projects. Check your internet connection.</div>'; return; }
-  if(!res.data.length){ list.innerHTML = '<div class="charts-empty">You have no projects yet. Name your first one below.</div>'; return; }
-  res.data.forEach(row=>{
+  /* anything in the bin for more than 30 days goes for good */
+  const cutoff = Date.now() - BIN_DAYS * 86400000;
+  const old = res.data.filter(r=> r.deleted_at && new Date(r.deleted_at).getTime() < cutoff);
+  for(const r of old){ try{ await hardDeleteProject(r); }catch(e){} }
+  const rows = res.data.filter(r=> !old.includes(r));
+  const live = rows.filter(r=> !r.deleted_at), bin = rows.filter(r=> r.deleted_at);
+  if(!live.length) list.innerHTML = '<div class="charts-empty">' + (bin.length ? 'No projects open. Restore one from Recently deleted below, or name a new one.' : 'You have no projects yet. Name your first one below.') + '</div>';
+  live.forEach(row=>{
     const el = document.createElement('div');
     el.className = 'chart-row';
     const when = new Date(row.updated_at).toLocaleDateString([], {day:'numeric', month:'short', year:'numeric'});
@@ -13088,36 +13102,17 @@ async function openChartsScreen(){
     const dt = document.createElement('span'); dt.className = 'cr-date'; dt.textContent = when;
     const open = document.createElement('button'); open.className = 'ghost-btn'; open.textContent = 'Open';
     open.addEventListener('click', ()=> openCloudChart(row.id));
-    const del = document.createElement('button'); del.className = 'ghost-btn chart-del'; del.textContent = 'Delete'; del.title = 'Delete this project';
+    const del = document.createElement('button'); del.className = 'ghost-btn chart-del'; del.textContent = 'Delete'; del.title = 'Delete this project (you can bring it back for 30 days)';
     del.addEventListener('click', async ()=>{
-      if(!(await askDeleteProject(row.name))) return;
-      // Look up the published page and uploaded pictures so they go too.
-      let slug = null, paths = [], bridalSlugs = [];
-      try{
-        const full = await sb.from('charts').select('data').eq('id', row.id).single();
-        const d = full.data && full.data.data;
-        if(d){
-          slug = d.publishSlug || null;
-          if(d.bridal){ bridalSlugs = [d.bridal.slug, d.bridal.codeKey].filter(Boolean); }
-          const im = (d.eventInfo && d.eventInfo.images) || {};
-          Object.keys(im).forEach(k=> (im[k]||[]).forEach(x=>{ if(x && x.path) paths.push(x.path); }));
-        }
-      }catch(e){}
-      /* a copied project shares its pictures with the original: only remove pictures nothing else uses */
-      try{
-        const others = await sb.from('charts').select('id,data').neq('id', row.id);
-        const used = new Set();
-        (others.data || []).forEach(o=>{ const im = (o.data && o.data.eventInfo && o.data.eventInfo.images) || {}; Object.keys(im).forEach(k=> (im[k]||[]).forEach(x=>{ if(x && x.path) used.add(x.path); })); });
-        paths = paths.filter(pth=> !used.has(pth));
-      }catch(e){ paths = []; }
-      const r = await sb.from('charts').delete().eq('id', row.id);
-      if(r.error){ toast('Could not delete that project.'); return; }
-      if(slug){ try{ await sb.from('published').delete().eq('slug', slug); }catch(e){} }
-      for(const bs of bridalSlugs){ try{ await sb.from('published').delete().eq('slug', bs); }catch(e){} }
-      removeFromStorage(paths);
-      toast('Project deleted.');
-      if(currentChartId === row.id){ currentChartId = null; currentPublishSlug = null; }
-      try{ if(localStorage.getItem('tableauLastChart') === row.id) localStorage.removeItem('tableauLastChart'); }catch(e){}
+      if(!binReady){ if(await askDeleteProject(row.name, true)){ if(await hardDeleteProject(row)) toast('Project deleted.'); openChartsScreen(); } return; }
+      if(!(await askDeleteProject(row.name, false))) return;
+      if(await softDeleteProject(row)){
+        toast('Moved to Recently deleted.', 8000);
+        const t = document.getElementById('toast');
+        const u = document.createElement('button'); u.type = 'button'; u.className = 'toast-undo'; u.textContent = 'Undo';
+        u.addEventListener('click', async ()=>{ t.classList.remove('show'); await restoreProject(row); });
+        t.appendChild(u);
+      }
       openChartsScreen();
     });
     const ren = document.createElement('button'); ren.className = 'ghost-btn'; ren.textContent = 'Rename'; ren.title = 'Change the name of this project';
@@ -13128,6 +13123,82 @@ async function openChartsScreen(){
     el.append(nm, dt, acts);
     list.appendChild(el);
   });
+  if(bin.length){
+    const box = document.createElement('details'); box.className = 'charts-bin';
+    const sm = document.createElement('summary'); sm.textContent = 'Recently deleted (' + bin.length + ')';
+    const hint = document.createElement('div'); hint.className = 'charts-bin-hint'; hint.textContent = 'Projects stay here for ' + BIN_DAYS + ' days, then they are deleted for good.';
+    box.append(sm, hint);
+    bin.forEach(row=>{
+      const el = document.createElement('div'); el.className = 'chart-row is-deleted';
+      const goneOn = new Date(new Date(row.deleted_at).getTime() + BIN_DAYS * 86400000);
+      const nm = document.createElement('span'); nm.className = 'cr-name'; nm.textContent = row.name;
+      const dt = document.createElement('span'); dt.className = 'cr-date'; dt.textContent = 'Gone on ' + goneOn.toLocaleDateString([], {day:'numeric', month:'short'});
+      const rs = document.createElement('button'); rs.className = 'ghost-btn cr-open'; rs.textContent = 'Restore';
+      rs.addEventListener('click', async ()=>{ await restoreProject(row); });
+      const fg = document.createElement('button'); fg.className = 'ghost-btn chart-del'; fg.textContent = 'Delete for good';
+      fg.addEventListener('click', async ()=>{ if(!(await askDeleteProject(row.name, true))) return; if(await hardDeleteProject(row)) toast('Deleted for good.'); openChartsScreen(); });
+      const acts = document.createElement('div'); acts.className = 'cr-actions'; acts.append(rs, fg);
+      el.append(nm, dt, acts); box.appendChild(el);
+    });
+    list.appendChild(box);
+  }
+}
+let binReady = false;
+/* what a project has online: its guest page, bridal party page and uploaded pictures */
+async function projectExtras(id){
+  let slug = null, paths = [], bridalSlugs = [];
+  try{
+    const full = await sb.from('charts').select('data').eq('id', id).single();
+    const d = full.data && full.data.data;
+    if(d){
+      slug = d.publishSlug || null;
+      if(d.bridal){ bridalSlugs = [d.bridal.slug, d.bridal.codeKey].filter(Boolean); }
+      const im = (d.eventInfo && d.eventInfo.images) || {};
+      Object.keys(im).forEach(k=> (im[k]||[]).forEach(x=>{ if(x && x.path) paths.push(x.path); }));
+    }
+  }catch(e){}
+  return {slug, paths, bridalSlugs};
+}
+async function takePagesOffline(x){
+  if(x.slug){ try{ await sb.from('published').delete().eq('slug', x.slug); }catch(e){} }
+  for(const bs of x.bridalSlugs){ try{ await sb.from('published').delete().eq('slug', bs); }catch(e){} }
+}
+function forgetProjectLocally(id){
+  if(currentChartId === id){ currentChartId = null; currentPublishSlug = null; }
+  try{ if(localStorage.getItem('tableauLastChart') === id) localStorage.removeItem('tableauLastChart'); }catch(e){}
+}
+/* to the bin: the project and its pictures stay; its pages go offline */
+async function softDeleteProject(row){
+  const x = await projectExtras(row.id);
+  const r = await sb.from('charts').update({deleted_at: new Date().toISOString()}).eq('id', row.id);
+  if(r.error){ toast('Could not delete that project. Check your internet and try again.'); return false; }
+  await takePagesOffline(x);
+  forgetProjectLocally(row.id);
+  return true;
+}
+async function restoreProject(row){
+  const r = await sb.from('charts').update({deleted_at: null}).eq('id', row.id);
+  if(r.error){ toast('Could not restore it. Check your internet and try again.'); return; }
+  const x = await projectExtras(row.id);
+  toast('“' + row.name + '” is back.' + (x.slug || x.bridalSlugs.length ? ' Its guest page is still offline: open the project and publish again to bring it back, with the same QR code.' : ''), 10000);
+  openChartsScreen();
+}
+/* for good: the project, its pages and the pictures nothing else uses */
+async function hardDeleteProject(row){
+  let {slug, paths, bridalSlugs} = await projectExtras(row.id);
+  /* a copied project shares its pictures with the original: only remove pictures nothing else uses */
+  try{
+    const others = await sb.from('charts').select('id,data').neq('id', row.id);
+    const used = new Set();
+    (others.data || []).forEach(o=>{ const im = (o.data && o.data.eventInfo && o.data.eventInfo.images) || {}; Object.keys(im).forEach(k=> (im[k]||[]).forEach(x=>{ if(x && x.path) used.add(x.path); })); });
+    paths = paths.filter(pth=> !used.has(pth));
+  }catch(e){ paths = []; }
+  const r = await sb.from('charts').delete().eq('id', row.id);
+  if(r.error){ toast('Could not delete that project.'); return false; }
+  await takePagesOffline({slug, bridalSlugs});
+  removeFromStorage(paths);
+  forgetProjectLocally(row.id);
+  return true;
 }
 
 /* ===================== Copy a whole project ===================== */
@@ -13175,11 +13246,18 @@ async function renameProject(row){
   toast('Renamed to \u201c' + nm + '\u201d.'); updateTopSub();
   openChartsScreen();
 }
-function askDeleteProject(name){
+/* forGood = true: gone for ever (type DELETE). false: moves to Recently deleted, one tap. */
+function askDeleteProject(name, forGood){
   return new Promise(resolve=>{
     const m = document.getElementById('delProjModal'), inp = document.getElementById('delProjInput'), go = document.getElementById('delProjGo'), cancel = document.getElementById('delProjCancel');
-    document.getElementById('delProjText').textContent = '\u201c' + name + '\u201d will be deleted for good. This also takes down its guest page and QR code, and removes its uploaded pictures. It cannot be undone.';
-    inp.value = ''; go.disabled = true; m.classList.remove('hidden'); setTimeout(()=> inp.focus(), 50);
+    document.getElementById('delProjTitle').textContent = forGood ? 'Delete for good?' : 'Delete this project?';
+    document.getElementById('delProjText').textContent = forGood
+      ? '\u201c' + name + '\u201d will be deleted for good, with its uploaded pictures. It cannot be brought back.'
+      : '\u201c' + name + '\u201d moves to Recently deleted, and its guest page and QR code go offline. You can bring it back for 30 days.';
+    document.getElementById('delProjLabel').classList.toggle('hidden', !forGood);
+    inp.classList.toggle('hidden', !forGood);
+    go.textContent = forGood ? 'Delete for good' : 'Delete';
+    inp.value = ''; go.disabled = !!forGood; m.classList.remove('hidden'); setTimeout(()=> (forGood ? inp : go).focus(), 50);
     const done = v=>{ m.classList.add('hidden'); inp.removeEventListener('input', onIn); go.removeEventListener('click', onGo); cancel.removeEventListener('click', onNo); m.removeEventListener('mousedown', onBg); resolve(v); };
     const onIn = ()=>{ go.disabled = inp.value.trim().toLowerCase() !== 'delete'; };
     const onGo = ()=>{ if(!go.disabled) done(true); };
@@ -13445,8 +13523,9 @@ async function showLanding(){
   let id = currentChartId;
   if(!id){ try{ id = localStorage.getItem('tableauLastChart'); }catch(e){} }
   if(id){
-    const r = await sb.from('charts').select('name').eq('id', id).single();
-    if(!r.error && r.data){
+    let r = await sb.from('charts').select('name,deleted_at').eq('id', id).single();
+    if(r.error) r = await sb.from('charts').select('name').eq('id', id).single();
+    if(!r.error && r.data && !r.data.deleted_at){
       resume.textContent = 'Continue: ' + r.data.name;
       resume.dataset.id = id;
       resume.classList.remove('hidden');
