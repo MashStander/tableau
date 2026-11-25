@@ -7,7 +7,12 @@
 <meta name="description" content="Wedding seating chart, floor plan and a guest page behind one QR code. Guests find their seat, the programme, the menu and more. In English or Afrikaans. Made in South Africa.">
 <meta property="og:title" content="Tableau – One QR code. Everything your guests need.">
 <meta property="og:description" content="Their seat, the programme, the menu and more. In English or Afrikaans.">
-<meta property="og:image" content="https://tableauevents.co.za/example-preview.jpg">
+<meta property="og:image" content="https://tableauevents.co.za/share-preview.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tableau guest pages on phones: the room map with your table, the home screen and the menu">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <meta property="og:url" content="https://tableauevents.co.za/">
 <meta name="theme-color" content="#fffdfa">
 <link rel="icon" href="icon-192.png">
@@ -64,7 +69,7 @@
   .hero{text-align:center; padding:34px 0 30px;}
   .hero h1{font-size:clamp(32px, 5.2vw, 48px); color:var(--ink);}
   /* only on short laptop screens: shrink the pictures a little so the headline still peeks into view */
-  @media (min-width:761px) and (min-aspect-ratio:1/1) and (max-height:800px){ .hero-img{width:auto; max-height:max(380px, calc(100vh - 250px)); margin-left:auto; margin-right:auto;} }
+  @media (min-width:761px) and (min-aspect-ratio:1/1) and (max-height:800px){ .hero-img{width:auto; max-width:min(1180px, 100%); box-sizing:border-box; max-height:max(380px, calc(100vh - 250px)); margin-left:auto; margin-right:auto;} }
   /* computers and landscape tablets: the whole welcome (pictures, headline, buttons, scroll hint) fits on the first screen */
   .hero .sub{font-size:clamp(17px, 2.2vw, 21px); color:var(--soft); margin:14px auto 28px; max-width:640px;}
   .hero .ctas{display:flex; gap:12px; justify-content:center; flex-wrap:wrap;}
@@ -186,7 +191,8 @@
   .pics figure{margin:0;}
   .pics img{width:100%; height:auto; aspect-ratio:4/5; object-fit:cover; border-radius:14px; display:block;}
   .pics figcaption{text-align:center; font-size:13px; color:var(--soft); margin-top:6px; font-weight:600;}
-  .story h2{font-size:clamp(26px, 3.4vw, 34px); margin-bottom:16px;}
+  .story > div:last-child{min-width:0; container-type:inline-size;}
+  .story h2{font-size:clamp(14px, 4.55cqi, 32px); margin-bottom:16px; white-space:nowrap;}   /* always one line, in both languages: sized to the width of its column */
   .story .note{font-size:16.5px; color:var(--ink);}
   .story .sig{font-family:'Ephesis',cursive; font-size:46px; color:var(--rose); margin-top:6px; line-height:1;}
   @media (max-width:860px){ .story{grid-template-columns:1fr; gap:26px;} .pics{max-width:420px; margin:0 auto;} }
