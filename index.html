@@ -267,7 +267,7 @@ try{ var hl = localStorage.getItem('tableauHomeLang') || (/^af/i.test(navigator.
       </div>
       <p class="ex-switch-note" data-t="exSwitchNote">Ready-made: type in your programme and menu and Tableau lays them out. Or upload your own designs from Canva.</p>
       <div class="demo-mobile">
-        <p style="margin-top:6px;"><a class="btn btn-main js-ex" href="https://tableauevents.co.za/guest-view.html?event=ava-jack-s3ws4" target="_blank" rel="noopener" data-t="openExample">Open the example</a></p>
+        <p style="margin-top:6px;"><a class="btn btn-main js-ex" href="https://tableauevents.co.za/guest-view.html?event=maria-niall-hkb4w" target="_blank" rel="noopener" data-t="openExample">Open the example</a></p>
       </div>
     </div>
     <div class="phone" id="phone">
@@ -523,7 +523,7 @@ function setLang(l){
   document.querySelectorAll('.lang button').forEach(b=> b.classList.toggle('on', b.dataset.lang === lang));
   document.querySelector('.scroll-hint').setAttribute('aria-label', lang === 'af' ? 'Rol af om meer te sien' : 'Scroll down to see more');
   try{ localStorage.setItem('tableauHomeLang', lang); }catch(e){}
-  /* the example couple: Ava & Jack in English, Mia & Henco in Afrikaans */
+  /* the example couple: Maria & Niall in English, Mia & Henco in Afrikaans */
   document.querySelectorAll('.js-ex').forEach(a=> a.href = 'https://tableauevents.co.za/guest-view.html?event=' + exampleSlug());
   const fr = document.querySelector('#phone iframe'); if(fr && !fr.src.includes(exampleSlug())) fr.src = 'guest-view.html?frame=1&event=' + exampleSlug();
   document.querySelectorAll('.js-hero').forEach(el=>{ const f = 'hero-' + lang + (el.dataset.f ? '-' + el.dataset.f : '') + '.jpg';
@@ -532,7 +532,7 @@ function setLang(l){
   markSignedIn();
 }
 let exKind = 'basic';
-const EX_SLUGS = {en:{basic:'ava-jack-s3ws4', full:'ava-jack-i9cpv'}, af:{basic:'mia-henco-0t54v', full:'mia-henco-vxwzv'}};
+const EX_SLUGS = {en:{basic:'maria-niall-hkb4w', full:'maria-niall-mffgj'}, af:{basic:'mia-henco-bba4z', full:'mia-henco-weouq'}};
 function exampleSlug(){ return EX_SLUGS[lang === 'af' ? 'af' : 'en'][exKind]; }
 document.querySelectorAll('.ex-switch button').forEach(b=> b.addEventListener('click', ()=>{
   exKind = b.dataset.ex;
