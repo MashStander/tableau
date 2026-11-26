@@ -106,6 +106,10 @@
     .demo .phone{display:none;}
     .demo-mobile{display:block;}
     .demo-mobile .btn{width:100%;}
+    /* phones: the example choice and its Open button come straight after the intro, so they're on screen after "See a live example" */
+    .demo > div:first-child{display:flex; flex-direction:column;}
+    .demo .ex-switch{order:3;} .demo .ex-switch-note{order:4;} .demo .demo-mobile{order:5;}
+    .demo ol{order:6; margin-top:18px;} .demo .ex-note{order:7;}
   }
 
   .ex-note{font-size:15px !important; background:#fff; border:1px solid var(--line); border-left:3px solid var(--sage); border-radius:10px; padding:10px 14px; color:var(--ink) !important;}
