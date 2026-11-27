@@ -257,6 +257,9 @@
   .sg-like{flex:0 0 auto; border:1px solid var(--sage); background:#fff; color:var(--sage-dark); border-radius:20px; padding:5px 12px; font:inherit; font-size:14px; cursor:pointer;}
   .sg-like.on, .sg-like:disabled{background:var(--sage); color:#fff; opacity:1;}
   .sg-played{flex:0 0 auto; font-size:12.5px; color:var(--ink-soft, #6b6b6b);}
+  .lang-switch{display:flex; justify-content:flex-end; gap:0; margin:0 0 6px auto; width:max-content; border:1px solid var(--line, #e4ddcf); border-radius:999px; overflow:hidden; background:#fff;}
+  .lang-switch button{border:none; background:none; font:inherit; font-size:12px; font-weight:600; letter-spacing:.06em; padding:5px 11px; color:var(--ink-soft, #7a7068); cursor:pointer;}
+  .lang-switch button.on{background:var(--sage-dark); color:#fff;}
   .offline-note{background:#f3efe6; color:#6b6358; font-size:12.5px; text-align:center; padding:7px 14px; border:1px solid #e4ddcf; border-radius:8px; margin-bottom:8px;}
   .menu-p{text-align:center; padding:6px 0; font-size:15px; line-height:1.45;}
   .link-btn{display:block; text-align:center; padding:13px 14px; border:1px solid var(--sage); border-radius:10px; color:var(--sage-dark); text-decoration:none; font-weight:500; margin-bottom:10px;}
@@ -481,6 +484,7 @@ const FP_MAX_PX_WIDTH = 440;
 const SECTION_IDS = {seat:'seatSection', program:'programSection', menu:'menuSection', notes:'notesSection', songs:'songsSection', gifts:'giftsSection', photos:'photosSection', links:'linksSection'};
 let availableSections = [];
 let START_HASH = (location.hash || '').slice(1);
+const IS_PREVIEW = new URLSearchParams(location.search).get('preview') === '1';
 let CURRENT_SEC = '';   // the screen to reopen when a guest comes back from an outside link
 
 function escapeHtml(s){
@@ -565,19 +569,24 @@ function goHome(){
 document.querySelectorAll('.homeBack').forEach(b=> b.addEventListener('click', goHome));
 
 /* ---------- home tiles ---------- */
+const GV_LBL = {
+  en: {seat:'Find my seat', program:'Programme', menu:'Menu', gifts:'Gifts', photos:'Photos & videos', links:'Links & info', tablemates:'Sitting at this table'},
+  af: {seat:'Vind my sitplek', program:'Program', menu:'Spyskaart', gifts:'Geskenke', photos:"Foto's en video's", links:'Skakels en inligting', tablemates:'Gaste aan hierdie tafel'}
+};
 function buildHome(){
   const info = SEAT_DATA.info || {};
-  const lbl = info.labels || {};
+  const lbl = altOn() ? {} : (info.labels || {});   // their own words are in their own language: the other language gets the standard words
+  const D = GV_LBL[lang()] || GV_LBL.en;
   const L = {
-    seat:       lbl.seat       || 'Find my seat',
-    program:    lbl.program    || 'Programme',
-    menu:       lbl.menu       || 'Menu',
+    seat:       lbl.seat       || D.seat,
+    program:    lbl.program    || D.program,
+    menu:       lbl.menu       || D.menu,
     notes:      lbl.notes      || tr('notesTitle'),
     songs:      lbl.songs      || tr('songsTitle'),
-    gifts:      lbl.gifts      || 'Gifts',
-    photos:     lbl.photos     || 'Photos & videos',
-    links:      lbl.links      || 'Links & info',
-    tablemates: lbl.tablemates || 'Sitting at this table'
+    gifts:      lbl.gifts      || D.gifts,
+    photos:     lbl.photos     || D.photos,
+    links:      lbl.links      || D.links,
+    tablemates: lbl.tablemates || D.tablemates
   };
   // Push labels into section headings
   ['program','menu','notes','songs','gifts','photos','links'].forEach(id=>{
@@ -696,7 +705,8 @@ function renderSections(){
   const days = info.programDays || [];
   const addLines = lines => (lines || []).forEach(p=>{
     const row = document.createElement('div'); row.className = 'prog-row';
-    row.innerHTML = `<span class="prog-time">${escapeHtml(p.time || '')}</span><span>${escapeHtml(p.title || '')}${p.note ? `<span class="prog-note">${escapeHtml(p.note)}</span>` : ''}</span>`;
+    const t = pick(p.title, p.title2), nt = pick(p.note, p.note2);
+    row.innerHTML = `<span class="prog-time">${escapeHtml(p.time || '')}</span><span>${escapeHtml(t || '')}${nt ? `<span class="prog-note">${escapeHtml(nt)}</span>` : ''}</span>`;
     prog.appendChild(row);
   });
   const head = (label, iso) => { const h = document.createElement('div'); h.className = 'prog-day'; h.textContent = label + (niceDate(iso) ? ' · ' + niceDate(iso) : ''); prog.appendChild(h); };
@@ -709,12 +719,12 @@ function renderSections(){
   const menu = document.getElementById('menuBody'); menu.innerHTML = '';
   (info.menu || []).forEach(m=>{
     const d = document.createElement('div'); d.className = m.type === 'h' ? 'menu-h' : 'menu-p';
-    d.textContent = m.text; menu.appendChild(d);
+    d.textContent = pick(m.text, m.text2); menu.appendChild(d);
   });
   addImages(menu, imgs(info,'menu'), 'Menu');
 
   const notes = document.getElementById('notesBody'); notes.innerHTML = '';
-  (info.notes || []).forEach(n=>{
+  ((altOn() && info.notes2 && info.notes2.some(n=> n.type !== 'gap')) ? info.notes2 : (info.notes || [])).forEach(n=>{
     const d = document.createElement('div');
     d.className = n.type === 'h' ? 'note-h' : (n.type === 'gap' ? 'note-gap' : 'note-p');
     if(n.type !== 'gap') d.textContent = n.text || '';
@@ -1040,7 +1050,35 @@ function gvItemLabel(l){
   if(lang() !== 'af') return l;
   return GV_AF_ITEMS[String(l).trim().toLowerCase()] || l;
 }
-function lang(){ const l = ((typeof SEAT_DATA !== 'undefined' && SEAT_DATA && SEAT_DATA.info) || {}).lang; return TXT[l] ? l : 'en'; }
+function mainLang(){ const l = ((typeof SEAT_DATA !== 'undefined' && SEAT_DATA && SEAT_DATA.info) || {}).lang; return TXT[l] ? l : 'en'; }
+/* Premium: the couple can let guests switch between English and Afrikaans */
+let GUEST_LANG = null;
+function bilingualOn(){
+  const d = (typeof SEAT_DATA !== 'undefined' && SEAT_DATA) || {}, info = d.info || {};
+  return !!info.bilingual && (IS_PREVIEW || !(typeof d.plan === 'number' && d.plan < 1));
+}
+function lang(){ return (bilingualOn() && GUEST_LANG && TXT[GUEST_LANG]) ? GUEST_LANG : mainLang(); }
+function altOn(){ return bilingualOn() && lang() !== mainLang(); }   // showing the second language
+function pick(main, second){ return (altOn() && second && String(second).trim()) ? second : main; }
+function setGuestLang(l){
+  GUEST_LANG = l;
+  try{ localStorage.setItem('tableauGuestLang:' + (EVENT_SLUG || 'x'), l); }catch(e){}
+  const was = (typeof currentGuest !== 'undefined' && currentGuest && !document.getElementById('seatView').classList.contains('hidden')) ? currentGuest : null;
+  const sec = (typeof CURRENT_SEC !== 'undefined') ? CURRENT_SEC : '';
+  applyData();
+  if(was){ const back = returnTo; showSection('seat', {replace:true}); showSeat(was, back); }
+  else if(sec && sec !== 'home') showSection(sec, {replace:true});
+}
+function renderLangSwitch(){
+  let el = document.getElementById('langSwitch');
+  if(!bilingualOn()){ if(el) el.remove(); return; }
+  if(!el){
+    el = document.createElement('div'); el.id = 'langSwitch'; el.className = 'lang-switch'; el.setAttribute('role', 'group'); el.setAttribute('aria-label', 'Language / Taal');
+    ['af','en'].forEach(l=>{ const b = document.createElement('button'); b.type = 'button'; b.dataset.l = l; b.textContent = l.toUpperCase(); b.addEventListener('click', ()=>{ if(lang() !== l) setGuestLang(l); }); el.appendChild(b); });
+    document.querySelector('.wrap').prepend(el);
+  }
+  el.querySelectorAll('button').forEach(b=> b.classList.toggle('on', b.dataset.l === lang()));
+}
 function tr(key, vars){ let v = TXT[lang()][key]; if(v === undefined) v = TXT.en[key]; if(typeof v === 'string' && vars) Object.keys(vars).forEach(k=> v = v.split('{' + k + '}').join(vars[k])); return v; }
 function applyStaticText(){
   document.querySelectorAll('.back-btn.homeBack, #groupBack').forEach(b=> b.textContent = tr('back'));
@@ -1064,6 +1102,8 @@ function applyStaticText(){
 }
 /* ---------- loading ---------- */
 function applyData(){
+  if(GUEST_LANG === null){ try{ GUEST_LANG = localStorage.getItem('tableauGuestLang:' + (EVENT_SLUG || 'x')) || ''; }catch(e){ GUEST_LANG = ''; } }
+  renderLangSwitch();
   /* a 48-hour test link made by the couple: say so clearly, so it never gets passed to guests */
   if(SEAT_DATA && SEAT_DATA.test && !document.getElementById('testBanner')){
     const b = document.createElement('div'); b.id = 'testBanner'; b.className = 'test-banner';
@@ -1074,7 +1114,7 @@ function applyData(){
     document.body.prepend(b);
   }
   /* the public example page: fill the bridal party code in so visitors do not have to look for it */
-  if(EVENT_SLUG === 'ava-jack-i9cpv'){
+  if(EVENT_SLUG === 'ava-jack-i9cpv' || EVENT_SLUG === 'maria-niall-mffgj'){
     const bc = document.getElementById('bpCode');
     if(bc && !bc.value){
       bc.value = '6064';
@@ -1116,11 +1156,13 @@ function applyData(){
     setHead('link', {key:'i2', rel:'icon', href:icon});
   }catch(e){}
   const w = document.getElementById('welcomeLine');
-  w.textContent = info.welcome || '';
-  w.classList.toggle('hidden', !info.welcome);
+  const welcome = pick(info.welcome, info.welcome2);
+  w.textContent = welcome || '';
+  w.classList.toggle('hidden', !welcome);
   /* ---- verse / quote ---- */
   const DEFAULT_VERSE = '“Now all glory to God, who is able, through his mighty power at work within us, to accomplish infinitely more than we might ask or think.”';
-  const verseText = (info.verse && info.verse.trim()) ? info.verse.trim() : (lang() === 'en' ? DEFAULT_VERSE : '');   // no English verse on a page in another language
+  const ownVerse = pick(info.verse, info.verse2);
+  const verseText = (ownVerse && ownVerse.trim()) ? ownVerse.trim() : (lang() === 'en' && mainLang() === 'en' ? DEFAULT_VERSE : '');   // no English verse on a page in another language
   ['homeVerseBlock','seatVerseBlock','programVerseBlock','menuVerseBlock'].forEach(id=>{
     const el = document.getElementById(id);
     if(el){ el.textContent = verseText; el.classList.toggle('hidden', !verseText); }

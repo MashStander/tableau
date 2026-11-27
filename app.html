@@ -881,6 +881,21 @@
   body.cloud-mode #btnReset{display:none !important;}
   .ei-swatches{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
   .ei-hi{display:flex; flex-wrap:wrap; gap:6px;}
+  .ei-bi-box{margin-top:14px; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:var(--white);}
+  .ei-check{display:flex; align-items:center; gap:8px; font-size:14px; color:var(--ink); cursor:pointer;}
+  .ei-prem-tag{font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--sage-dark); border:1px solid var(--sage); border-radius:999px; padding:1px 7px;}
+  .ei-bi-help{font-size:12.5px; color:var(--ink-soft); line-height:1.5; margin-top:6px;}
+  .ei-alt, .fi-alt{display:none !important;}
+  .ei-bi-on .ei-alt{display:block !important;}
+  .ei-bi-on .fi-alt{display:flex !important;}
+  .ei-alt{margin:10px 0 14px; padding:10px 12px; border-left:3px solid var(--sage); background:#f7f5f0; border-radius:0 10px 10px 0;}
+  .ei-alt-head, .ei-bi-on .ei-alt-bar{display:flex !important; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:6px;}
+  .ei-alt-title{font-size:12.5px; color:var(--ink-soft); font-weight:600;}
+  .ei-alt-tip{font-size:12px; color:var(--ink-soft); margin-top:4px;}
+  .ei-tr{font-size:13px; padding:5px 12px;}
+  .fi-alt{gap:6px; grid-column:1 / -1; margin:-2px 0 6px;}
+  .fi-alt input{flex:1 1 0; min-width:0; font-size:13px; color:var(--ink-soft); background:#f7f5f0 !important;}
+  .fi-alt .fi-alt-tag{flex:0 0 auto; font-size:10.5px; font-weight:700; color:var(--sage-dark); align-self:center; letter-spacing:.05em;}
   .ei-pdf-row{display:grid !important; grid-template-columns:minmax(0,1fr) auto 30px; gap:8px; align-items:center; margin-bottom:6px;}
   .ei-pdf-view{font-size:13px; color:var(--sage-dark); font-weight:600; white-space:nowrap;}
   .ei-hi-opt{display:inline-flex; align-items:center; gap:7px; border:1px solid var(--line); background:var(--white); border-radius:999px; padding:5px 12px 5px 6px; font:inherit; font-size:13px; color:var(--ink); cursor:pointer;}
@@ -2675,6 +2690,11 @@
           <input type="text" id="eiLabelTableMates" class="custom-num" style="width:100%; box-sizing:border-box;" placeholder="Sitting at this table">
         </div>
       </div>
+      <div class="ei-bi-box">
+        <label class="ei-check"><input type="checkbox" id="eiBilingual"> <b>Let guests switch between English and Afrikaans</b> <span class="ei-prem-tag">Premium</span></label>
+        <div class="ei-bi-help">Guests get an <b>AF | EN</b> switch at the top of your page, and all of Tableau's words change with it. For your own words (programme, menu, note and welcome line), add the <span class="ei-bi-other">English</span> version in those sections. There's a <b>Translate</b> button that does it for you. Anything you don't add stays as you wrote it.</div>
+      </div>
+      <textarea id="eiAlt" hidden></textarea>
     </details>
     <div class="ei-block" data-sec="look">
       <h4>Names, date &amp; look</h4>
@@ -2684,6 +2704,13 @@
       <input type="text" id="eiWelcome" class="custom-num" maxlength="80" placeholder="e.g. Welcome to our wedding" style="width:100%; margin-bottom:10px;">
       <label>Your favourite verse or quote (shown in small print on your guest page — leave blank for the default)</label>
       <textarea id="eiVerse" class="custom-num" rows="3" style="width:100%; margin-bottom:10px;" placeholder="e.g. Now all glory to God, who is able, through his mighty power at work within us, to accomplish infinitely more than we might ask or think."></textarea>
+      <div class="ei-alt" data-alt="look">
+        <div class="ei-alt-head"><span class="ei-alt-title">In <span class="ei-bi-other">English</span>, when guests switch</span><button type="button" class="ghost-btn ei-tr" data-kind="welcome">Translate</button></div>
+        <label>Small line above your names</label>
+        <input type="text" id="eiWelcome2" class="custom-num ei-alt-in" maxlength="80" style="width:100%; margin-bottom:8px;">
+        <label>Verse or quote</label>
+        <textarea id="eiVerse2" class="custom-num ei-alt-in" rows="2" style="width:100%;"></textarea>
+      </div>
       <label>Date of the event</label>
       <input type="date" id="eiDate" class="custom-num" style="margin-bottom:10px;">
       <label>Cover photo or logo (best shape: wide, about 1200 &times; 600 px)</label>
@@ -2716,6 +2743,7 @@
 
     <div class="ei-block" data-sec="program">
       <h4>Programme</h4>
+      <div class="ei-alt ei-alt-bar" data-alt="program"><span class="ei-alt-title">Each line has a grey line under it: that's what guests see in <span class="ei-bi-other">English</span>.</span><button type="button" class="ghost-btn ei-tr" data-kind="programme">Translate</button></div>
       <div class="fi-head fi-prog"><span>Time</span><span>What</span><span>Where <i>(optional)</i></span><span></span><span></span></div>
       <div class="fi-list" id="fiProgram"></div>
       <button type="button" class="ghost-btn fi-add" id="fiProgramAdd">+ Add an item</button>
@@ -2728,6 +2756,7 @@
 
     <div class="ei-block" data-sec="menu">
       <h4>Menu</h4>
+      <div class="ei-alt ei-alt-bar" data-alt="menu"><span class="ei-alt-title">Each line has a grey line under it: that's what guests see in <span class="ei-bi-other">English</span>.</span><button type="button" class="ghost-btn ei-tr" data-kind="menu">Translate</button></div>
       <div class="fi-list" id="fiMenu"></div>
       <button type="button" class="ghost-btn fi-add" id="fiMenuAdd">+ Add a course</button>
       <textarea id="eiMenu" hidden></textarea>
@@ -2740,6 +2769,11 @@
       <h4>A note from us, songs &amp; readings</h4>
       <label>Type it in. Start a line with <code>#</code> for a heading. Leave an empty line between verses or paragraphs.</label>
       <textarea id="eiNotes" class="custom-num" rows="7" style="width:100%;" placeholder="# A note from the two of us&#10;Thank you for travelling so far to celebrate with us...&#10;&#10;# Worship song: (song name)&#10;First line of verse one&#10;Second line of verse one&#10;&#10;First line of the chorus"></textarea>
+      <div class="ei-alt" data-alt="notes">
+        <div class="ei-alt-head"><span class="ei-alt-title">In <span class="ei-bi-other">English</span>, when guests switch</span><button type="button" class="ghost-btn ei-tr" data-kind="note">Translate</button></div>
+        <textarea id="eiNotes2" class="custom-num ei-alt-in" rows="6" style="width:100%;"></textarea>
+        <div class="ei-alt-tip">Song words and Bible verses: rather paste the official version than use a translation.</div>
+      </div>
       <details class="ei-ideas">
         <summary>Need ideas? What couples put here</summary>
         <ul>
@@ -9910,6 +9944,9 @@ function openEventInfoModal(){
   Object.keys(EI_FIELDS).forEach(k=>{ document.getElementById(EI_FIELDS[k]).value = info[k] || ''; });
   document.getElementById('eiSongsOn').checked = !!info.songsOn;
   eiSongsSwitch();
+  document.getElementById('eiAlt').value = JSON.stringify(info.alt || {});
+  document.getElementById('eiBilingual').checked = !!info.bilingual;
+  eiAltFill(); eiBiApply();
   fiRenderAll();
   document.getElementById('eiSongsList').checked = !!info.songsList;
   eiSongRows = null;
@@ -10012,6 +10049,8 @@ function collectEiInfo(){
   info.linkFiles = eiPdfs.map(f=> ({label:f.label, url:f.url, path:f.path}));
   info.songsOn = document.getElementById('eiSongsOn').checked;
   info.songsList = document.getElementById('eiSongsList').checked;
+  info.bilingual = document.getElementById('eiBilingual').checked;
+  info.alt = eiAltGet();
   return info;
 }
 /* what guests will see, built from the boxes on the page (for the preview) */
@@ -10165,7 +10204,10 @@ function notesLines(text){
 function djUrl(u){ u = (u || '').trim(); if(!u) return ''; if(!/^https?:\/\//i.test(u)) u = 'https://' + u; return u; }
 function buildEventInfoForExport(){
   const info = state.eventInfo || {};
-  let program = bpParseLines(info.program);
+  const alt = info.bilingual ? (info.alt || {}) : {};
+  const altP = alt.program || [], altM = alt.menu || [];
+  let program = splitLines(info.program).map((l, i)=>{ const [time, rest] = splitPair(l); const p = rest.split('|'); const a = altP[i] || {};
+    return {time, title:p[0].trim(), note:p.slice(1).join(' · ').trim(), title2:(a.what || '').trim(), note2:(a.where || '').trim()}; }).filter(x=> x.title);
   if(bpGuestLines('wedding').length) program = bpMergeLines(program, bpGuestLines('wedding'));
   const programDays = [];
   { const bb = state.bridal; if(bb && bb.days) ['before','after'].forEach(k=>{
@@ -10173,7 +10215,7 @@ function buildEventInfoForExport(){
       const lines = bpMergeLines(bpParseLines(d.extra), bpGuestLines(k));
       if(lines.length) programDays.push({key:k, label:bpDayLabel(k), date:bpDayDate(k), lines});
     }); }
-  const menu = splitLines(info.menu).map(l=> l.charAt(0)==='#' ? {type:'h', text:l.replace(/^#+\s*/,'')} : {type:'p', text:l});
+  const menu = splitLines(info.menu).map((l, i)=> l.charAt(0)==='#' ? {type:'h', text:l.replace(/^#+\s*/,''), text2:(altM[i] || '').trim()} : {type:'p', text:l, text2:(altM[i] || '').trim()});
   const links = splitLines(info.links).map(l=>{
     let [label,url] = splitPair(l);
     if(!label) label = url;
@@ -10194,6 +10236,10 @@ function buildEventInfoForExport(){
     listBy: info.listBy || 'last',
     program, programDays, menu, links,
     notes: notesLines(info.notes),
+    bilingual: !!info.bilingual,
+    notes2: info.bilingual && (alt.notes || '').trim() ? notesLines(alt.notes) : null,
+    welcome2: (alt.welcome || '').trim(),
+    verse2: (alt.verse || '').trim(),
     songs: info.songsOn ? {on: true, note: (info.songsNote || '').trim(), list: !!info.songsList,
       dj: (info.songsDjName || '').trim() ? {name: info.songsDjName.trim(), link: djUrl(info.songsDjLink), phone: (info.songsDjPhone || '').trim()} : null} : null,   /* the DJ key is never published */
     bankNote: (info.bankNote||'').trim(),
@@ -10258,6 +10304,83 @@ const LABEL_LANGS = {
     if(set && LABEL_KEYS.some(([kk, ii])=> (document.getElementById(ii).value || '').trim() !== (set[kk] || ''))){ sel.value = 'own'; prev = 'own'; }
   }));
 })();
+
+/* ---------- bilingual guest pages (Premium): AF | EN switch for guests, with a Translate button ---------- */
+const TRANSLATE_URL = 'https://tableau-translate.mash-stander.workers.dev';
+function eiMainLang(){ const sel = document.getElementById('eiLabelLang'), v = sel.value; return v === 'af' ? 'af' : v === 'en' ? 'en' : (sel.dataset.base === 'af' ? 'af' : 'en'); }
+function eiOtherLang(){ return eiMainLang() === 'af' ? 'en' : 'af'; }
+function eiOtherName(){ return eiOtherLang() === 'af' ? 'Afrikaans' : 'English'; }
+function eiBiApply(){
+  const on = document.getElementById('eiBilingual').checked;
+  document.getElementById('eiScreen').classList.toggle('ei-bi-on', on);
+  document.querySelectorAll('.ei-bi-other').forEach(el=> el.textContent = eiOtherName());
+  document.querySelectorAll('.ei-tr').forEach(b=>{ if(!b.disabled) b.textContent = 'Translate to ' + eiOtherName(); });
+  document.querySelectorAll('.fi-alt-tag').forEach(t=> t.textContent = eiOtherLang().toUpperCase());
+}
+document.getElementById('eiBilingual').addEventListener('change', e=>{
+  if(e.target.checked && accessTier < 1) toast('Guests only get the language switch with Premium. You can set it up and preview it now.', 7000);
+  eiBiApply(); fiRenderAll();
+});
+document.getElementById('eiLabelLang').addEventListener('change', ()=>{ eiBiApply(); fiRenderAll(); });
+/* welcome line, verse and note in the second language */
+[['eiWelcome2','welcome'],['eiVerse2','verse'],['eiNotes2','notes']].forEach(([id, k])=>{
+  document.getElementById(id).addEventListener('input', e=>{ e.stopPropagation(); eiAltSet({[k]: e.target.value}); });
+});
+function eiAltFill(){
+  const a = eiAltGet();
+  document.getElementById('eiWelcome2').value = a.welcome || '';
+  document.getElementById('eiVerse2').value = a.verse || '';
+  document.getElementById('eiNotes2').value = a.notes || '';
+}
+async function eiTranslateCall(items, kind){
+  if(!(sb && cloudUser)) throw new Error('signin');
+  const ses = await sb.auth.getSession();
+  const token = ses && ses.data && ses.data.session && ses.data.session.access_token;
+  if(!token) throw new Error('signin');
+  const res = await fetch(TRANSLATE_URL, {method:'POST', headers:{'Content-Type':'application/json', 'Authorization':'Bearer ' + token},
+    body: JSON.stringify({from: eiMainLang(), to: eiOtherLang(), kind, items})});
+  let j = {}; try{ j = await res.json(); }catch(e){}
+  if(!res.ok || !Array.isArray(j.items)) throw new Error(j.error || 'unavailable');
+  return j.items;
+}
+document.querySelectorAll('.ei-tr').forEach(btn=> btn.addEventListener('click', async ()=>{
+  const kind = btn.dataset.kind;
+  let items = [], apply = null, hasAlt = false;
+  if(kind === 'programme'){
+    const rows = fiProgRows();
+    rows.forEach(r=>{ items.push(r.what, r.where); if(r.what2 || r.where2) hasAlt = true; });
+    apply = out=>{ rows.forEach((r, i)=>{ r.what2 = out[i*2] || ''; r.where2 = out[i*2+1] || ''; }); fiProgWrite(rows); fiProgRender(); };
+  } else if(kind === 'menu'){
+    const cs = fiMenuCourses();
+    cs.forEach(c=>{ items.push(c.name); c.dishes.forEach(d=> items.push(d)); if(c.name2 || (c.dishes2 || []).some(Boolean)) hasAlt = true; });
+    apply = out=>{ let k = 0; cs.forEach(c=>{ c.name2 = out[k++] || ''; c.dishes2 = c.dishes.map(()=> out[k++] || ''); }); fiMenuWrite(cs); fiMenuRender(); };
+  } else if(kind === 'note'){
+    const lines = document.getElementById('eiNotes').value.replace(/\r/g,'').split('\n');
+    const heads = lines.map(l=> /^\s*#/.test(l));   /* headings keep their # (it isn't sent for translation) */
+    items = lines.map(l=> l.replace(/^\s*#+\s*/, '')); hasAlt = !!eiVal('eiNotes2');
+    apply = out=>{ const t = out.map((x, i)=> (heads[i] ? '# ' : '') + String(x || '').replace(/^\s*#+\s*/, '')).join('\n'); document.getElementById('eiNotes2').value = t; eiAltSet({notes: t}); };
+  } else if(kind === 'welcome'){
+    items = [document.getElementById('eiWelcome').value, document.getElementById('eiVerse').value];
+    hasAlt = !!(eiVal('eiWelcome2') || eiVal('eiVerse2'));
+    apply = out=>{ document.getElementById('eiWelcome2').value = out[0] || ''; document.getElementById('eiVerse2').value = out[1] || ''; eiAltSet({welcome: out[0] || '', verse: out[1] || ''}); };
+  }
+  if(!items.some(x=> String(x || '').trim())){ toast('Type it in ' + (eiMainLang() === 'af' ? 'Afrikaans' : 'English') + ' first, then tap Translate.'); return; }
+  if(hasAlt && !confirm('Replace your ' + eiOtherName() + ' version with a new translation?')) return;
+  const was = btn.textContent; btn.disabled = true; btn.textContent = 'Translating…';
+  try{
+    const out = await eiTranslateCall(items, kind);
+    apply(out);
+    toast('Translated. Read it through and change anything that doesn’t sound right.', 7000);
+  }catch(err){
+    const m = err && err.message;
+    toast(m === 'signin' ? 'Sign in to use Translate.' :
+          m === 'premium' ? 'Translate is part of Premium. You can still type the ' + eiOtherName() + ' yourself.' :
+          m === 'limit' ? 'That’s today’s 30 translations used up. Try again tomorrow, or type it yourself.' :
+          m === 'toolong' ? 'That’s too much text to translate at once. Try a shorter piece.' :
+          'Translate isn’t available right now. Please try again later, or type it yourself.', 8000);
+  }
+  btn.disabled = false; btn.textContent = was; eiBiApply();
+}));
 
 /* ---------- the DJ's private link ---------- */
 function eiDjNewKey(){
@@ -10469,11 +10592,21 @@ function fiUndoToast(msg, fieldId, before, rerender){
   el.appendChild(u);
 }
 /* programme */
+/* the second language (bilingual guest pages) lives in #eiAlt as JSON, line for line with the main text */
+function eiAltGet(){ try{ return JSON.parse(document.getElementById('eiAlt').value || '{}') || {}; }catch(e){ return {}; } }
+function eiAltSet(patch){ const a = Object.assign(eiAltGet(), patch); fiSync('eiAlt', JSON.stringify(a)); }
 function fiProgRows(){
-  return splitLines(document.getElementById('eiProgram').value).map(l=>{ const [time, rest] = splitPair(l); const p = rest.split('|'); return {time, what:(p[0]||'').trim(), where:p.slice(1).join(' | ').trim()}; });
+  const alt = eiAltGet().program || [];
+  return splitLines(document.getElementById('eiProgram').value).map((l, i)=>{ const [time, rest] = splitPair(l); const p = rest.split('|'); const a = alt[i] || {}; return {time, what:(p[0]||'').trim(), where:p.slice(1).join(' | ').trim(), what2:a.what || '', where2:a.where || ''}; });
 }
 function fiProgWrite(rows){
-  fiSync('eiProgram', rows.filter(r=> r.what.trim() || r.time.trim()).map(r=> (r.time.trim() + ' | ' + r.what.trim() + (r.where.trim() ? ' | ' + r.where.trim() : ''))).join('\n'));
+  const keep = rows.filter(r=> r.what.trim() || r.time.trim());
+  fiSync('eiProgram', keep.map(r=> (r.time.trim() + ' | ' + r.what.trim() + (r.where.trim() ? ' | ' + r.where.trim() : ''))).join('\n'));
+  eiAltSet({program: keep.map(r=> ({what:(r.what2 || '').trim(), where:(r.where2 || '').trim()}))});
+}
+function fiProgReadBox(box){
+  return [...box.querySelectorAll('.fi-row')].map(r=> ({time:r.children[0].value, what:r.children[1].value, where:r.children[2].value,
+    what2:(r.querySelector('.fi-alt-what') || {}).value || '', where2:(r.querySelector('.fi-alt-where') || {}).value || ''}));
 }
 /* minutes since the start of the day; times before 06:00 count as after midnight (00:30 comes after 22:00) */
 function fiTimeKey(t){
@@ -10494,7 +10627,7 @@ function fiProgRender(addBlank, focusSel){
   const box = document.getElementById('fiProgram'); box.innerHTML = '';
   const rows = fiProgRows(); if(!rows.length || addBlank) rows.push({time:'', what:'', where:''});
   const focusLast = addBlank;
-  const read = ()=> [...box.querySelectorAll('.fi-row')].map(r=> ({time:r.children[0].value, what:r.children[1].value, where:r.children[2].value}));
+  const read = ()=> fiProgReadBox(box);
   const sortBox = document.getElementById('fiProgSort');
   const checkOrder = ()=> sortBox.classList.toggle('show', fiProgOutOfOrder(read()));
   const save = ()=>{ fiProgWrite(read()); checkOrder(); };
@@ -10516,7 +10649,12 @@ function fiProgRender(addBlank, focusSel){
     mv.append(up, dn);
     [t, w, p].forEach(x=> x.addEventListener('input', e=>{ e.stopPropagation(); save(); }));
     d.addEventListener('click', ()=>{ const before = document.getElementById('eiProgram').value; row.remove(); save(); fiProgRender(); if(r.what || r.time) fiUndoToast('Item removed.', 'eiProgram', before, ()=> fiProgRender()); });
-    row.append(t, w, p, mv, d); box.appendChild(row);
+    const alt = document.createElement('div'); alt.className = 'fi-alt';
+    const tag = document.createElement('span'); tag.className = 'fi-alt-tag'; tag.textContent = eiOtherLang().toUpperCase();
+    const w2 = fiInput('fi-alt-what', 'What, in ' + eiOtherName(), r.what2), p2 = fiInput('fi-alt-where', 'Where', r.where2);
+    [w2, p2].forEach(x=> x.addEventListener('input', e=>{ e.stopPropagation(); save(); }));
+    alt.append(tag, w2, p2);
+    row.append(t, w, p, mv, d, alt); box.appendChild(row);
   });
   checkOrder();
   if(focusLast){ const l = box.querySelector('.fi-row:last-child .fi-time'); if(l) l.focus(); }
@@ -10524,7 +10662,7 @@ function fiProgRender(addBlank, focusSel){
 }
 document.getElementById('fiProgSortBtn').addEventListener('click', ()=>{
   const box = document.getElementById('fiProgram');
-  const all = [...box.querySelectorAll('.fi-row')].map(r=> ({time:r.children[0].value, what:r.children[1].value, where:r.children[2].value}));
+  const all = fiProgReadBox(box);
   const before = document.getElementById('eiProgram').value;
   fiProgWrite(fiProgSorted(all)); fiProgRender();
   toast('Programme put in time order.', 7000);
@@ -10536,23 +10674,28 @@ document.getElementById('fiProgSortBtn').addEventListener('click', ()=>{
 document.getElementById('fiProgramAdd').addEventListener('click', ()=> fiProgRender(true));
 /* menu */
 function fiMenuCourses(){
-  const out = [];
-  splitLines(document.getElementById('eiMenu').value).forEach(l=>{
-    if(l.charAt(0) === '#') out.push({name:l.replace(/^#+\s*/, ''), dishes:[]});
-    else { if(!out.length) out.push({name:'', dishes:[]}); out[out.length - 1].dishes.push(l); }
+  const out = [], alt = eiAltGet().menu || [];
+  splitLines(document.getElementById('eiMenu').value).forEach((l, i)=>{
+    if(l.charAt(0) === '#') out.push({name:l.replace(/^#+\s*/, ''), name2:alt[i] || '', dishes:[], dishes2:[]});
+    else { if(!out.length) out.push({name:'', name2:'', dishes:[], dishes2:[]}); out[out.length - 1].dishes.push(l); out[out.length - 1].dishes2.push(alt[i] || ''); }
   });
   return out;
 }
 function fiMenuWrite(courses){
-  const lines = [];
-  courses.forEach(c=>{ const ds = c.dishes.map(d=> d.trim()).filter(Boolean); if(c.name.trim()) lines.push('# ' + c.name.trim()); else if(!ds.length) return; ds.forEach(d=> lines.push(d)); });
+  const lines = [], alt = [];
+  courses.forEach(c=>{
+    const ds = []; c.dishes.forEach((d, i)=>{ if(d.trim()) ds.push([d.trim(), ((c.dishes2 || [])[i] || '').trim()]); });
+    if(c.name.trim()){ lines.push('# ' + c.name.trim()); alt.push((c.name2 || '').trim()); } else if(!ds.length) return;
+    ds.forEach(([d, d2])=>{ lines.push(d); alt.push(d2); });
+  });
   fiSync('eiMenu', lines.join('\n'));
+  eiAltSet({menu: alt});
 }
 function fiMenuRender(addBlank){
   const box = document.getElementById('fiMenu'); box.innerHTML = '';
   let courses = fiMenuCourses(); if(!courses.length || addBlank) courses.push({name:'', dishes:['']});
   const focus = addBlank;
-  const save = ()=> fiMenuWrite([...box.querySelectorAll('.fi-course')].map(c=> ({name:c.querySelector('.fi-cname').value, dishes:[...c.querySelectorAll('.fi-dish')].map(x=> x.value)})));
+  const save = ()=> fiMenuWrite([...box.querySelectorAll('.fi-course')].map(c=> ({name:c.querySelector('.fi-cname').value, name2:c.querySelector('.fi-cname2').value, dishes:[...c.querySelectorAll('.fi-dish')].map(x=> x.value), dishes2:[...c.querySelectorAll('.fi-dish2')].map(x=> x.value)})));
   courses.forEach((c, ci)=>{
     const card = document.createElement('div'); card.className = 'fi-course';
     const hd = document.createElement('div'); hd.className = 'fi-chead';
@@ -10561,17 +10704,27 @@ function fiMenuRender(addBlank){
     cn.addEventListener('input', e=>{ e.stopPropagation(); save(); });
     cd.addEventListener('click', ()=>{ const before = document.getElementById('eiMenu').value; card.remove(); save(); fiMenuRender(); if(c.dishes.join('') + c.name) fiUndoToast('Course removed.', 'eiMenu', before, ()=> fiMenuRender()); });
     hd.append(cn, cd); card.appendChild(hd);
+    { const a = document.createElement('div'); a.className = 'fi-alt';
+      const tg = document.createElement('span'); tg.className = 'fi-alt-tag'; tg.textContent = eiOtherLang().toUpperCase();
+      const c2 = fiInput('fi-cname2', 'Course, in ' + eiOtherName(), c.name2, 60); c2.addEventListener('input', e=>{ e.stopPropagation(); save(); });
+      a.append(tg, c2); card.appendChild(a); }
     const list = document.createElement('div'); list.className = 'fi-dishes';
-    const addDish = (val, i)=>{
+    const addDish = (val, i, val2)=>{
+      const wrapD = document.createElement('div'); wrapD.className = 'fi-dwrap';
       const r = document.createElement('div'); r.className = 'fi-drow';
       const dIn = fiInput('fi-dish', i === 0 ? 'Dish, e.g. Butternut soup' : 'Dish', val, 120);
       const dd = fiDel('Remove this dish');
       dIn.addEventListener('input', e=>{ e.stopPropagation(); save(); });
       dIn.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); const n = addDish('', 1); n.focus(); } });
-      dd.addEventListener('click', ()=>{ r.remove(); save(); });
-      r.append(dIn, dd); list.appendChild(r); return dIn;
+      dd.addEventListener('click', ()=>{ wrapD.remove(); save(); });
+      r.append(dIn, dd);
+      const a = document.createElement('div'); a.className = 'fi-alt';
+      const tg = document.createElement('span'); tg.className = 'fi-alt-tag'; tg.textContent = eiOtherLang().toUpperCase();
+      const d2 = fiInput('fi-dish2', 'Dish, in ' + eiOtherName(), val2 || '', 120); d2.addEventListener('input', e=>{ e.stopPropagation(); save(); });
+      a.append(tg, d2);
+      wrapD.append(r, a); list.appendChild(wrapD); return dIn;
     };
-    (c.dishes.length ? c.dishes : ['']).forEach((d, i)=> addDish(d, i));
+    (c.dishes.length ? c.dishes : ['']).forEach((d, i)=> addDish(d, i, (c.dishes2 || [])[i]));
     const ad = document.createElement('button'); ad.type = 'button'; ad.className = 'fi-link'; ad.textContent = '+ Add a dish';
     ad.addEventListener('click', ()=> addDish('', 1).focus());
     card.append(list, ad); box.appendChild(card);
@@ -10864,7 +11017,7 @@ async function waitForPremium(){
   }
 })();
 const PLAN_NAMES = ['Free', 'Premium', 'Full planner'];
-const PLAN_PRICE = ['Free', 'R299 once-off, up to 4 events', 'Full planner'];
+const PLAN_PRICE = ['Free', 'R299 once-off, up to 4 events', 'Planning tools, in beta'];
 const PLAN_LINES = [
   'Seating chart, floor plan, guest page and QR code',
   'Adds programme, menu, a note from you, gifts, photos, song requests and links to your guest page',
@@ -10971,7 +11124,7 @@ function openAccessModal(need, what){
   else if(accessHad) line += ' — your last plan has ended';
   document.getElementById('accessPlanNow').textContent = line;
   document.getElementById('accessPlans').innerHTML = PLAN_NAMES.map((nm,i)=> (i === 2 && cur < 2) ? '' :
-    '<div class="plan-row' + (i === cur ? ' now' : '') + (i === accessNeed ? ' need' : '') + '"><b>' + (i <= cur ? '✓ ' : '🔒 ') + nm + ' <small style="font-weight:600; color:var(--ink-soft);">&middot; ' + PLAN_PRICE[i] + '</small></b><span>' + PLAN_LINES[i] + '</span>' + (i > 0 ? '<a href="#" class="plan-more" data-plan="' + i + '">More info</a>' : '') + '</div>').join('');
+    '<div class="plan-row' + (i === cur ? ' now' : '') + (accessNeed > 0 && i === accessNeed ? ' need' : '') + '"><b>' + (i <= cur ? '✓ ' : '🔒 ') + nm + ' <small style="font-weight:600; color:var(--ink-soft);">&middot; ' + PLAN_PRICE[i] + '</small></b><span>' + PLAN_LINES[i] + '</span>' + (i > 0 ? '<a href="#" class="plan-more" data-plan="' + i + '">More info</a>' : '') + '</div>').join('');
   // Show buy buttons for plans the user doesn't have yet
   const row = document.getElementById('accessBuyRow');
   if(signedIn && (cur < 1 || (cur === 1 && accessEventsMax != null && premLeft() <= 1))){
