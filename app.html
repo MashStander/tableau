@@ -2640,7 +2640,7 @@
     <details id="eiLabelsSection" class="ei-block" data-sec="language" open>
       <summary style="cursor:pointer; font-size:13px; font-weight:600; color:var(--ink); user-select:none;">🌍 Guest page language <span style="font-weight:400; color:var(--ink-soft);">(English or Afrikaans)</span></summary>
       <div style="margin-top:12px; font-size:13px; color:var(--ink-soft); line-height:1.5; margin-bottom:10px;">
-        Choose English or Afrikaans and every label on your guest page changes. Want different words? Choose <b>My own words</b> and type them in below. Blank boxes show the English label.
+        Choose English or Afrikaans and every label on your guest page changes. Want different words? Just change any of the words below.
       </div>
       <div class="ei-lang-note">&#127757; While your planning dashboard stays in English, you can preview your guest page in your chosen language <span class="ei-on-wide">using the live preview on the right.</span><span class="ei-on-narrow">with <b>Open preview in a new tab</b> at the top of this page.</span></div>
       <div style="margin-bottom:12px;">
@@ -9970,7 +9970,9 @@ function openEventInfoModal(){
     const same = cur.every((v, i)=> !v || v === (set[LABEL_KEYS[i][0]] || ''));
     sel.dataset.base = l;
     sel.value = (info.labelLang && !LABEL_LANGS[info.labelLang]) ? 'own' : (same ? l : 'own');
-    if(cur.every(v=> !v) && info.labelLang !== 'af') sel.value = 'en'; }
+    if(cur.every(v=> !v) && info.labelLang !== 'af') sel.value = 'en';
+    /* show the words guests will see in every box (not just a grey hint), so she only changes the ones she wants */
+    LABEL_KEYS.forEach(([k, id])=>{ const el = document.getElementById(id); if(el && !el.value.trim()) el.value = set[k] || ''; }); }
   const im = info.images || {};
   eiImages = {cover:(im.cover||[]).slice(), program:(im.program||[]).slice(), menu:(im.menu||[]).slice(), notes:(im.notes||[]).slice(), bank:(im.bank||[]).slice()};
   eiNewPaths = []; eiRemoved = []; eiBusy = 0;
@@ -10267,7 +10269,7 @@ document.getElementById('btnEventInfo').addEventListener('click', openEventInfoM
 /* ---- Guest page language: fill all section labels at once ---- */
 const LABEL_KEYS = [['seat','eiLabelSeat'],['program','eiLabelProgram'],['menu','eiLabelMenu'],['notes','eiLabelNotes'],['songs','eiLabelSongs'],['gifts','eiLabelGifts'],['photos','eiLabelPhotos'],['links','eiLabelLinks'],['tablemates','eiLabelTableMates']];
 const LABEL_LANGS = {
-  en:  {seat:'', program:'', menu:'', notes:"", songs:"", gifts:'', photos:'', links:'', tablemates:''},
+  en:  {seat:'Find my seat', program:'Programme', menu:'Menu', notes:'A note from us', songs:'Song requests', gifts:'Gifts', photos:'Photos & videos', links:'Links & info', tablemates:'Sitting at this table'},
   af:  {seat:'Vind my sitplek', program:'Program', menu:'Spyskaart', notes:"'n Boodskap van ons", songs:"Liedjieversoeke", gifts:'Geskenke', photos:"Foto's en video's", links:'Skakels en inligting', tablemates:'Gaste aan hierdie tafel'},
   zu:  {seat:'Thola isihlalo sami', program:'Uhlelo', menu:'Imenyu', notes:"", songs:"", gifts:'Izipho', photos:'Izithombe namavidiyo', links:'Izixhumanisi nolwazi', tablemates:'Abahlezi kuleli tafula'},
   xh:  {seat:'Fumana isihlalo sam', program:'Inkqubo', menu:'Imenyu', notes:"", songs:"", gifts:'Izipho', photos:'Iifoto neevidiyo', links:'Amakhonkco nolwazi', tablemates:'Abahlala kule tafile'},
