@@ -790,7 +790,7 @@
   #allTablesModal .at-card{width:min(1180px, 96vw) !important; max-width:none !important; max-height:92vh; overflow:auto;}
   .at-head{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;}
   .at-sum{font-size:13px; color:var(--ink-soft); margin-top:4px;}
-  .at-btns{display:flex; gap:8px;}
+  .at-btns{display:flex; gap:8px; flex-wrap:wrap;}
   .at-hint{font-size:12.5px; color:var(--ink-soft); margin:8px 0 14px;}
   .at-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:12px; align-items:start;}
   .at-table{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px; break-inside:avoid;}
@@ -2214,7 +2214,7 @@
     <div id="mainViewSwitch">
       <button class="view-tab active" id="viewTabSeating">Seating chart</button>
       <button class="view-tab" id="viewTabFloorPlan">Floor plan</button>
-      <button class="view-tab view-tab-all" id="btnAllTables" title="See every table and who sits there, on one page">View all tables</button>
+      <button class="view-tab view-tab-all" id="btnAllTables" title="See every table and who sits there on one page, print it or export it to Excel">View &amp; export tables</button>
       <span class="cloud-status" id="cloudStatus"></span>
     </div>
 
@@ -3103,6 +3103,7 @@
     <div class="at-head">
       <div><h3 style="margin:0;">All tables</h3><div class="at-sum" id="atSum"></div></div>
       <div class="at-btns">
+        <button type="button" class="ghost-btn" id="atExcel" title="Download every table and guest as an Excel file">Export to Excel</button>
         <button type="button" class="ghost-btn" id="atPrint">Print</button>
         <button type="button" class="primary-btn" id="atClose">Close</button>
       </div>
@@ -9395,6 +9396,70 @@ function openAllTables(){
 document.getElementById('btnAllTables').addEventListener('click', openAllTables);
 document.getElementById('atClose').addEventListener('click', ()=> document.getElementById('allTablesModal').classList.add('hidden'));
 document.getElementById('allTablesModal').addEventListener('click', e=>{ if(e.target.id === 'allTablesModal') e.target.classList.add('hidden'); });
+/* ---------- Export all tables to Excel (.xlsx, built here — no extra library) ---------- */
+function xlsxEsc(v){ return String(v==null?'':v).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,''); }
+function xlsxCol(i){ let s=''; i++; while(i>0){ const m=(i-1)%26; s=String.fromCharCode(65+m)+s; i=Math.floor((i-1)/26); } return s; }
+function xlsxSheet(rows, widths){
+  const cols = '<cols>' + widths.map((w,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join('') + '</cols>';
+  const body = rows.map((r,ri)=> '<row r="'+(ri+1)+'">' + r.map((v,ci)=>{
+    const ref = xlsxCol(ci)+(ri+1), st = ri===0 ? ' s="1"' : '';
+    if(typeof v === 'number') return '<c r="'+ref+'"'+st+'><v>'+v+'</v></c>';
+    return '<c r="'+ref+'" t="inlineStr"'+st+'><is><t xml:space="preserve">'+xlsxEsc(v)+'</t></is></c>';
+  }).join('') + '</row>').join('');
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>' + cols + '<sheetData>' + body + '</sheetData></worksheet>';
+}
+const XLSX_CRC = (()=>{ const t=new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c>>>0; } return t; })();
+function xlsxCrc(b){ let c=0xFFFFFFFF; for(let i=0;i<b.length;i++) c = XLSX_CRC[(c^b[i])&255]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+function xlsxZip(files){
+  const enc = new TextEncoder(), parts=[], central=[]; let off=0;
+  files.forEach(f=>{
+    const name=enc.encode(f.name), data=enc.encode(f.data), crc=xlsxCrc(data);
+    const h=new DataView(new ArrayBuffer(30));
+    h.setUint32(0,0x04034b50,true); h.setUint16(4,20,true); h.setUint16(8,0,true);
+    h.setUint32(14,crc,true); h.setUint32(18,data.length,true); h.setUint32(22,data.length,true); h.setUint16(26,name.length,true);
+    parts.push(new Uint8Array(h.buffer), name, data);
+    const c=new DataView(new ArrayBuffer(46));
+    c.setUint32(0,0x02014b50,true); c.setUint16(4,20,true); c.setUint16(6,20,true);
+    c.setUint32(16,crc,true); c.setUint32(20,data.length,true); c.setUint32(24,data.length,true); c.setUint16(28,name.length,true); c.setUint32(42,off,true);
+    central.push(new Uint8Array(c.buffer), name);
+    off += 30 + name.length + data.length;
+  });
+  const cdSize = central.reduce((a,b)=>a+b.length,0);
+  const e=new DataView(new ArrayBuffer(22));
+  e.setUint32(0,0x06054b50,true); e.setUint16(8,files.length,true); e.setUint16(10,files.length,true); e.setUint32(12,cdSize,true); e.setUint32(16,off,true);
+  return new Blob([...parts, ...central, new Uint8Array(e.buffer)], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+function exportAllTablesExcel(){
+  const sideOrder = s=> ({top:0, right:1, bottom:2, left:3}[s] ?? 4);
+  const byTable = [['Table','Seat','Guest','Group']];
+  const tableOf = {};
+  state.tables.forEach(t=>{
+    const gs = state.guests.filter(g=> g.seat && g.seat.tableId === t.id)
+      .sort((a,b)=> (sideOrder(a.seat.side) - sideOrder(b.seat.side)) || ((a.seat.index||0) - (b.seat.index||0)));
+    gs.forEach((g,i)=>{ byTable.push([t.name, i+1, g.name, groupOf(g).name || '']); tableOf[g.id] = t.name; });
+    if(!gs.length) byTable.push([t.name, '', '(nobody seated yet)', '']);
+  });
+  const unseated = state.guests.filter(g=> !g.seat).sort((a,b)=> a.name.localeCompare(b.name));
+  unseated.forEach(g=> byTable.push(['Not seated yet', '', g.name, groupOf(g).name || '']));
+  const az = [['Guest','Table','Group']];
+  state.guests.slice().sort((a,b)=> a.name.localeCompare(b.name)).forEach(g=> az.push([g.name, tableOf[g.id] || 'Not seated yet', groupOf(g).name || '']));
+  const files = [
+    {name:'[Content_Types].xml', data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'},
+    {name:'_rels/.rels', data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'},
+    {name:'xl/workbook.xml', data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="By table" sheetId="1" r:id="rId1"/><sheet name="Guests A-Z" sheetId="2" r:id="rId2"/></sheets></workbook>'},
+    {name:'xl/_rels/workbook.xml.rels', data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'},
+    {name:'xl/styles.xml', data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>'},
+    {name:'xl/worksheets/sheet1.xml', data: xlsxSheet(byTable, [22,7,30,22])},
+    {name:'xl/worksheets/sheet2.xml', data: xlsxSheet(az, [30,22,22])}
+  ];
+  const base = ((state.projectName || state.eventName || '').trim() || 'tables').replace(/[^a-z0-9\-_ &]/gi,'').trim() || 'tables';
+  const url = URL.createObjectURL(xlsxZip(files));
+  const a = document.createElement('a'); a.href = url; a.download = base + ' - tables.xlsx';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=> URL.revokeObjectURL(url), 4000);
+  toast('Excel file downloaded.');
+}
+document.getElementById('atExcel').addEventListener('click', exportAllTablesExcel);
 document.getElementById('atPrint').addEventListener('click', ()=>{
   document.body.classList.add('printing-tables');
   const done = ()=>{ document.body.classList.remove('printing-tables'); window.removeEventListener('afterprint', done); };
